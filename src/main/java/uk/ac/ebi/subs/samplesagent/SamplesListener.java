@@ -1,4 +1,4 @@
-package uk.ac.ebi.subs.samplesagent.messaging;
+package uk.ac.ebi.subs.samplesagent;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -9,7 +9,7 @@ import uk.ac.ebi.subs.messaging.Channels;
 import java.util.List;
 
 @Service
-public class SubmissionReceiver {
+public class SamplesListener {
 
     private static int i = 0;
 
