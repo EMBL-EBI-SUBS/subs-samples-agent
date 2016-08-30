@@ -25,7 +25,7 @@ public class SamplesListenerConfiguration implements RabbitListenerConfigurer {
     }
 
     @Bean
-    private MappingJackson2MessageConverter jackson2Converter() {
+    public MappingJackson2MessageConverter jackson2Converter() {
         return new MappingJackson2MessageConverter();
     }
 }

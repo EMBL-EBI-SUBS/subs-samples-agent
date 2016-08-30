@@ -1,10 +1,14 @@
 package uk.ac.ebi.subs.samplesagent;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.data.submittable.Submission;
 import uk.ac.ebi.subs.messaging.Channels;
+import uk.ac.ebi.subs.samplesrepo.SampleService;
 
 import java.util.List;
 
@@ -13,34 +17,43 @@ public class SamplesListener {
 
     private static int i = 0;
 
+    private RabbitMessagingTemplate rabbitTemplate;
+
+    private SampleService sampleService;
+
+    @Autowired
+    public SamplesListener(RabbitMessagingTemplate rabbitTemplate, MessageConverter messageConverter) {
+        this.rabbitTemplate = rabbitTemplate;
+        this.rabbitTemplate.setMessageConverter(messageConverter);
+    }
+
+    @Autowired
+    public void setSampleService(SampleService sampleService) {
+        this.sampleService = sampleService;
+    }
+
     @RabbitListener(queues = Channels.SAMPLES_PROCESSING)
     public void handleSubmission(Submission submission) {
 
-        boolean status = handleSamples(submission); // setting accessions
+        List<Sample> samples = handleSamples(submission); // Accessioning samples
 
-        //TODO save submission
+        if(!samples.isEmpty()) {
+            sampleService.saveSamples(samples);
+        }
 
-
-        //TODO send back to SUBMISSION_PROCESSED queue
-        String targetQueue = Channels.SUBMISSION_PROCESSED;
-
+        //Send back to SUBMISSION_PROCESSED queue
+        rabbitTemplate.convertAndSend(Channels.SUBMISSION_PROCESSED, submission);
     }
 
-    private boolean handleSamples(Submission submission) {
-        try {
-            List<Sample> samples = submission.getSamples();
-            if (!samples.isEmpty()) {
-                for (Sample sample : samples) {
-                    sample.setAccession(generateSampleAccession());
-                }
-                return true;
-            } else {
-                return true;
+    public List<Sample> handleSamples(Submission submission) {
+
+        List<Sample> samples = submission.getSamples();
+        if (!samples.isEmpty()) {
+            for (Sample sample : samples) {
+                sample.setAccession(generateSampleAccession());
             }
-        } catch (Exception e) {
-            System.out.println(e.getStackTrace());
-            return false;
         }
+        return samples;
     }
 
     private String generateSampleAccession() {
