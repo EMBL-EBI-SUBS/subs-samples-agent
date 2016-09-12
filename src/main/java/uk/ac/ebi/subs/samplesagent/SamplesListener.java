@@ -15,12 +15,12 @@ import java.util.List;
 @Service
 public class SamplesListener {
 
-    private static int i = 0;
-
     @Autowired
     private SampleRepository repository;
 
     private RabbitMessagingTemplate rabbitTemplate;
+
+    private static int i = 0;
 
     @Autowired
     public SamplesListener(RabbitMessagingTemplate rabbitTemplate, MessageConverter messageConverter) {
@@ -31,26 +31,18 @@ public class SamplesListener {
     @RabbitListener(queues = Channels.SAMPLES_PROCESSING)
     public void handleSubmission(Submission submission) {
 
-        List<Sample> samples = handleSamples(submission); // Accessioning samples
+        processSamples(submission);
 
-        if(!samples.isEmpty()) {
-            repository.save(samples);
-        }
-
-        //Send back to SUBMISSION_PROCESSED queue
         rabbitTemplate.convertAndSend(Channels.SUBMISSION_PROCESSED, submission);
     }
 
-    public List<Sample> handleSamples(Submission submission) {
-
+    private void processSamples(Submission submission) {
         List<Sample> samples = submission.getSamples();
-        if (!samples.isEmpty()) {
-            for (Sample sample : samples) {
-                sample.setAccession(generateSampleAccession());
-            }
-        }
-        return samples;
+        samples.forEach(sample -> sample.setAccession(generateSampleAccession()));
+
+        repository.save(samples);
     }
+
 
     private String generateSampleAccession() {
         return "S" + ++i;
