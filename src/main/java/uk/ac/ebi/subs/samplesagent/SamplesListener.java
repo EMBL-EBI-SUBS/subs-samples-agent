@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.data.submittable.Submission;
 import uk.ac.ebi.subs.messaging.Channels;
-import uk.ac.ebi.subs.samplesrepo.SampleService;
+import uk.ac.ebi.subs.samplesrepo.SampleRepository;
 
 import java.util.List;
 
@@ -17,19 +17,15 @@ public class SamplesListener {
 
     private static int i = 0;
 
-    private RabbitMessagingTemplate rabbitTemplate;
+    @Autowired
+    private SampleRepository repository;
 
-    private SampleService sampleService;
+    private RabbitMessagingTemplate rabbitTemplate;
 
     @Autowired
     public SamplesListener(RabbitMessagingTemplate rabbitTemplate, MessageConverter messageConverter) {
         this.rabbitTemplate = rabbitTemplate;
         this.rabbitTemplate.setMessageConverter(messageConverter);
-    }
-
-    @Autowired
-    public void setSampleService(SampleService sampleService) {
-        this.sampleService = sampleService;
     }
 
     @RabbitListener(queues = Channels.SAMPLES_PROCESSING)
@@ -38,7 +34,7 @@ public class SamplesListener {
         List<Sample> samples = handleSamples(submission); // Accessioning samples
 
         if(!samples.isEmpty()) {
-            sampleService.saveSamples(samples);
+            repository.save(samples);
         }
 
         //Send back to SUBMISSION_PROCESSED queue
