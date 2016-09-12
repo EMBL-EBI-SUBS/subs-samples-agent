@@ -2,7 +2,6 @@ package uk.ac.ebi.subs.samplesrepo;
 
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.subs.data.submittable.Sample;
@@ -11,16 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = SamplesRepositoryTestConfiguration.class)
 @TestPropertySource(locations = "classpath:test.properties") // Used to override the properties set on application.properties
 public class SamplesRepositoryTest {
 
-    private SampleService sampleService;
-
     @Autowired
-    public void setSampleService(SampleService sampleService) {
-        this.sampleService = sampleService;
-    }
+    private SampleRepository repository;
+
 /*
     @Test
     public void testSaveSample() {
