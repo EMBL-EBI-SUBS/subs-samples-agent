@@ -3,6 +3,7 @@ package uk.ac.ebi.subs.samplesrepo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
@@ -10,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-
-public class SamplesRepositoryTest {
+@ContextConfiguration(classes = {SampleRepositoryTestConfiguration.class})
+public class SampleRepositoryTest {
 
     @Autowired
-    private SampleRepository repository;
+    SampleRepository repository;
 
     @Test
     public void testSaveSample() {
