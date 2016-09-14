@@ -1,53 +1,23 @@
 package uk.ac.ebi.subs.samplesrepo;
 
-import com.mongodb.MongoClient;
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
-import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
-import de.flapdoodle.embed.mongo.config.Net;
-import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.runtime.Network;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 @RunWith(SpringJUnit4ClassRunner.class)
-//@EnableMongoRepositories(basePackageClasses = SampleRepository.class)
-@ContextConfiguration
+@EnableMongoRepositories(basePackageClasses = SampleRepository.class)
+@SpringBootTest(classes = SampleRepositoryTestConfiguration.class)
 public class SampleRepositoryTest {
 
     @Autowired
     SampleRepository repository;
-
-    private static final MongodStarter starter = MongodStarter.getDefaultInstance();
-
-    private static MongodExecutable executable;
-    private static MongodProcess process;
-
-    private static MongoClient client;
-
-    @BeforeClass
-    public static void setUp() throws Exception {
-        executable = starter.prepare(new MongodConfigBuilder()
-                .version(Version.Main.V3_2)
-                .net(new Net(12345, Network.localhostIsIPv6()))
-                .build());
-
-        process = executable.start();
-
-        client = new MongoClient("localhost", 12345);
-    }
 
     @Test
     public void testSaveSample() {
@@ -69,12 +39,6 @@ public class SampleRepositoryTest {
     public void testGetAllSamples() {
         List<Sample> samples = repository.findAll();
         System.out.println(samples);
-    }
-
-    @AfterClass
-    public static void tearDown() throws Exception {
-        client.close();
-        process.stop();
     }
 
     private Sample generateTestSample() {
