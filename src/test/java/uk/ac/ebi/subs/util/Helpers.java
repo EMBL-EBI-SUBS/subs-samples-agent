@@ -1,6 +1,7 @@
-package uk.ac.ebi.subs.utils;
+package uk.ac.ebi.subs.util;
 
 import uk.ac.ebi.subs.data.submittable.Sample;
+import uk.ac.ebi.subs.data.submittable.Submission;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,14 @@ import java.util.List;
  * Set of helper methods to use in tests.
  */
 public class Helpers {
+
+    public static Sample generateTestSample() {
+        Sample sample = new Sample();
+        sample.setAccession("S1");
+        sample.setDescription("Test sample 1.");
+
+        return sample;
+    }
 
     public static List<Sample> generateTestSamples() {
         List<Sample> samples = new ArrayList<>();
@@ -24,4 +33,11 @@ public class Helpers {
 
         return samples;
     }
+
+    public static Submission generateTestSubmission() {
+        Submission sub = new Submission();
+        sub.setSamples(generateTestSamples());
+        return sub;
+    }
+
 }
