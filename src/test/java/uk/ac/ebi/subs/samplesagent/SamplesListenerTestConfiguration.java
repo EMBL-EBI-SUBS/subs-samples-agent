@@ -10,7 +10,7 @@ import org.springframework.messaging.handler.annotation.support.DefaultMessageHa
 
 @Configuration
 @EnableAutoConfiguration
-public class SamplesQueueListenerTestConfiguration implements RabbitListenerConfigurer {
+public class QueueListenerTestConfiguration implements RabbitListenerConfigurer {
 
     @Override
     public void configureRabbitListeners(RabbitListenerEndpointRegistrar registrar) {
