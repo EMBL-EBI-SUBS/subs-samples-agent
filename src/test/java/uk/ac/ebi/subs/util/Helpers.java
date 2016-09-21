@@ -42,6 +42,8 @@ public class Helpers {
     public static Submission generateTestSubmission() {
         Submission sub = new Submission();
         sub.setSamples(generateTestSamples());
+        sub.getSubmitter().setEmail("test@ebi.ac.uk");
+        sub.getDomain().setName("test-subs");
         return sub;
     }
 

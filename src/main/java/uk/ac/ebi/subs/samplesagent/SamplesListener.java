@@ -38,7 +38,10 @@ public class SamplesListener {
 
     private void processSamples(Submission submission) {
         List<Sample> samples = submission.getSamples();
-        samples.forEach(sample -> sample.setAccession(generateSampleAccession()));
+        samples.forEach(sample -> {
+            sample.setAccession(generateSampleAccession());
+            sample.setStatus("ok");
+        });
 
         repository.save(samples);
     }

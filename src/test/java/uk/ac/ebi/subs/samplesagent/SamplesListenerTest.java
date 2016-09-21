@@ -1,12 +1,18 @@
 package uk.ac.ebi.subs.samplesagent;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.subs.data.submittable.Submission;
+import uk.ac.ebi.subs.messaging.Channels;
 import uk.ac.ebi.subs.samplesrepo.SampleRepository;
 import uk.ac.ebi.subs.util.Helpers;
 
@@ -16,21 +22,44 @@ import uk.ac.ebi.subs.util.Helpers;
 public class SamplesListenerTest {
 
     @Autowired
-    private SamplesListener samplesListener;
+    SamplesListener samplesListener;
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    RabbitMessagingTemplate rabbitMessagingTemplate;
 
-    @Test
-    public void testSendMessage() {
-        // TODO
+    @Autowired
+    MessageConverter messageConverter;
 
+    @Autowired
+    MongoTemplate mongoTemplate;
+
+    Submission submission;
+    int messages = 0;
+
+    @Before
+    public void setUp() {
+        this.mongoTemplate.getCollection("sample").drop();
+        this.rabbitMessagingTemplate.setMessageConverter(messageConverter);
+
+        this.messages = 0;
+
+        submission = Helpers.generateTestSubmission();
     }
 
     @Test
-    public void testSubmissionHandler() {
-        mongoTemplate.getCollection("sample").drop();
-        samplesListener.handleSubmission(Helpers.generateTestSubmission());
+    public void testSubmissionHandler() throws InterruptedException {
+        samplesListener.handleSubmission(Helpers.generateTestSubmission()); // Test submission with 3 samples
+
+        Thread.sleep(1000);
+        System.out.println("Messages: " + messages);
+        System.out.println("Samples found in DB: " + mongoTemplate.getCollection("sample").count());
     }
 
+    @RabbitListener(queues = Channels.SUBMISSION_PROCESSED)
+    public void listener(Submission submission) {
+        synchronized (this) {
+            System.out.println(submission.toString());
+            System.out.println("Message received!");
+        }
+    }
 }
