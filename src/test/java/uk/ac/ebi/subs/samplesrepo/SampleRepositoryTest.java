@@ -1,5 +1,9 @@
 package uk.ac.ebi.subs.samplesrepo;
 
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +23,33 @@ public class SampleRepositoryTest {
     @Autowired
     SampleRepository repository;
 
+    private static MongoClient client;
+
+    @Before //This runs before each test
+    public void setUp() {
+        client = new MongoClient();
+        MongoDatabase db = client.getDatabase("test");
+        MongoCollection collection = db.getCollection("sample");
+        collection.drop();
+    }
+
     @Test
     public void testSaveSample() {
         repository.save(Helpers.generateTestSample());
     }
 
     @Test
-    public void testGetSampleByAccession() {
-        Sample sample = repository.findByAccession("S1");
-        System.out.println(sample);
+    public void testSaveMultipleSamples() {
+        repository.save(Helpers.generateTestSamples());
     }
 
     @Test
-    public void testSaveMultipleSamples() {
-        repository.save(Helpers.generateTestSamples());
+    public void testGetSampleByAccession() {
+        List<Sample> samples = Helpers.generateTestSamples();
+        repository.save(samples);
+
+        repository.findByAccession("S1");
+
     }
 
     @Test

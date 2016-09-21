@@ -13,14 +13,19 @@ public class Helpers {
 
     public static Sample generateTestSample() {
         Sample sample = new Sample();
-        sample.setAccession("S1");
-        sample.setDescription("Test sample 1.");
+        sample.setAccession("S0");
+        sample.setDescription("Test sample 0.");
 
         return sample;
     }
 
     public static List<Sample> generateTestSamples() {
         List<Sample> samples = new ArrayList<>();
+        Sample sample1 = new Sample();
+        sample1.setAccession("S1");
+        sample1.setDescription("Test sample 1.");
+        samples.add(sample1);
+
         Sample sample2 = new Sample();
         sample2.setAccession("S2");
         sample2.setDescription("Test sample 2.");
