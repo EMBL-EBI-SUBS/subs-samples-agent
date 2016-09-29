@@ -36,15 +36,11 @@ public class SamplesListener {
 
     @RabbitListener(queues = Queues.BIOSAMPLES_AGENT)
     public void handleSubmission(Submission submission) {
-//        logger.info("received submission {}",submission.getId());
-        logger.info("received submission {} {}",submission.getId(),submission.getLastHandler());
+        logger.info("received submission {}",submission.getId());
 
         processSamples(submission);
 
         logger.info("processed submission {}",submission.getId());
-
-        //TODO debug stuff
-        submission.setLastHandler(this.getClass().toString());
 
         rabbitTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_PROCESSED, submission);
 
