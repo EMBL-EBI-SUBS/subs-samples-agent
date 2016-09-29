@@ -9,7 +9,9 @@ import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.data.submittable.Submission;
-import uk.ac.ebi.subs.messaging.Channels;
+import uk.ac.ebi.subs.messaging.Exchanges;
+import uk.ac.ebi.subs.messaging.Queues;
+import uk.ac.ebi.subs.messaging.Topics;
 import uk.ac.ebi.subs.samplesrepo.SampleRepository;
 
 import java.util.List;
@@ -32,15 +34,19 @@ public class SamplesListener {
         this.rabbitTemplate.setMessageConverter(messageConverter);
     }
 
-    @RabbitListener(queues = Channels.SAMPLES_PROCESSING)
+    @RabbitListener(queues = Queues.BIOSAMPLES_AGENT)
     public void handleSubmission(Submission submission) {
-        logger.info("received submission {}",submission.getId());
+//        logger.info("received submission {}",submission.getId());
+        logger.info("received submission {} {}",submission.getId(),submission.getLastHandler());
 
         processSamples(submission);
 
         logger.info("processed submission {}",submission.getId());
 
-        rabbitTemplate.convertAndSend(Channels.SUBMISSION_PROCESSED, submission);
+        //TODO debug stuff
+        submission.setLastHandler(this.getClass().toString());
+
+        rabbitTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_PROCESSED, submission);
 
         logger.info("sent submission {}",submission.getId());
     }

@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.subs.data.submittable.Submission;
-import uk.ac.ebi.subs.messaging.Channels;
+import uk.ac.ebi.subs.messaging.Topics;
 import uk.ac.ebi.subs.samplesrepo.SampleRepository;
 import uk.ac.ebi.subs.util.Helpers;
 
@@ -55,7 +55,7 @@ public class SamplesListenerTest {
         System.out.println("Samples found in DB: " + mongoTemplate.getCollection("sample").count());
     }
 
-    @RabbitListener(queues = Channels.SUBMISSION_PROCESSED)
+    @RabbitListener(queues = Topics.EVENT_SUBMISSION_PROCESSED)
     public void listener(Submission submission) {
         synchronized (this) {
             System.out.println(submission.toString());
