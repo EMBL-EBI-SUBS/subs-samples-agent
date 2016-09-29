@@ -1,5 +1,7 @@
 package uk.ac.ebi.subs.samplesagent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,8 @@ import java.util.List;
 
 @Service
 public class SamplesListener {
+
+    private static final Logger logger = LoggerFactory.getLogger(SamplesListener.class);
 
     @Autowired
     private SampleRepository repository;
@@ -30,10 +34,15 @@ public class SamplesListener {
 
     @RabbitListener(queues = Channels.SAMPLES_PROCESSING)
     public void handleSubmission(Submission submission) {
+        logger.info("received submission {}",submission.getId());
 
         processSamples(submission);
 
+        logger.info("processed submission {}",submission.getId());
+
         rabbitTemplate.convertAndSend(Channels.SUBMISSION_PROCESSED, submission);
+
+        logger.info("sent submission {}",submission.getId());
     }
 
     private void processSamples(Submission submission) {
