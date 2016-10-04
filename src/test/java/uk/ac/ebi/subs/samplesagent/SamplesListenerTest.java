@@ -11,9 +11,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.subs.data.submittable.Submission;
+import uk.ac.ebi.subs.data.Submission;
+import uk.ac.ebi.subs.data.SubmissionEnvelope;
 import uk.ac.ebi.subs.messaging.Queues;
-import uk.ac.ebi.subs.messaging.Topics;
 import uk.ac.ebi.subs.samplesrepo.SampleRepository;
 import uk.ac.ebi.subs.util.Helpers;
 
@@ -49,7 +49,7 @@ public class SamplesListenerTest {
 
     @Test
     public void testSubmissionHandler() throws InterruptedException {
-        samplesListener.handleSubmission(Helpers.generateTestSubmission()); // Test submission with 3 samples
+        samplesListener.handleSubmission(new SubmissionEnvelope(Helpers.generateTestSubmission())); // Test submission with 3 samples
 
         Thread.sleep(1000);
         System.out.println("Messages: " + messages);

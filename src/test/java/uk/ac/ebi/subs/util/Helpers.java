@@ -1,7 +1,7 @@
 package uk.ac.ebi.subs.util;
 
 import uk.ac.ebi.subs.data.submittable.Sample;
-import uk.ac.ebi.subs.data.submittable.Submission;
+import uk.ac.ebi.subs.data.Submission;
 
 import java.util.ArrayList;
 import java.util.List;

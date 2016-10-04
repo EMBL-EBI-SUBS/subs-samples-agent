@@ -7,8 +7,10 @@ import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.subs.data.SubmissionEnvelope;
+import uk.ac.ebi.subs.data.component.Archive;
 import uk.ac.ebi.subs.data.submittable.Sample;
-import uk.ac.ebi.subs.data.submittable.Submission;
+import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
 import uk.ac.ebi.subs.messaging.Topics;
@@ -35,14 +37,18 @@ public class SamplesListener {
     }
 
     @RabbitListener(queues = Queues.BIOSAMPLES_AGENT)
-    public void handleSubmission(Submission submission) {
+    public void handleSubmission(SubmissionEnvelope submissionEnvelope) {
+        Submission submission = submissionEnvelope.getSubmission();
+
         logger.info("received submission {}",submission.getId());
 
         processSamples(submission);
 
+        submissionEnvelope.addHandler(Archive.Usi);
+
         logger.info("processed submission {}",submission.getId());
 
-        rabbitTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_PROCESSED, submission);
+        rabbitTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_PROCESSED, submissionEnvelope);
 
         logger.info("sent submission {}",submission.getId());
     }
