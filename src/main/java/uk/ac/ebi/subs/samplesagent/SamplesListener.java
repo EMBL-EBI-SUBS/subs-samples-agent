@@ -40,11 +40,13 @@ public class SamplesListener {
     public void handleSubmission(SubmissionEnvelope submissionEnvelope) {
         Submission submission = submissionEnvelope.getSubmission();
 
-        logger.info("received submission {}",submission.getId());
+        logger.info("received submission {}, most recent handler was ",
+                submission.getId(),
+                submissionEnvelope.mostRecentHandler());
 
         processSamples(submission);
 
-        submissionEnvelope.addHandler(Archive.Usi);
+        submissionEnvelope.addHandler(this.getClass());
 
         logger.info("processed submission {}",submission.getId());
 
