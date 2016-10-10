@@ -9,6 +9,7 @@ import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.subs.data.SubmissionEnvelope;
 import uk.ac.ebi.subs.data.component.Archive;
+import uk.ac.ebi.subs.data.component.SampleRef;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.messaging.Exchanges;
@@ -65,7 +66,20 @@ public class SamplesListener {
         repository.save(samples);
     }
 
+    protected void fillInSamples(SubmissionEnvelope envelope){
+        for (SampleRef sampleRef : envelope.getSupportingSamplesRequired()){
 
+            Sample sample = repository.findByAccession(sampleRef.getAccession());
+
+            if (sample != null){
+                envelope.getSupportingSamples().add(sample);
+            }
+
+        }
+
+
+        envelope.getSupportingSamplesRequired().clear();
+    }
 
 
     private String generateSampleAccession() {

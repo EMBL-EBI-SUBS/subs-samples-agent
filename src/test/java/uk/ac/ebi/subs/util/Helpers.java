@@ -1,5 +1,6 @@
 package uk.ac.ebi.subs.util;
 
+import uk.ac.ebi.subs.data.component.Domain;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.data.Submission;
 
@@ -35,6 +36,11 @@ public class Helpers {
         sample3.setAccession("S3");
         samples.add(sample3);
         sample3.setDescription("Test sample 3.");
+
+        Domain d = new Domain();
+        d.setName("sampleTestDomain");
+
+        samples.forEach(s -> s.setDomain(d));
 
         return samples;
     }

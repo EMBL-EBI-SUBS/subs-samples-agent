@@ -55,6 +55,7 @@ public class SamplesListenerTest {
         System.out.println("Messages: " + messages);
         System.out.println("Samples found in DB: " + mongoTemplate.getCollection("sample").count());
     }
+    
 
     @RabbitListener(queues = Queues.SUBMISSION_MONITOR)
     public void listener(Submission submission) {
