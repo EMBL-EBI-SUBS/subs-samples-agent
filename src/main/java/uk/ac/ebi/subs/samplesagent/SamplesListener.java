@@ -47,6 +47,8 @@ public class SamplesListener {
 
         processSamples(submission);
 
+        fillInSamples(submissionEnvelope);
+
         submissionEnvelope.addHandler(this.getClass());
 
         logger.info("processed submission {}",submission.getId());
@@ -60,7 +62,7 @@ public class SamplesListener {
         List<Sample> samples = submission.getSamples();
         samples.forEach(sample -> {
             sample.setAccession(generateSampleAccession());
-            sample.setStatus("ok");
+            sample.setStatus("processed");
         });
 
         repository.save(samples);
@@ -76,7 +78,6 @@ public class SamplesListener {
             }
 
         }
-
 
         envelope.getSupportingSamplesRequired().clear();
     }
