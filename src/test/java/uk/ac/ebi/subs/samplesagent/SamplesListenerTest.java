@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.SubmissionEnvelope;
 import uk.ac.ebi.subs.messaging.Queues;
+import uk.ac.ebi.subs.processing.AgentResults;
 import uk.ac.ebi.subs.samplesrepo.SampleRepository;
 import uk.ac.ebi.subs.util.Helpers;
 
@@ -58,7 +59,7 @@ public class SamplesListenerTest {
     
 
     @RabbitListener(queues = Queues.SUBMISSION_MONITOR)
-    public void listener(Submission submission) {
+    public void listener(AgentResults agentResults) {
         synchronized (this) {
             System.out.println(submission.toString());
             System.out.println("Message received!");

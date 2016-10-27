@@ -15,8 +15,12 @@ import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
 import uk.ac.ebi.subs.messaging.Topics;
+import uk.ac.ebi.subs.processing.AgentResults;
+import uk.ac.ebi.subs.processing.Certificate;
+import uk.ac.ebi.subs.processing.ProcessingStatus;
 import uk.ac.ebi.subs.samplesrepo.SampleRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,25 +49,42 @@ public class SamplesListener {
                 submission.getId(),
                 submissionEnvelope.mostRecentHandler());
 
-        processSamples(submission);
+        List<Certificate> certs = processSamples(submission);
 
         submissionEnvelope.addHandler(this.getClass());
 
         logger.info("processed submission {}",submission.getId());
 
-        rabbitTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_PROCESSED, submissionEnvelope);
+        AgentResults agentResults = new AgentResults(
+                submissionEnvelope.getSubmission().getId(),
+                certs
+        );
+
+        rabbitTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_PROCESSED, agentResults);
 
         logger.info("sent submission {}",submission.getId());
     }
 
-    private void processSamples(Submission submission) {
+    private List<Certificate> processSamples(Submission submission) {
+        List<Certificate> certs = new ArrayList<>();
+
         List<Sample> samples = submission.getSamples();
+
         samples.forEach(sample -> {
             sample.setAccession(generateSampleAccession());
-            sample.setStatus("ok");
+            sample.setStatus(ProcessingStatus.Processed.toString());
+
+            certs.add(new Certificate(
+                    sample,
+                    Archive.BioSamples,
+                    ProcessingStatus.Processed,
+                    sample.getAccession())
+            ); //TODO switch to UUID instead of alias asap
         });
 
         repository.save(samples);
+
+        return certs;
     }
 
     protected void fillInSamples(SubmissionEnvelope envelope){
