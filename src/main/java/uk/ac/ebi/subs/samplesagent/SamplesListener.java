@@ -20,6 +20,8 @@ import uk.ac.ebi.subs.processing.Certificate;
 import uk.ac.ebi.subs.processing.ProcessingStatus;
 import uk.ac.ebi.subs.samplesrepo.SampleRepository;
 
+
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +60,8 @@ public class SamplesListener {
 
         List<Certificate> certs = processSamples(submission);
 
+        fillInSamples(submissionEnvelope);
+
         submissionEnvelope.addHandler(this.getClass());
 
         logger.info("processed submission {}",submission.getId());
@@ -79,6 +83,7 @@ public class SamplesListener {
 
         samples.forEach(sample -> {
             sample.setAccession(generateSampleAccession());
+
             sample.setStatus(ProcessingStatus.Processed.toString());
 
             certs.add(new Certificate(
@@ -87,6 +92,7 @@ public class SamplesListener {
                     ProcessingStatus.Processed,
                     sample.getAccession())
             );
+
         });
 
         repository.save(samples);
@@ -105,7 +111,6 @@ public class SamplesListener {
             }
 
         }
-
 
         envelope.getSupportingSamplesRequired().clear();
     }
