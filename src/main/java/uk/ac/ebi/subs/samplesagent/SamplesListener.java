@@ -41,6 +41,13 @@ public class SamplesListener {
         this.rabbitTemplate.setMessageConverter(messageConverter);
     }
 
+    @RabbitListener(queues = Queues.SUBMISSION_NEEDS_SAMPLE_INFO)
+    public void handleSuppInfoRequired(SubmissionEnvelope submissionEnvelope){
+        fillInSamples(submissionEnvelope);
+        rabbitTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, submissionEnvelope);
+    }
+
+
     @RabbitListener(queues = Queues.BIOSAMPLES_AGENT)
     public void handleSubmission(SubmissionEnvelope submissionEnvelope) {
         Submission submission = submissionEnvelope.getSubmission();
@@ -60,7 +67,7 @@ public class SamplesListener {
                 certs
         );
 
-        rabbitTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_PROCESSED, agentResults);
+        rabbitTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_AGENT_RESULTS, agentResults);
 
         logger.info("sent submission {}",submission.getId());
     }
@@ -79,7 +86,7 @@ public class SamplesListener {
                     Archive.BioSamples,
                     ProcessingStatus.Processed,
                     sample.getAccession())
-            ); //TODO switch to UUID instead of alias asap
+            );
         });
 
         repository.save(samples);
@@ -88,6 +95,7 @@ public class SamplesListener {
     }
 
     protected void fillInSamples(SubmissionEnvelope envelope){
+        //TODO this should do something in case of errors
         for (SampleRef sampleRef : envelope.getSupportingSamplesRequired()){
 
             Sample sample = repository.findByAccession(sampleRef.getAccession());
