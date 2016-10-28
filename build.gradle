@@ -4,7 +4,6 @@ mainClassName = "uk.ac.ebi.subs.SamplesAgentApp"
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-data-mongodb")
-    compile("org.springframework.boot:spring-boot-starter-amqp")
 
     compile project(':subs-data-model')
     compile project(':subs-processing-model')
