@@ -33,20 +33,20 @@ public class SamplesListener {
     @Autowired
     private SampleRepository repository;
 
-    private RabbitMessagingTemplate rabbitTemplate;
+    private RabbitMessagingTemplate rabbitMessagingTemplate;
 
     private static int i = 0;
 
     @Autowired
-    public SamplesListener(RabbitMessagingTemplate rabbitTemplate, MessageConverter messageConverter) {
-        this.rabbitTemplate = rabbitTemplate;
-        this.rabbitTemplate.setMessageConverter(messageConverter);
+    public SamplesListener(RabbitMessagingTemplate rabbitMessagingTemplate, MessageConverter messageConverter) {
+        this.rabbitMessagingTemplate = rabbitMessagingTemplate;
+        this.rabbitMessagingTemplate.setMessageConverter(messageConverter);
     }
 
     @RabbitListener(queues = Queues.SUBMISSION_NEEDS_SAMPLE_INFO)
     public void handleSuppInfoRequired(SubmissionEnvelope submissionEnvelope){
         fillInSamples(submissionEnvelope);
-        rabbitTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, submissionEnvelope);
+        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, submissionEnvelope);
     }
 
 
@@ -55,14 +55,11 @@ public class SamplesListener {
         Submission submission = submissionEnvelope.getSubmission();
 
         logger.info("received submission {}, most recent handler was {}",
-                submission.getId(),
-                submissionEnvelope.mostRecentHandler());
+                submission.getId());
 
         List<Certificate> certs = processSamples(submission);
 
         fillInSamples(submissionEnvelope);
-
-        submissionEnvelope.addHandler(this.getClass());
 
         logger.info("processed submission {}",submission.getId());
 
@@ -71,7 +68,7 @@ public class SamplesListener {
                 certs
         );
 
-        rabbitTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_AGENT_RESULTS, agentResults);
+        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_AGENT_RESULTS, agentResults);
 
         logger.info("sent submission {}",submission.getId());
     }
