@@ -131,6 +131,8 @@ public class SamplesListener {
         updatedSamplesEnvelope.setSubmissionId(submissionId);
         updatedSamplesEnvelope.setUpdatedSamples(updatedSamples);
 
+        logger.info("sending sample update for submission {} with {} samples",submissionId,updatedSamples.size());
+
         rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SAMPLES_UPDATED,updatedSamplesEnvelope);
 
     }
