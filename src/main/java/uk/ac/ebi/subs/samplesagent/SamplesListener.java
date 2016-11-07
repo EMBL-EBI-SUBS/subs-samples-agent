@@ -18,9 +18,8 @@ import uk.ac.ebi.subs.messaging.Topics;
 import uk.ac.ebi.subs.samplesrepo.SampleRepository;
 
 
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SamplesListener {
@@ -72,53 +71,54 @@ public class SamplesListener {
 
     private List<Certificate> processSamples(Submission submission) {
         List<Certificate> certs = new ArrayList<>();
-        List<Sample> updatedSamples = new ArrayList<>();
 
-        List<Sample> samples = submission.getSamples();
+        // these samples must be updates, as they are already accessioned
+        List<Sample> accessionedSamples = submission.getSamples().stream().filter(s -> s.getAccession() != null).collect(Collectors.toList());
 
-        samples.forEach(sample -> {
+        //these samples might be updates, if the alias+domain are already used
+        List<Sample> samplesWithoutAccession = submission.getSamples().stream().filter(s -> s.getAccession() == null).collect(Collectors.toList());
 
-            boolean isUpdate = false;
+        //we need the aliases in an array to make a bulk query
+        String[] aliasesForSamplesWithoutAccession = new String[0];
+        aliasesForSamplesWithoutAccession = samplesWithoutAccession.stream().map(s -> s.getAlias()).collect(Collectors.toList()).toArray(aliasesForSamplesWithoutAccession);
 
-            //if it already has an accession, it has been submitted before
-            if (sample.isAccessioned()){
-                isUpdate = true;
+        // check the db for these aliases, store any by alias
+        Map<String,Sample> knownSamplesByAlias = new HashMap<>();
+        repository.findByDomainAndAlias(submission.getDomain().getName(),aliasesForSamplesWithoutAccession).forEach(
+                sample -> knownSamplesByAlias.put(sample.getAlias(),sample)
+        );
+
+        // check for an accession for the samples without accession; if you find one this is an update
+        ListIterator<Sample> samplesWithoutAccessionListIter = samplesWithoutAccession.listIterator();
+        while (samplesWithoutAccessionListIter.hasNext()){
+            Sample sample = samplesWithoutAccessionListIter.next();
+
+            if (knownSamplesByAlias.containsKey(sample.getAlias())){
+                sample.setAccession(knownSamplesByAlias.get(sample.getAlias()).getAccession());
+                samplesWithoutAccessionListIter.remove();
+                accessionedSamples.add(sample);
             }
-
-            // if it has a domain and an alias, it might have been submitted already
-            if (sample.getDomain() != null && sample.getDomain().getName() != null && sample.getAlias() != null){
-                Sample existingSample = repository.findByDomainAndAlias(sample.getDomain().getName(),sample.getAlias());
-                if (existingSample != null){
-                    sample.setAccession(existingSample.getAccession());
-                    isUpdate = true;
-                }
-            }
-
-            //if it hasn't been submitted before, it needs an accession
-            if (!isUpdate){
+            else {
                 sample.setAccession(generateSampleAccession());
             }
+        }
 
-            // track that we're updating this sample, need to do something with it later
-            if (isUpdate){
-                updatedSamples.add(sample);
-            }
-
-            sample.setStatus(ProcessingStatus.Processed.toString());
+        submission.getSamples().forEach(s -> {
+            s.setStatus(ProcessingStatus.Processed.toString());
 
             certs.add(new Certificate(
-                    sample,
+                    s,
                     Archive.BioSamples,
                     ProcessingStatus.Processed,
-                    sample.getAccession())
+                    s.getAccession())
             );
 
         });
+        logger.info("submission {} has {} new samples and {} to update",submission.getId(),samplesWithoutAccession.size(),accessionedSamples.size());
+        repository.save(submission.getSamples());
 
-        repository.save(samples);
 
-        announceSampleUpdate(submission.getId(),updatedSamples);
-
+        announceSampleUpdate(submission.getId(),accessionedSamples);
 
         return certs;
     }
