@@ -53,24 +53,24 @@ public class SamplesListener {
         logger.info("received submission {}, most recent handler was {}",
                 submission.getId());
 
-        List<Certificate> certs = processSamples(submission);
+        List<ProcessingCertificate> certs = processSamples(submission);
 
         fillInSamples(submissionEnvelope);
 
         logger.info("processed submission {}",submission.getId());
 
-        AgentResults agentResults = new AgentResults(
+        ProcessingCertificateEnvelope processingCertificateEnvelope = new ProcessingCertificateEnvelope(
                 submissionEnvelope.getSubmission().getId(),
                 certs
         );
 
-        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_AGENT_RESULTS, agentResults);
+        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_AGENT_RESULTS, processingCertificateEnvelope);
 
         logger.info("sent submission {}",submission.getId());
     }
 
-    private List<Certificate> processSamples(Submission submission) {
-        List<Certificate> certs = new ArrayList<>();
+    private List<ProcessingCertificate> processSamples(Submission submission) {
+        List<ProcessingCertificate> certs = new ArrayList<>();
 
         // these samples must be updates, as they are already accessioned
         List<Sample> accessionedSamples = submission.getSamples().stream().filter(s -> s.getAccession() != null).collect(Collectors.toList());
@@ -106,7 +106,7 @@ public class SamplesListener {
         submission.getSamples().forEach(s -> {
             s.setStatus(ProcessingStatus.Processed.toString());
 
-            certs.add(new Certificate(
+            certs.add(new ProcessingCertificate(
                     s,
                     Archive.BioSamples,
                     ProcessingStatus.Processed,

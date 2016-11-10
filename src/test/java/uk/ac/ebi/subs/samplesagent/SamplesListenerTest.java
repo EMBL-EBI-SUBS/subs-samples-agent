@@ -12,9 +12,9 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.subs.data.Submission;
+import uk.ac.ebi.subs.processing.ProcessingCertificateEnvelope;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 import uk.ac.ebi.subs.messaging.Queues;
-import uk.ac.ebi.subs.processing.AgentResults;
 import uk.ac.ebi.subs.samplesrepo.SampleRepository;
 import uk.ac.ebi.subs.util.Helpers;
 
@@ -59,7 +59,7 @@ public class SamplesListenerTest {
     
 
     @RabbitListener(queues = Queues.SUBMISSION_MONITOR)
-    public void listener(AgentResults agentResults) {
+    public void listener(ProcessingCertificateEnvelope processingCertificateEnvelope) {
         synchronized (this) {
             System.out.println(submission.toString());
             System.out.println("Message received!");
