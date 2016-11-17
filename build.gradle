@@ -1,0 +1,13 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+version = "1.0.0"
+
+dependencies {
+    compile project(':subs-data-model')
+    compile project(':subs-processing-model')
+    compile project(':subs-messaging')
+
+    testCompile("junit:junit")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+}
