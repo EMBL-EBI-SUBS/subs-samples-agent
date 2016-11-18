@@ -1,13 +1,33 @@
+buildscript {
+    repositories {
+        maven { url 'http://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'application'
 
 version = "1.0.0"
+
+configure(allprojects) {
+    apply plugin: 'propdeps'
+    apply plugin: 'propdeps-maven'
+    apply plugin: 'propdeps-idea'
+    apply plugin: 'propdeps-eclipse'
+}
 
 dependencies {
     compile project(':subs-data-model')
     compile project(':subs-processing-model')
     compile project(':subs-messaging')
 
+    optional("org.springframework.boot:spring-boot-configuration-processor")
+
     testCompile("junit:junit")
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
+
+compileJava.dependsOn(processResources)
