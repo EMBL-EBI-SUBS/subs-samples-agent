@@ -9,10 +9,13 @@ import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.subs.agent.services.SupportingSamplesService;
 import uk.ac.ebi.subs.data.Submission;
+import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
 import uk.ac.ebi.subs.messaging.Topics;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
+
+import java.util.List;
 
 @Service
 public class Listener {
@@ -41,12 +44,15 @@ public class Listener {
 
     @RabbitListener(queues = Queues.SUBMISSION_NEEDS_SAMPLE_INFO)
     public void fetchSupportingSamples(SubmissionEnvelope envelope) {
-        logger.debug("Received new submission {" + envelope.getSubmission().getId() + "}");
+        logger.debug("Received supporting samples request from submission {" + envelope.getSubmission().getId() + "}");
 
-        supportingSamplesService.findSamples(envelope);
+        List<Sample> samples = supportingSamplesService.findSamples(envelope);
+
+        envelope.setSupportingSamples(samples);
+        envelope.getSupportingSamplesRequired().clear();
 
         rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);
 
-        logger.debug("");
+        logger.debug("Supporting samples provided for submission {" + envelope.getSubmission().getId() + "}");
     }
 }
