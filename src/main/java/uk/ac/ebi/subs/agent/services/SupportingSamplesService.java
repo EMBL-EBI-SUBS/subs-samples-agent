@@ -26,6 +26,7 @@ public class SupportingSamplesService {
         List<Sample> samples = new ArrayList<>();
 
         sampleRefs.forEach(sampleRef -> {
+            // FIXME - USI sample object doesn't map properly to BioSamples sample object
             Sample sample = templateBuilder.build().getForObject(apiUrl + sampleRef.getReferencedObject().getAccession(), Sample.class);
             samples.add(sample);
         });

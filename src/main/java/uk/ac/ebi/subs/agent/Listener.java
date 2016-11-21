@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.subs.agent.services.SubmissionService;
 import uk.ac.ebi.subs.agent.services.SupportingSamplesService;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.submittable.Sample;
@@ -25,6 +26,8 @@ public class Listener {
 
     @Autowired
     SupportingSamplesService supportingSamplesService;
+    @Autowired
+    SubmissionService submissionService;
 
     @Autowired
     public Listener(RabbitMessagingTemplate rabbitMessagingTemplate, MessageConverter messageConverter) {
@@ -38,6 +41,7 @@ public class Listener {
         logger.debug("Received new submission {" + submission.getId() + "}");
 
         // TODO - new submission
+        submissionService.submit(envelope);
 
         // TODO - update
     }
