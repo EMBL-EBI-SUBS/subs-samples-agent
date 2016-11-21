@@ -53,7 +53,7 @@ public class SupportingSamplesServiceTest {
     @Test
     public void SupportingSamplesServiceTest() {
         System.out.println("Request target URL: " + service.getApiUrl());
-        List<Sample> sampleList = service.findSamples(envelope);
+        List<uk.ac.ebi.subs.agent.biosamples.Sample> sampleList = service.findSamples(envelope);
         System.out.println(sampleList.get(0));
         Assert.assertNotNull(sampleList);
     }
