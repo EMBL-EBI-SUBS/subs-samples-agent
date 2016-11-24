@@ -5,6 +5,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 
 import java.io.IOException;
 import java.util.*;
@@ -14,16 +17,32 @@ public class CharacteristicsDeserializer extends JsonDeserializer<Map<String, Li
     @Override
     public Map<String, List<String>> deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
         Map<String, List<String>> map = new HashMap<>();
-        List<String> stringList = new ArrayList<>();
 
         JsonNode node = parser.getCodec().readTree(parser);
+        Iterator jsonNodeIterator = node.fieldNames();
 
-        node.forEach(System.out::println);
+        while (jsonNodeIterator.hasNext()) {
+            List<String> stringList = new ArrayList<>();
 
-        // Mock for now
-        Map<String, List<String>> map2 = new HashMap<>();
-        map2.put("mockString", Arrays.asList("list1", "list2"));
+            String characteristic = jsonNodeIterator.next().toString();
+            ArrayNode an = (ArrayNode) node.get(characteristic);
 
-        return map2;
+            Iterator arrayNodeIterator = an.iterator();
+            while (arrayNodeIterator.hasNext()) {
+                ObjectNode on = (ObjectNode) arrayNodeIterator.next();
+
+                on.forEach(o -> {
+                    if (o instanceof TextNode) {
+                        stringList.add(o.asText());
+                    } else if (o instanceof ArrayNode) {
+                        o.iterator().forEachRemaining(a -> stringList.add(a.asText()));
+                    }
+                });
+            }
+
+            map.put(characteristic, stringList);
+        }
+
+        return map;
     }
 }
