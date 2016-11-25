@@ -12,10 +12,14 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
 import java.util.*;
 
-public class CharacteristicsDeserializer extends JsonDeserializer<Map<String, List<String>>> {
+public class CharacteristicsDeserializer extends JsonDeserializer< List<Attribute>> {
 
     @Override
-    public Map<String, List<String>> deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
+    public List<Attribute> deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
+        List<Attribute> attributes = new ArrayList<>();
+
+
+        // FIXME - deserialize into List<Attribute>
         Map<String, List<String>> map = new HashMap<>();
 
         JsonNode node = parser.getCodec().readTree(parser);
@@ -43,6 +47,6 @@ public class CharacteristicsDeserializer extends JsonDeserializer<Map<String, Li
             map.put(characteristic, stringList);
         }
 
-        return map;
+        return attributes;
     }
 }
