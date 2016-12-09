@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.processing.*;
 import uk.ac.ebi.subs.data.component.Archive;
 import uk.ac.ebi.subs.data.component.SampleRef;
@@ -48,7 +49,7 @@ public class SamplesListener {
 
     @RabbitListener(queues = Queues.BIOSAMPLES_AGENT)
     public void handleSubmission(SubmissionEnvelope submissionEnvelope) {
-        Submission submission = submissionEnvelope.getSubmission();
+        FullSubmission submission = submissionEnvelope.getSubmission();
 
         logger.info("received submission {}, most recent handler was {}",
                 submission.getId());
@@ -69,7 +70,7 @@ public class SamplesListener {
         logger.info("sent submission {}",submission.getId());
     }
 
-    private List<ProcessingCertificate> processSamples(Submission submission) {
+    private List<ProcessingCertificate> processSamples(FullSubmission submission) {
         List<ProcessingCertificate> certs = new ArrayList<>();
 
         // these samples must be updates, as they are already accessioned

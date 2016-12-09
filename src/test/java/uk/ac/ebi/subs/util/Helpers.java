@@ -1,5 +1,6 @@
 package uk.ac.ebi.subs.util;
 
+import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.data.component.Domain;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.data.Submission;
@@ -45,8 +46,8 @@ public class Helpers {
         return samples;
     }
 
-    public static Submission generateTestSubmission() {
-        Submission sub = new Submission();
+    public static FullSubmission generateTestSubmission() {
+        FullSubmission sub = new FullSubmission();
         sub.setSamples(generateTestSamples());
         sub.getSubmitter().setEmail("test@ebi.ac.uk");
         sub.getDomain().setName("test-subs");
