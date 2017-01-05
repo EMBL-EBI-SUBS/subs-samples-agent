@@ -7,18 +7,19 @@ import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.subs.data.FullSubmission;
-import uk.ac.ebi.subs.processing.*;
 import uk.ac.ebi.subs.data.component.Archive;
 import uk.ac.ebi.subs.data.component.SampleRef;
+import uk.ac.ebi.subs.data.status.ProcessingStatus;
 import uk.ac.ebi.subs.data.submittable.Sample;
-import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
 import uk.ac.ebi.subs.messaging.Topics;
+import uk.ac.ebi.subs.processing.ProcessingCertificate;
+import uk.ac.ebi.subs.processing.ProcessingCertificateEnvelope;
+import uk.ac.ebi.subs.processing.SubmissionEnvelope;
+import uk.ac.ebi.subs.processing.UpdatedSamplesEnvelope;
 import uk.ac.ebi.subs.samplesrepo.SampleRepository;
-
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,9 +43,9 @@ public class SamplesListener {
     }
 
     @RabbitListener(queues = Queues.SUBMISSION_NEEDS_SAMPLE_INFO)
-    public void handleSuppInfoRequired(SubmissionEnvelope submissionEnvelope){
+    public void handleSuppInfoRequired(SubmissionEnvelope submissionEnvelope) {
         fillInSamples(submissionEnvelope);
-        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, submissionEnvelope);
+        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, submissionEnvelope);
     }
 
 
@@ -59,16 +60,16 @@ public class SamplesListener {
 
         fillInSamples(submissionEnvelope);
 
-        logger.info("processed submission {}",submission.getId());
+        logger.info("processed submission {}", submission.getId());
 
         ProcessingCertificateEnvelope processingCertificateEnvelope = new ProcessingCertificateEnvelope(
                 submissionEnvelope.getSubmission().getId(),
                 certs
         );
 
-        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_AGENT_RESULTS, processingCertificateEnvelope);
+        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_AGENT_RESULTS, processingCertificateEnvelope);
 
-        logger.info("sent submission {}",submission.getId());
+        logger.info("sent submission {}", submission.getId());
     }
 
     private List<ProcessingCertificate> processSamples(FullSubmission submission) {
@@ -85,47 +86,46 @@ public class SamplesListener {
         aliasesForSamplesWithoutAccession = samplesWithoutAccession.stream().map(s -> s.getAlias()).collect(Collectors.toList()).toArray(aliasesForSamplesWithoutAccession);
 
         // check the db for these aliases, store any by alias
-        Map<String,Sample> knownSamplesByAlias = new HashMap<>();
-        repository.findByDomainAndAlias(submission.getDomain().getName(),aliasesForSamplesWithoutAccession).forEach(
-                sample -> knownSamplesByAlias.put(sample.getAlias(),sample)
+        Map<String, Sample> knownSamplesByAlias = new HashMap<>();
+        repository.findByDomainAndAlias(submission.getDomain().getName(), aliasesForSamplesWithoutAccession).forEach(
+                sample -> knownSamplesByAlias.put(sample.getAlias(), sample)
         );
 
         // check for an accession for the samples without accession; if you find one this is an update
         ListIterator<Sample> samplesWithoutAccessionListIter = samplesWithoutAccession.listIterator();
-        while (samplesWithoutAccessionListIter.hasNext()){
+        while (samplesWithoutAccessionListIter.hasNext()) {
             Sample sample = samplesWithoutAccessionListIter.next();
 
-            if (knownSamplesByAlias.containsKey(sample.getAlias())){
+            if (knownSamplesByAlias.containsKey(sample.getAlias())) {
                 sample.setAccession(knownSamplesByAlias.get(sample.getAlias()).getAccession());
                 samplesWithoutAccessionListIter.remove();
                 accessionedSamples.add(sample);
-            }
-            else {
+            } else {
                 sample.setAccession(generateSampleAccession());
             }
         }
 
         submission.getSamples().forEach(s -> {
-            s.setStatus(ProcessingStatus.Processed.toString());
+            s.setStatus(ProcessingStatus.Done.toString());
 
             certs.add(new ProcessingCertificate(
                     s,
                     Archive.BioSamples,
-                    ProcessingStatus.Processed,
+                    ProcessingStatus.Done,
                     s.getAccession())
             );
 
         });
-        logger.info("submission {} has {} new samples and {} to update",submission.getId(),samplesWithoutAccession.size(),accessionedSamples.size());
+        logger.info("submission {} has {} new samples and {} to update", submission.getId(), samplesWithoutAccession.size(), accessionedSamples.size());
         repository.save(submission.getSamples());
 
 
-        announceSampleUpdate(submission.getId(),accessionedSamples);
+        announceSampleUpdate(submission.getId(), accessionedSamples);
 
         return certs;
     }
 
-    protected void announceSampleUpdate(String submissionId, List<Sample> updatedSamples){
+    protected void announceSampleUpdate(String submissionId, List<Sample> updatedSamples) {
 
         if (updatedSamples.isEmpty()) return;
 
@@ -133,21 +133,20 @@ public class SamplesListener {
         updatedSamplesEnvelope.setSubmissionId(submissionId);
         updatedSamplesEnvelope.setUpdatedSamples(updatedSamples);
 
-        logger.info("sending sample update for submission {} with {} samples",submissionId,updatedSamples.size());
+        logger.info("sending sample update for submission {} with {} samples", submissionId, updatedSamples.size());
 
-        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SAMPLES_UPDATED,updatedSamplesEnvelope);
+        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SAMPLES_UPDATED, updatedSamplesEnvelope);
 
     }
 
 
-
-    protected void fillInSamples(SubmissionEnvelope envelope){
+    protected void fillInSamples(SubmissionEnvelope envelope) {
         //TODO this should do something in case of errors
-        for (SampleRef sampleRef : envelope.getSupportingSamplesRequired()){
+        for (SampleRef sampleRef : envelope.getSupportingSamplesRequired()) {
 
             Sample sample = repository.findByAccession(sampleRef.getAccession());
 
-            if (sample != null){
+            if (sample != null) {
                 envelope.getSupportingSamples().add(sample);
             }
 
