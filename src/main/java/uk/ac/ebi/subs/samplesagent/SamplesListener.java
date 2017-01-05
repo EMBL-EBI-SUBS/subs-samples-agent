@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.subs.data.status.ProcessingStatus;
 import uk.ac.ebi.subs.processing.*;
 import uk.ac.ebi.subs.data.component.Archive;
 import uk.ac.ebi.subs.data.component.SampleRef;
@@ -104,12 +105,12 @@ public class SamplesListener {
         }
 
         submission.getSamples().forEach(s -> {
-            s.setStatus(ProcessingStatus.Processed.toString());
+            s.setStatus(ProcessingStatus.Done.toString());
 
             certs.add(new ProcessingCertificate(
                     s,
                     Archive.BioSamples,
-                    ProcessingStatus.Processed,
+                    ProcessingStatus.Done,
                     s.getAccession())
             );
 
