@@ -1,9 +1,12 @@
 package uk.ac.ebi.subs.agent.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import uk.ac.ebi.subs.agent.biosamples.Sample;
 import uk.ac.ebi.subs.data.component.SampleRef;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
@@ -15,6 +18,7 @@ import java.util.Set;
 @Service
 @ConfigurationProperties(prefix = "biosamples")
 public class SupportingSamplesService {
+    private static final Logger logger = LoggerFactory.getLogger(SupportingSamplesService.class);
 
     @Autowired
     RestTemplateBuilder templateBuilder;
@@ -26,9 +30,13 @@ public class SupportingSamplesService {
         List<Sample> samples = new ArrayList<>();
 
         sampleRefs.forEach(sampleRef -> {
-            // FIXME - USI sample object doesn't map properly to BioSamples sample object
-            Sample sample = templateBuilder.build().getForObject(apiUrl + sampleRef.getReferencedObject().getAccession(), Sample.class);
-            samples.add(sample);
+            Sample sample;
+            try {
+                sample = templateBuilder.build().getForObject(apiUrl + sampleRef.getReferencedObject().getAccession(), Sample.class);
+                samples.add(sample);
+            } catch (HttpClientErrorException clientErrorException) {
+                logger.error("Sample with accession [" + sampleRef.getReferencedObject().getAccession() + "] could not be found!");
+            }
         });
 
         return samples;

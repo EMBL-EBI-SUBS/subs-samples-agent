@@ -51,10 +51,17 @@ public class SupportingSamplesServiceTest {
     }
 
     @Test
-    public void SupportingSamplesServiceTest() {
+    public void SuccessfulSupportingSamplesServiceTest() {
         List<uk.ac.ebi.subs.agent.biosamples.Sample> sampleList = service.findSamples(envelope);
         System.out.println(sampleList.get(0));
         Assert.assertNotNull(sampleList);
+    }
+
+    public void SampleNotFoundTest() {
+        envelope.getSupportingSamplesRequired().iterator().forEachRemaining(s -> s.setAccession("SAM"));
+        List<uk.ac.ebi.subs.agent.biosamples.Sample> sampleList = service.findSamples(envelope);
+        Assert.assertNull(sampleList);
+
     }
 
     public String getAccession() {
