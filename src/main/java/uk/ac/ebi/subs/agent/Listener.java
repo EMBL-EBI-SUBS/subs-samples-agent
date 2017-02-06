@@ -7,8 +7,7 @@ import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.subs.agent.services.SubmissionService;
-import uk.ac.ebi.subs.agent.services.SupportingSamplesService;
+import uk.ac.ebi.subs.agent.services.*;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
@@ -25,6 +24,8 @@ public class Listener {
     SupportingSamplesService supportingSamplesService;
     @Autowired
     SubmissionService submissionService;
+    @Autowired
+    UpdateService updateService;
 
     @Autowired
     public Listener(RabbitMessagingTemplate rabbitMessagingTemplate, MessageConverter messageConverter) {
@@ -41,6 +42,7 @@ public class Listener {
         submissionService.submit(envelope);
 
         // TODO - update
+        updateService.update();
     }
 
     @RabbitListener(queues = Queues.SUBMISSION_NEEDS_SAMPLE_INFO)

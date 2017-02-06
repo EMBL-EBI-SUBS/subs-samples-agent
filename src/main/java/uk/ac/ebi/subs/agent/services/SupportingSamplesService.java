@@ -8,6 +8,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.ac.ebi.subs.agent.biosamples.Sample;
+import uk.ac.ebi.subs.agent.exception.*;
 import uk.ac.ebi.subs.data.component.SampleRef;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 
@@ -25,7 +26,7 @@ public class SupportingSamplesService {
 
     private String apiUrl;
 
-    public List<Sample> findSamples(SubmissionEnvelope envelope) {
+    public List<Sample> findSamples(SubmissionEnvelope envelope) throws SampleNotFoundException{
         Set<SampleRef> sampleRefs = envelope.getSupportingSamplesRequired();
         List<Sample> samples = new ArrayList<>();
 
