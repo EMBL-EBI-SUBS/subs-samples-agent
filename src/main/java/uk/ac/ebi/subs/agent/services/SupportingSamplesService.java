@@ -32,10 +32,10 @@ public class SupportingSamplesService {
         sampleRefs.forEach(sampleRef -> {
             Sample sample;
             try {
-                sample = templateBuilder.build().getForObject(apiUrl + sampleRef.getReferencedObject().getAccession(), Sample.class);
+                sample = templateBuilder.build().getForObject(apiUrl + sampleRef.getAccession(), Sample.class);
                 samples.add(sample);
             } catch (HttpClientErrorException clientErrorException) {
-                logger.error("Sample with accession [" + sampleRef.getReferencedObject().getAccession() + "] could not be found!");
+                logger.error("Sample with accession [" + sampleRef.getAccession() + "] could not be found!");
             }
         });
 

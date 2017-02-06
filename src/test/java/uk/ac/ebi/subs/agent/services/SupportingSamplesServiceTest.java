@@ -10,9 +10,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.component.SampleRef;
-import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 
 import java.util.List;
@@ -30,23 +30,21 @@ public class SupportingSamplesServiceTest {
     private String accession;
 
     private SubmissionEnvelope envelope;
+    private FullSubmission fullSubmission;
     private Submission submission;
     private SampleRef sampleRef;
-    private Sample sample;
 
     @Before
     public void setUp() {
-        sample = new Sample();
-        sample.setAccession(accession);
-
         sampleRef = new SampleRef();
-        sampleRef.setReferencedObject(sample);
+        sampleRef.setAccession(accession);
 
         submission = new Submission();
         submission.setId(UUID.randomUUID().toString());
+        fullSubmission = new FullSubmission(submission);
 
         envelope = new SubmissionEnvelope();
-        envelope.setSubmission(submission);
+        envelope.setSubmission(fullSubmission);
         envelope.setSupportingSamplesRequired(Sets.newSet(sampleRef));
     }
 
@@ -57,11 +55,11 @@ public class SupportingSamplesServiceTest {
         Assert.assertNotNull(sampleList);
     }
 
+    @Test
     public void SampleNotFoundTest() {
         envelope.getSupportingSamplesRequired().iterator().forEachRemaining(s -> s.setAccession("SAM"));
         List<uk.ac.ebi.subs.agent.biosamples.Sample> sampleList = service.findSamples(envelope);
-        Assert.assertNull(sampleList);
-
+        Assert.assertTrue(sampleList.isEmpty());
     }
 
     public String getAccession() {
