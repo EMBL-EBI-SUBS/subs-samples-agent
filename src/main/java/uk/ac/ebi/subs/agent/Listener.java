@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biosamples.models.Sample;
+import uk.ac.ebi.subs.agent.converters.*;
 import uk.ac.ebi.subs.agent.services.*;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.messaging.Exchanges;
@@ -31,7 +32,7 @@ public class Listener {
     UpdateService updateService;
 
     @Autowired
-    SampleConverterService sampleConverterService;
+    BsdSampleToUsiSample biosampleToUsisample;
 
     @Autowired
     public Listener(RabbitMessagingTemplate rabbitMessagingTemplate, MessageConverter messageConverter) {
@@ -57,7 +58,7 @@ public class Listener {
 
         List<Sample> biosamples = supportingSamplesService.findSamples(envelope);
 
-        List<uk.ac.ebi.subs.data.submittable.Sample> usiSamples = sampleConverterService.convertFromBiosampleToUsiSample(biosamples);
+        List<uk.ac.ebi.subs.data.submittable.Sample> usiSamples = biosampleToUsisample.convert(biosamples);
 
         envelope.setSupportingSamples(usiSamples);
         envelope.getSupportingSamplesRequired().clear();
