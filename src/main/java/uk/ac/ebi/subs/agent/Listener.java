@@ -7,12 +7,15 @@ import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biosamples.models.Sample;
 import uk.ac.ebi.subs.agent.services.*;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
 import uk.ac.ebi.subs.messaging.Topics;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
+
+import java.util.*;
 
 @Service
 public class Listener {
@@ -26,6 +29,9 @@ public class Listener {
     SubmissionService submissionService;
     @Autowired
     UpdateService updateService;
+
+    @Autowired
+    SampleConverterService sampleConverterService;
 
     @Autowired
     public Listener(RabbitMessagingTemplate rabbitMessagingTemplate, MessageConverter messageConverter) {
@@ -49,9 +55,11 @@ public class Listener {
     public void fetchSupportingSamples(SubmissionEnvelope envelope) {
         logger.debug("Received supporting samples request from submission {" + envelope.getSubmission().getId() + "}");
 
-        //List<Sample> samples = supportingSamplesService.findSamples(envelope);
+        List<Sample> biosamples = supportingSamplesService.findSamples(envelope);
 
-        //envelope.setSupportingSamples(samples);
+        List<uk.ac.ebi.subs.data.submittable.Sample> usiSamples = sampleConverterService.convertFromBiosampleToUsiSample(biosamples);
+
+        envelope.setSupportingSamples(usiSamples);
         envelope.getSupportingSamplesRequired().clear();
 
         rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);

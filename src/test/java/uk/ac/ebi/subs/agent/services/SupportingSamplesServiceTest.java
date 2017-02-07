@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.subs.agent.exception.*;
+import uk.ac.ebi.biosamples.models.*;
 import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.component.SampleRef;
@@ -51,10 +51,10 @@ public class SupportingSamplesServiceTest {
 
     @Test
     public void SuccessfulSupportingSamplesServiceTest() {
-        List<uk.ac.ebi.subs.agent.biosamples.Sample> sampleList = null;
+        List<Sample> sampleList = null;
         try {
             sampleList = service.findSamples(envelope);
-        } catch (SampleNotFoundException e) {
+        } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
         System.out.println(sampleList.get(0));
@@ -65,10 +65,11 @@ public class SupportingSamplesServiceTest {
     public void SampleNotFoundTest() {
         envelope.getSupportingSamplesRequired().iterator().forEachRemaining(s -> s.setAccession("SAM"));
 
-        List<uk.ac.ebi.subs.agent.biosamples.Sample> sampleList = null;
+        List<Sample> sampleList = null;
         try {
             sampleList = service.findSamples(envelope);
-        } catch (SampleNotFoundException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             Assert.assertNull(sampleList);
         }
     }

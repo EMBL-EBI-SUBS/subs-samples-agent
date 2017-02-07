@@ -28,6 +28,9 @@ dependencies {
 
     testCompile("junit:junit")
     testCompile("org.springframework.boot:spring-boot-starter-test")
+
+    // Temp for local development
+    compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 compileJava.dependsOn(processResources)
