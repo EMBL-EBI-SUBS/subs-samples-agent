@@ -27,7 +27,7 @@ public class SupportingSamplesService {
     @Autowired
     private RestTemplateBuilder templateBuilder;
 
-    private String apiUrlGet;
+    private String apiUrl;
 
     public List<Sample> findSamples(SubmissionEnvelope envelope) {
         Set<SampleRef> sampleRefs = envelope.getSupportingSamplesRequired();
@@ -48,7 +48,7 @@ public class SupportingSamplesService {
             try {
                 sample = templateBuilder
                         .build()
-                        .getForObject(apiUrlGet + accession, Sample.class, headers);
+                        .getForObject(apiUrl + accession, Sample.class, headers);
 
                 samples.add(sample);
             } catch (HttpClientErrorException e) {
@@ -59,11 +59,11 @@ public class SupportingSamplesService {
         return samples;
     }
 
-    public String getApiUrlGet() {
-        return apiUrlGet;
+    public String getApiUrl() {
+        return apiUrl;
     }
 
-    public void setApiUrlGet(String apiUrlGet) {
-        this.apiUrlGet = apiUrlGet;
+    public void setApiUrl(String apiUrl) {
+        this.apiUrl = apiUrl;
     }
 }

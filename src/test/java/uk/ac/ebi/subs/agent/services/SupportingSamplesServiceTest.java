@@ -50,7 +50,7 @@ public class SupportingSamplesServiceTest {
     }
 
     @Test
-    public void SuccessfulSupportingSamplesServiceTest() {
+    public void successfulSupportingSamplesServiceTest() {
         List<Sample> sampleList = null;
         try {
             sampleList = service.findSamples(envelope);
@@ -62,7 +62,7 @@ public class SupportingSamplesServiceTest {
     }
 
     @Test
-    public void SampleNotFoundTest() {
+    public void sampleNotFoundTest() {
         envelope.getSupportingSamplesRequired().iterator().forEachRemaining(s -> s.setAccession("SAM"));
 
         List<Sample> sampleList = null;

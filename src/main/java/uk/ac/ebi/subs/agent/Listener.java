@@ -12,7 +12,7 @@ import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
 import uk.ac.ebi.subs.agent.services.SubmissionService;
 import uk.ac.ebi.subs.agent.services.SupportingSamplesService;
 import uk.ac.ebi.subs.agent.services.UpdateService;
-import uk.ac.ebi.subs.data.Submission;
+import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
 import uk.ac.ebi.subs.messaging.Topics;
@@ -43,14 +43,16 @@ public class Listener {
 
     @RabbitListener(queues = Queues.BIOSAMPLES_AGENT)
     public void handleSamplesSubmission(SubmissionEnvelope envelope) {
-        Submission submission = envelope.getSubmission();
-        logger.debug("Received new submission {" + submission.getId() + "}");
+        FullSubmission submission = envelope.getSubmission();
+        logger.debug("Received submission {" + submission.getId() + "}");
 
-        // TODO - new submission
-        submissionService.submit(envelope);
+        List<uk.ac.ebi.subs.data.submittable.Sample> samples = submission.getSamples();
 
-        // TODO - update
-        updateService.update();
+        if(isNewSubmission(samples)) {
+            submissionService.submit(envelope);
+        }
+
+        updateService.update(envelope);
     }
 
     @RabbitListener(queues = Queues.SUBMISSION_NEEDS_SAMPLE_INFO)
@@ -67,5 +69,12 @@ public class Listener {
         rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);
 
         logger.debug("Supporting samples provided for submission {" + envelope.getSubmission().getId() + "}");
+    }
+
+    private boolean isNewSubmission(List<uk.ac.ebi.subs.data.submittable.Sample> samples) {
+        if (samples.get(0).getAccession() == null  || samples.get(0).getAccession().isEmpty()) {
+            return true;
+        }
+        return false;
     }
 }
