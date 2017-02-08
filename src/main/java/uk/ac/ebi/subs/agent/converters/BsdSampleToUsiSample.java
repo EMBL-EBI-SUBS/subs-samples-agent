@@ -1,12 +1,13 @@
 package uk.ac.ebi.subs.agent.converters;
 
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.core.convert.converter.*;
-import org.springframework.stereotype.*;
-import uk.ac.ebi.subs.data.component.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Service;
+import uk.ac.ebi.subs.data.component.Archive;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.models.Sample, Sample> {

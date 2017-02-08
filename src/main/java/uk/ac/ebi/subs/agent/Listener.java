@@ -8,15 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biosamples.models.Sample;
-import uk.ac.ebi.subs.agent.converters.*;
-import uk.ac.ebi.subs.agent.services.*;
+import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
+import uk.ac.ebi.subs.agent.services.SubmissionService;
+import uk.ac.ebi.subs.agent.services.SupportingSamplesService;
+import uk.ac.ebi.subs.agent.services.UpdateService;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
 import uk.ac.ebi.subs.messaging.Topics;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 
-import java.util.*;
+import java.util.List;
 
 @Service
 public class Listener {
@@ -30,7 +32,6 @@ public class Listener {
     SubmissionService submissionService;
     @Autowired
     UpdateService updateService;
-
     @Autowired
     BsdSampleToUsiSample biosampleToUsisample;
 
