@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-
 @Service
 public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosamples.models.Attribute, Attribute> {
 
