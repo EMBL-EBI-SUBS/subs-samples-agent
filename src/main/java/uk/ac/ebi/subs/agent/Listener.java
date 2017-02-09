@@ -44,15 +44,16 @@ public class Listener {
     @RabbitListener(queues = Queues.BIOSAMPLES_AGENT)
     public void handleSamplesSubmission(SubmissionEnvelope envelope) {
         FullSubmission submission = envelope.getSubmission();
-        logger.debug("Received submission {" + submission.getId() + "}");
+        logger.debug("Received submission [" + submission.getId() + "]");
 
-        List<uk.ac.ebi.subs.data.submittable.Sample> samples = submission.getSamples();
-
-        if(isNewSubmission(samples)) {
+        if(isNewSubmission(submission.getSamples())) {
+            logger.debug("New submission.");
             submissionService.submit(envelope);
+            // TODO - return certificate of submission
+        } else {
+            updateService.update(envelope);
+            // TODO - return certificate of update
         }
-
-        updateService.update(envelope);
     }
 
     @RabbitListener(queues = Queues.SUBMISSION_NEEDS_SAMPLE_INFO)
@@ -72,6 +73,7 @@ public class Listener {
     }
 
     private boolean isNewSubmission(List<uk.ac.ebi.subs.data.submittable.Sample> samples) {
+        // FIXME - check properly
         if (samples.get(0).getAccession() == null  || samples.get(0).getAccession().isEmpty()) {
             return true;
         }
