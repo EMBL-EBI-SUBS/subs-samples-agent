@@ -20,7 +20,13 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
 
     @Override
     public Sample convert(uk.ac.ebi.subs.data.submittable.Sample usiSample) {
-        Set<Attribute> attributeSet = toBsdAttribute.convert(usiSample.getAttributes());
+        Set<Attribute> attributeSet;
+        if (usiSample.getAttributes() != null) {
+            attributeSet = toBsdAttribute.convert(usiSample.getAttributes());    // USI attributes to BioSd attributes
+        } else {
+            attributeSet = new TreeSet<>();
+        }
+
         if (usiSample.getTaxon() != null) {
             Attribute att = Attribute.build("organism", usiSample.getTaxon());
             attributeSet.add(att);

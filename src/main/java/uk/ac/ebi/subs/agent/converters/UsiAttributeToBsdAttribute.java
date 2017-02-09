@@ -13,11 +13,16 @@ public class UsiAttributeToBsdAttribute implements Converter<uk.ac.ebi.subs.data
 
     @Override
     public Attribute convert(uk.ac.ebi.subs.data.component.Attribute usiAttribute) {
+        String url = null;
+        if(usiAttribute.getTerms().get(0) != null) {
+            url = usiAttribute.getTerms().get(0).getUrl();  // Losing info !!
+        }
+
         Attribute bsdAttribute = Attribute.build(
-                usiAttribute.getName(),
-                usiAttribute.getValue(),
-                usiAttribute.getTerms().get(0).getUrl(), // Losing info !!
-                usiAttribute.getUnits()
+                usiAttribute.getName(),     // key
+                usiAttribute.getValue(),    // value
+                url,                        // iri
+                usiAttribute.getUnits()     // unit
         );
 
         return bsdAttribute;
@@ -25,8 +30,11 @@ public class UsiAttributeToBsdAttribute implements Converter<uk.ac.ebi.subs.data
 
     public Set<Attribute> convert(List<uk.ac.ebi.subs.data.component.Attribute> usiAttributes) {
         Set<Attribute> attributeSet = new TreeSet<>();
-
-        usiAttributes.forEach(usiAattribute -> attributeSet.add(convert(usiAattribute)));
+        if(usiAttributes != null) {
+            for (uk.ac.ebi.subs.data.component.Attribute usiAttribute : usiAttributes) {
+                attributeSet.add(convert(usiAttribute));
+            }
+        }
         return attributeSet;
     }
 }
