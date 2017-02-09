@@ -25,7 +25,7 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
         Sample usiSample = new Sample();
         usiSample.setAccession(bioSample.getAccession());
         usiSample.setArchive(Archive.BioSamples);
-        usiSample.setTitle(bioSample.getName());
+        usiSample.setAlias(bioSample.getName());
 
         List<Attribute> attributes = toUsiAttribute.convert(bioSample.getAttributes());
         if(bioSample.getRelease() != null) {    // Release date
@@ -41,7 +41,7 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
 
         // TODO: Extract attributes from BioSample
         // - description
-        // - alias
+        // - title
         // - taxon
         // - taxon id
         // - domain

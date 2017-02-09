@@ -41,7 +41,7 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
         }
 
         Sample bioSample = Sample.build(
-                usiSample.getTitle(),                                           // name
+                usiSample.getAlias(),                                           // name
                 usiSample.getAccession(),                                       // accession
                 LocalDateTime.now(),                                            // release date
                 LocalDateTime.now(),                                            // update date
