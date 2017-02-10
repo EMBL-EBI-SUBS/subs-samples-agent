@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.subs.data.component.Attribute;
@@ -15,7 +14,6 @@ import uk.ac.ebi.subs.data.component.Term;
 import java.util.Arrays;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ConfigurationProperties(prefix = "test")
 @SpringBootTest(classes = {
         UsiAttributeToBsdAttribute.class,
         BsdAttributeToUsiAttribute.class
