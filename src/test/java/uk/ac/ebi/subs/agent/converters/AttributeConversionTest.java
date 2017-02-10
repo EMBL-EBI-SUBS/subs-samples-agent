@@ -12,7 +12,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.subs.data.component.Attribute;
 import uk.ac.ebi.subs.data.component.Term;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -39,7 +38,7 @@ public class AttributeConversionTest {
     }
 
     @Test
-    public void convertToBsdAttribute() {
+    public void convertFromUsiAttribute() {
         uk.ac.ebi.biosamples.models.
                 Attribute conversion = toBsdAttribute.convert(usiAttribute);
 
@@ -47,13 +46,17 @@ public class AttributeConversionTest {
 
         Assert.assertEquals(usiAttribute, conversionBack);
     }
-/*
-    @Test
-    public void convertToUsiAttribute() {
-        toUsiAttribute.convert(bsdAttribute);
 
+    @Test
+    public void convertFromBsdAttribute() {
+        Attribute conversion = toUsiAttribute.convert(bsdAttribute);
+
+        uk.ac.ebi.biosamples.models.
+                Attribute conversionBack = toBsdAttribute.convert(conversion);
+
+        Assert.assertEquals(bsdAttribute, conversionBack);
     }
-*/
+
     private void generateUsiAttribute() {
         usiAttribute = new Attribute();
         usiAttribute.setName("age");
