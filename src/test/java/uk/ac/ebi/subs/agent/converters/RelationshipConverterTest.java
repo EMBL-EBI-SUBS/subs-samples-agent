@@ -1,0 +1,64 @@
+package uk.ac.ebi.subs.agent.converters;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.biosamples.models.Relationship;
+import uk.ac.ebi.subs.data.component.SampleRelationship;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = {
+        UsiRelationshipToBsdRelationship.class,
+        BsdRelationshipToUsiRelationship.class
+})
+@EnableAutoConfiguration
+public class RelationshipConverterTest {
+
+    @Autowired
+    UsiRelationshipToBsdRelationship toBsdRelationship;
+    @Autowired
+    BsdRelationshipToUsiRelationship toUsiRelationship;
+
+    private SampleRelationship usiRelationship;
+    private Relationship bsdRelationship;
+
+    @Before
+    public void setUp() {
+        generateUsiRelationship();
+        generateBsdRelationship();
+    }
+
+    @Test
+    public void convertFromUsiRelationship() {
+        Relationship conversion = toBsdRelationship.convert(usiRelationship);
+        SampleRelationship conversionBack = toUsiRelationship.convert(conversion);
+        Assert.assertEquals(usiRelationship, conversionBack);
+    }
+
+    @Test
+    public void convertFromBsdRelationship() {
+        SampleRelationship conversion = toUsiRelationship.convert(bsdRelationship);
+        Relationship conversionBack = toBsdRelationship.convert(conversion);
+        Assert.assertEquals(bsdRelationship, conversionBack);
+    }
+
+    private void generateUsiRelationship() {
+        usiRelationship = new SampleRelationship();
+        usiRelationship.setRelationshipNature("Child of");
+        usiRelationship.setAccession("SAM123");
+
+    }
+
+    private void generateBsdRelationship() {
+        bsdRelationship = Relationship.build(
+                "Child of", // type
+                null, // target
+                "SAM123"  // source
+        );
+    }
+}
