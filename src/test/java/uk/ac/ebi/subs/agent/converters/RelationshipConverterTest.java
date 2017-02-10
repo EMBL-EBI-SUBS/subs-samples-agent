@@ -9,12 +9,14 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.biosamples.models.Relationship;
+import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.component.SampleRelationship;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
         UsiRelationshipToBsdRelationship.class,
-        BsdRelationshipToUsiRelationship.class
+        BsdRelationshipToUsiRelationship.class,
+        TestUtils.class
 })
 @EnableAutoConfiguration
 public class RelationshipConverterTest {
@@ -24,13 +26,16 @@ public class RelationshipConverterTest {
     @Autowired
     BsdRelationshipToUsiRelationship toUsiRelationship;
 
+    @Autowired
+    TestUtils utils;
+
     private SampleRelationship usiRelationship;
     private Relationship bsdRelationship;
 
     @Before
     public void setUp() {
-        generateUsiRelationship();
-        generateBsdRelationship();
+        usiRelationship = utils.generateUsiRelationship();
+        bsdRelationship = utils.generateBsdRelationship();
     }
 
     @Test
@@ -47,18 +52,4 @@ public class RelationshipConverterTest {
         Assert.assertEquals(bsdRelationship, conversionBack);
     }
 
-    private void generateUsiRelationship() {
-        usiRelationship = new SampleRelationship();
-        usiRelationship.setRelationshipNature("Child of");
-        usiRelationship.setAccession("SAM123");
-
-    }
-
-    private void generateBsdRelationship() {
-        bsdRelationship = Relationship.build(
-                "Child of", // type
-                null, // target
-                "SAM123"  // source
-        );
-    }
 }

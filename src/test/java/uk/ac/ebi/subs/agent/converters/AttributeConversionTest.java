@@ -8,15 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.component.Attribute;
-import uk.ac.ebi.subs.data.component.Term;
-
-import java.util.Arrays;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
         UsiAttributeToBsdAttribute.class,
-        BsdAttributeToUsiAttribute.class
+        BsdAttributeToUsiAttribute.class,
+        TestUtils.class
 })
 @EnableAutoConfiguration
 public class AttributeConversionTest {
@@ -26,13 +25,16 @@ public class AttributeConversionTest {
     @Autowired
     BsdAttributeToUsiAttribute toUsiAttribute;
 
+    @Autowired
+    TestUtils utils;
+
     private Attribute usiAttribute;
     private uk.ac.ebi.biosamples.models.Attribute bsdAttribute;
 
     @Before
     public void setUp() {
-        generateUsiAttribute();
-        generateBsdAttribute();
+        usiAttribute = utils.generateUsiAttribute();
+        bsdAttribute = utils.generateBsdAttribute();
     }
 
     @Test
@@ -55,22 +57,4 @@ public class AttributeConversionTest {
         Assert.assertEquals(bsdAttribute, conversionBack);
     }
 
-    private void generateUsiAttribute() {
-        usiAttribute = new Attribute();
-        usiAttribute.setName("age");
-        usiAttribute.setValue("55");
-        Term term = new Term();
-        term.setUrl("http://purl.obolibrary.org/obo/UO_0000036");
-        usiAttribute.setTerms(Arrays.asList(term));
-        usiAttribute.setUnits("year");
-    }
-
-    private void generateBsdAttribute() {
-        bsdAttribute = uk.ac.ebi.biosamples.models.Attribute.build(
-                "age",
-                "55",
-                "http://purl.obolibrary.org/obo/UO_0000036",
-                "year"
-        );
-    }
 }
