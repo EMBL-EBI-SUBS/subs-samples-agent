@@ -42,13 +42,10 @@ public class SubmissionService {
         for (uk.ac.ebi.subs.data.submittable.Sample usiSample : sampleList) {
             Sample bioSample = toBsdSample.convert(usiSample);
 
-            //HttpEntity<Sample> sampleHttpEntity = new HttpEntity<>(bioSample);
-
             Sample responseSample = null;
             try {
                 responseSample = templateBuilder
                         .build()
-                        //.exchange(apiUrl, HttpMethod.POST, sampleHttpEntity, )
                         .postForObject(apiUrl, bioSample, Sample.class, headers);
             } catch(HttpClientErrorException e) {
                 logger.error("Sample with id [" + usiSample.getId() + "] submission failed. ", e);

@@ -9,7 +9,10 @@ import uk.ac.ebi.subs.data.component.Term;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,24 +30,49 @@ public class TestUtils {
         usiSample.setTitle("Experiment on mice.");
         usiSample.setDescription("Sample from Mus musculus.");
         usiSample.setAlias("This is an USI alias");
-        usiSample.setAttributes(Arrays.asList(
-                generateUsiAttribute()
-        ));
+        usiSample.setAttributes(
+                generateUsiAttributes()
+        );
         usiSample.setSampleRelationships(Arrays.asList(
                 generateUsiRelationship()
         ));
         return usiSample;
     }
 
-    public Attribute generateUsiAttribute() {
-        Attribute usiAttribute = new Attribute();
-        usiAttribute.setName("age");
-        usiAttribute.setValue("1.5");
+    public List<Attribute> generateUsiAttributes() {
+        List<Attribute> attributeList = new ArrayList<>();
+        // 1
+        Attribute usiAttribute_1 = new Attribute();
+        usiAttribute_1.setName("age");
+        usiAttribute_1.setValue("1.5");
         Term term = new Term();
         term.setUrl("http://purl.obolibrary.org/obo/UO_0000036");
-        usiAttribute.setTerms(Arrays.asList(term));
-        usiAttribute.setUnits("year");
-        return usiAttribute;
+        usiAttribute_1.setTerms(Arrays.asList(term));
+        usiAttribute_1.setUnits("year");
+        attributeList.add(usiAttribute_1);
+        // 2
+        Attribute usiAttribute_2 = new Attribute();
+        usiAttribute_2.setName("release");
+        usiAttribute_2.setValue(LocalDateTime.of(2016, Month.APRIL, 12, 12, 0, 0).toString());
+        attributeList.add(usiAttribute_2);
+        // 3
+        Attribute usiAttribute_3 = new Attribute();
+        usiAttribute_3.setName("update");
+        usiAttribute_3.setValue(LocalDateTime.of(2016, Month.MAY, 12, 12, 0, 0).toString());
+        attributeList.add(usiAttribute_3);
+
+        return attributeList;
+    }
+
+    public Attribute generateUsiAttribute() {
+        Attribute attribute = new Attribute();
+        attribute.setName("age");
+        attribute.setValue("1.5");
+        Term term = new Term();
+        term.setUrl("http://purl.obolibrary.org/obo/UO_0000036");
+        attribute.setTerms(Arrays.asList(term));
+        attribute.setUnits("year");
+        return attribute;
     }
 
     public SampleRelationship generateUsiRelationship() {

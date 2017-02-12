@@ -21,8 +21,10 @@ public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosample
         usiAttribute.setUnits(bsdAttribute.getUnit());
 
         Term term = new Term();
-        term.setUrl(bsdAttribute.getIri());
-        usiAttribute.setTerms(Arrays.asList(term));
+        if(bsdAttribute.getIri() != null && !bsdAttribute.getIri().isEmpty()) {
+            term.setUrl(bsdAttribute.getIri());
+            usiAttribute.setTerms(Arrays.asList(term));
+        }
 
         return usiAttribute;
     }

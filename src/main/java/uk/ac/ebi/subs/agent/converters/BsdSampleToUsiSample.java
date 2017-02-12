@@ -8,9 +8,9 @@ import uk.ac.ebi.subs.data.component.Attribute;
 import uk.ac.ebi.subs.data.component.SampleRelationship;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.models.Sample, Sample> {
@@ -28,25 +28,42 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
         usiSample.setAlias(bioSample.getName());
 
         List<Attribute> attributes = toUsiAttribute.convert(bioSample.getAttributes());
+        attributes
+                .parallelStream()
+                .forEach(attribute -> {
+            if("description".equals(attribute.getName())) {
+                usiSample.setDescription(attribute.getValue());
+            } else if("title".equals(attribute.getName())) {
+                usiSample.setTitle(attribute.getValue());
+            } else if("taxon".equals(attribute.getName())) {
+                usiSample.setTaxon(attribute.getValue());
+                String url = attribute.getTerms().get(0).getUrl();
+                String taxon = url.substring(url.lastIndexOf("_") + 1).trim();
+                usiSample.setTaxonId(Long.parseLong(taxon));
+            }
+        });
+
+        List<Attribute> filteredAttributes = attributes
+                .stream()
+                .filter(attribute ->
+                        !"description".equals(attribute.getName()) &&
+                        !"title".equals(attribute.getName()) &&
+                        !"taxon".equals(attribute.getName())
+        ).collect(Collectors.toList());
+
         if(bioSample.getRelease() != null) {    // Release date
             Attribute release = new Attribute();
             release.setName("release");
             release.setValue(bioSample.getRelease().toString());
-            attributes.add(release);
+            filteredAttributes.add(release);
         }
-        Attribute update = new Attribute(); // Update date
-        update.setName("update");
-        update.setValue(LocalDateTime.now().toString());
-        attributes.add(update);
-
-        // TODO: Extract attributes from BioSample
-        // - description
-        // - title
-        // - taxon
-        // - taxon id
-        // - domain
-
-        usiSample.setAttributes(attributes);
+        if(bioSample.getUpdate() != null) { // Update date
+            Attribute update = new Attribute();
+            update.setName("update");
+            update.setValue(bioSample.getUpdate().toString());
+            filteredAttributes.add(update);
+        }
+        usiSample.setAttributes(filteredAttributes);
 
         List<SampleRelationship> sampleRelationships = toUsiRelationship.convert(bioSample.getRelationships());
         usiSample.setSampleRelationships(sampleRelationships);

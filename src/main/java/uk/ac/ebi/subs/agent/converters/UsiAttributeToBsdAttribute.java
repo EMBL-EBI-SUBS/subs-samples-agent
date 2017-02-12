@@ -14,7 +14,7 @@ public class UsiAttributeToBsdAttribute implements Converter<uk.ac.ebi.subs.data
     @Override
     public Attribute convert(uk.ac.ebi.subs.data.component.Attribute usiAttribute) {
         String url = null;
-        if(usiAttribute.getTerms().get(0) != null) {
+        if(usiAttribute.getTerms() != null && !usiAttribute.getTerms().isEmpty()) {
             url = usiAttribute.getTerms().get(0).getUrl();  // Losing info !!
         }
 
