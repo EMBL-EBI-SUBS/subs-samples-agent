@@ -2,6 +2,7 @@ package uk.ac.ebi.subs.samplesagent;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
@@ -11,6 +12,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.subs.RabbitMQDependentTest;
 import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.processing.ProcessingCertificateEnvelope;
@@ -50,6 +52,7 @@ public class SamplesListenerTest {
     }
 
     @Test
+    @Category(RabbitMQDependentTest.class)
     public void testSubmissionHandler() throws InterruptedException {
         samplesListener.handleSubmission(new SubmissionEnvelope(Helpers.generateTestSubmission())); // Test submission with 3 samples
 
