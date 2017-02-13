@@ -39,6 +39,64 @@ public class TestUtils {
         return usiSample;
     }
 
+    public Sample generateUsiSampleForSubmission() {
+        Sample usiSample = new Sample();
+        usiSample.setArchive(Archive.BioSamples);
+        usiSample.setTaxon("Mus musculus");
+        usiSample.setTaxonId(10090L);
+        usiSample.setTitle("Experiment on mice.");
+        usiSample.setDescription("Sample from Mus musculus.");
+        usiSample.setAlias("This is an USI alias");
+
+        List<Attribute> attributeList = new ArrayList<>();
+        Attribute usiAttribute_1 = new Attribute();
+        usiAttribute_1.setName("age");
+        usiAttribute_1.setValue("1.5");
+        Term term = new Term();
+        term.setUrl("http://purl.obolibrary.org/obo/UO_0000036");
+        usiAttribute_1.setTerms(Arrays.asList(term));
+        usiAttribute_1.setUnits("year");
+        attributeList.add(usiAttribute_1);
+        // 2
+        Attribute usiAttribute_2 = new Attribute();
+        usiAttribute_2.setName("release");
+        usiAttribute_2.setValue(LocalDateTime.of(2016, Month.APRIL, 12, 12, 0, 0).toString());
+        attributeList.add(usiAttribute_2);
+        // 3
+        Attribute usiAttribute_3 = new Attribute();
+        usiAttribute_3.setName("update");
+        usiAttribute_3.setValue(LocalDateTime.now().toString());
+        attributeList.add(usiAttribute_3);
+        // 4
+        Attribute usiAttribute_4 = new Attribute();
+        usiAttribute_4.setName("synonym");
+        usiAttribute_4.setValue("mouse");
+        Term t = new Term();
+        t.setUrl("http://purl.obolibrary.org/obo/NCBITaxon_10090");
+        usiAttribute_4.setTerms(Arrays.asList(t));
+        attributeList.add(usiAttribute_4);
+        usiSample.setAttributes(
+                attributeList
+        );
+
+        return usiSample;
+    }
+
+    public Sample generateUsiSampleForUpdate() {
+        Sample usiSample = new Sample();
+        usiSample.setArchive(Archive.BioSamples);
+        usiSample.setAccession("TSTE107");
+        usiSample.setTaxon("Mus musculus");
+        usiSample.setTaxonId(10090L);
+        usiSample.setTitle("Experiment on mice.");
+        usiSample.setDescription("Sample from Mus musculus - is this up to date?");
+        usiSample.setAlias("This is an USI alias");
+        usiSample.setAttributes(
+                generateUsiAttributes()
+        );
+        return usiSample;
+    }
+
     public List<Attribute> generateUsiAttributes() {
         List<Attribute> attributeList = new ArrayList<>();
         // 1
@@ -60,6 +118,14 @@ public class TestUtils {
         usiAttribute_3.setName("update");
         usiAttribute_3.setValue(LocalDateTime.of(2016, Month.MAY, 12, 12, 0, 0).toString());
         attributeList.add(usiAttribute_3);
+        // 4
+        Attribute usiAttribute_4 = new Attribute();
+        usiAttribute_4.setName("synonym");
+        usiAttribute_4.setValue("mouse");
+        Term t = new Term();
+        t.setUrl("http://purl.obolibrary.org/obo/NCBITaxon_10090");
+        usiAttribute_4.setTerms(Arrays.asList(t));
+        attributeList.add(usiAttribute_4);
 
         return attributeList;
     }
