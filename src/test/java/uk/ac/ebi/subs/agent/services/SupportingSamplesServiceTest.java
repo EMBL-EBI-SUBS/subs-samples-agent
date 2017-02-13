@@ -10,17 +10,27 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.biosamples.models.*;
+import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
+import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
+import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
 import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.component.SampleRef;
+import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 
 import java.util.List;
 import java.util.UUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = SupportingSamplesService.class)
+@SpringBootTest(classes = {
+        SupportingSamplesService.class,
+        RestTemplate.class,
+        BsdSampleToUsiSample.class,
+        BsdAttributeToUsiAttribute.class,
+        BsdRelationshipToUsiRelationship.class
+})
 @ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
 public class SupportingSamplesServiceTest {
