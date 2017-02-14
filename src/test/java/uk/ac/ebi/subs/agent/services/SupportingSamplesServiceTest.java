@@ -34,7 +34,7 @@ import java.util.UUID;
 @ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
 public class SupportingSamplesServiceTest {
-
+/*
     @Autowired
     SupportingSamplesService service;
 
@@ -58,7 +58,7 @@ public class SupportingSamplesServiceTest {
         envelope.setSubmission(fullSubmission);
         envelope.setSupportingSamplesRequired(Sets.newSet(sampleRef));
     }
-/*
+
     @Test
     public void successfulSupportingSamplesServiceTest() {
         List<Sample> sampleList = null;
@@ -83,7 +83,7 @@ public class SupportingSamplesServiceTest {
             Assert.assertNull(sampleList);
         }
     }
-*/
+
     public String getAccession() {
         return accession;
     }
@@ -91,4 +91,5 @@ public class SupportingSamplesServiceTest {
     public void setAccession(String accession) {
         this.accession = accession;
     }
+    */
 }

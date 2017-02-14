@@ -37,7 +37,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
 public class SubmissionServiceTest {
-
+/*
     @Autowired
     SubmissionService submissionService;
 
@@ -50,7 +50,7 @@ public class SubmissionServiceTest {
     public void setUp() {
         sample = utils.generateUsiSampleForSubmission();
     }
-/*
+
     @Test
     public void submit() {
         List<Sample> sampleList = null;

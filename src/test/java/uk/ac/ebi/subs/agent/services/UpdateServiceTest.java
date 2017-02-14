@@ -35,7 +35,7 @@ import java.util.Arrays;
 @ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
 public class UpdateServiceTest {
-
+/*
     @Autowired
     UpdateService updateService;
 
@@ -48,7 +48,7 @@ public class UpdateServiceTest {
     public void setUp() {
         sample = utils.generateUsiSampleForUpdate();
     }
-/*
+
     @Test
     public void update() {
         updateService.update(Arrays.asList(sample));
