@@ -50,7 +50,7 @@ public class SubmissionServiceTest {
     public void setUp() {
         sample = utils.generateUsiSampleForSubmission();
     }
-
+/*
     @Test
     public void submit() {
         List<Sample> sampleList = null;
@@ -63,5 +63,5 @@ public class SubmissionServiceTest {
 
         sampleList.forEach(sample -> Assert.assertNotNull(sample.getAccession()));
     }
-
+*/
 }

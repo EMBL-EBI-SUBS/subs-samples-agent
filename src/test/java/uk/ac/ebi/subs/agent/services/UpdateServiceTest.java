@@ -48,10 +48,10 @@ public class UpdateServiceTest {
     public void setUp() {
         sample = utils.generateUsiSampleForUpdate();
     }
-
+/*
     @Test
     public void update() {
         updateService.update(Arrays.asList(sample));
     }
-
+*/
 }
