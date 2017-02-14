@@ -43,6 +43,7 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
             }
         });
 
+        // Get all non 'description', 'title' and 'taxon' attributes
         List<Attribute> filteredAttributes = attributes
                 .stream()
                 .filter(attribute ->
@@ -51,13 +52,13 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
                         !"taxon".equals(attribute.getName())
         ).collect(Collectors.toList());
 
-        if(bioSample.getRelease() != null) {    // Release date
+        if(bioSample.getRelease() != null) {    // Get release date
             Attribute release = new Attribute();
             release.setName("release");
             release.setValue(bioSample.getRelease().toString());
             filteredAttributes.add(release);
         }
-        if(bioSample.getUpdate() != null) { // Update date
+        if(bioSample.getUpdate() != null) { // Get update date
             Attribute update = new Attribute();
             update.setName("update");
             update.setValue(bioSample.getUpdate().toString());

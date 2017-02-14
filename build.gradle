@@ -28,6 +28,7 @@ dependencies {
     optional("org.springframework.boot:spring-boot-configuration-processor")
 
     compile('uk.ac.ebi.biosamples:models-core:4.0.0-SNAPSHOT') {
+        changing = true
         exclude group: 'org.springframework.boot'
     }
 
