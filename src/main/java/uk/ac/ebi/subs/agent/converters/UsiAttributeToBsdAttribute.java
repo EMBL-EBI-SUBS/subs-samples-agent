@@ -2,7 +2,7 @@ package uk.ac.ebi.subs.agent.converters;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biosamples.models.Attribute;
+import uk.ac.ebi.biosamples.model.Attribute;
 
 import java.util.List;
 import java.util.Set;

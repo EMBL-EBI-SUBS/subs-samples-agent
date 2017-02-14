@@ -38,7 +38,7 @@ public class UpdateService {
 
     public void update(List<Sample> sampleList) {
         sampleList.forEach(usiSample -> {
-            uk.ac.ebi.biosamples.models.Sample bsdSample = toBsdSample.convert(usiSample);
+            uk.ac.ebi.biosamples.model.Sample bsdSample = toBsdSample.convert(usiSample);
             if(update(bsdSample)) {
                 usiSample.setStatus(ProcessingStatus.Done);
             } else {
@@ -47,7 +47,7 @@ public class UpdateService {
         });
     }
 
-    private boolean update(uk.ac.ebi.biosamples.models.Sample bsdSample) {
+    private boolean update(uk.ac.ebi.biosamples.model.Sample bsdSample) {
         URI uri = UriComponentsBuilder
                 .fromUriString(apiUrl)
                 .path(bsdSample.getAccession())
@@ -57,12 +57,12 @@ public class UpdateService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        RequestEntity<uk.ac.ebi.biosamples.models.Sample> requestEntity;
-        ResponseEntity<uk.ac.ebi.biosamples.models.Sample> responseEntity;
+        RequestEntity<uk.ac.ebi.biosamples.model.Sample> requestEntity;
+        ResponseEntity<uk.ac.ebi.biosamples.model.Sample> responseEntity;
 
         try {
             requestEntity = new RequestEntity<>(bsdSample, headers, HttpMethod.PUT, uri);
-            responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.models.Sample.class);
+            responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.model.Sample.class);
             if(!responseEntity.getStatusCode().is2xxSuccessful()) {
                 logger.error("Unable to PUT [" + bsdSample.getAccession() + "]:" + responseEntity.toString());
                 return false;

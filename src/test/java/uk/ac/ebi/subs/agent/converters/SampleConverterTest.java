@@ -31,7 +31,7 @@ public class SampleConverterTest {
     TestUtils utils;
 
     private Sample usiSample;
-    private uk.ac.ebi.biosamples.models.Sample bsdSample;
+    private uk.ac.ebi.biosamples.model.Sample bsdSample;
 
     @Before
     public void setUp() {
@@ -41,7 +41,7 @@ public class SampleConverterTest {
 
     @Test
     public void convertFromUsiSample() {
-        uk.ac.ebi.biosamples.models.
+        uk.ac.ebi.biosamples.model.
                 Sample conversion = toBsdSample.convert(usiSample);
 
         Sample conversionBack = toUsiSample.convert(conversion);
@@ -57,7 +57,7 @@ public class SampleConverterTest {
     public void convertFromBsdSample() {
         Sample conversion = toUsiSample.convert(bsdSample);
 
-        uk.ac.ebi.biosamples.models.
+        uk.ac.ebi.biosamples.model.
                 Sample conversionBack = toBsdSample.convert(conversion);
 
         Assert.assertEquals(bsdSample, conversionBack);

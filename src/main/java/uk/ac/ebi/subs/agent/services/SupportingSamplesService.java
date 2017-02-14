@@ -62,12 +62,12 @@ public class SupportingSamplesService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        RequestEntity<uk.ac.ebi.biosamples.models.Sample> requestEntity;
-        ResponseEntity<uk.ac.ebi.biosamples.models.Sample> responseEntity;
+        RequestEntity<uk.ac.ebi.biosamples.model.Sample> requestEntity;
+        ResponseEntity<uk.ac.ebi.biosamples.model.Sample> responseEntity;
 
         try {
             requestEntity = new RequestEntity<>(headers, HttpMethod.GET, uri);
-            responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.models.Sample.class);
+            responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.model.Sample.class);
             if(!responseEntity.getStatusCode().is2xxSuccessful()) {
                 logger.error("Unable to GET:" + responseEntity.toString());
                 return null;

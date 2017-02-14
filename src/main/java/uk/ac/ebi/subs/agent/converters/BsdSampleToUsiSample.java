@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.models.Sample, Sample> {
+public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.model.Sample, Sample> {
 
     @Autowired
     BsdAttributeToUsiAttribute toUsiAttribute;
@@ -21,7 +21,7 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
     BsdRelationshipToUsiRelationship toUsiRelationship;
 
     @Override
-    public Sample convert(uk.ac.ebi.biosamples.models.Sample bioSample) {
+    public Sample convert(uk.ac.ebi.biosamples.model.Sample bioSample) {
         Sample usiSample = new Sample();
         usiSample.setAccession(bioSample.getAccession());
         usiSample.setArchive(Archive.BioSamples);
@@ -72,7 +72,7 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
         return usiSample;
     }
 
-    public List<Sample> convert(List<uk.ac.ebi.biosamples.models.Sample> biosamples) {
+    public List<Sample> convert(List<uk.ac.ebi.biosamples.model.Sample> biosamples) {
         List<Sample> usisamples = new ArrayList<>();
 
         biosamples.forEach(biosample -> usisamples.add(convert(biosample)));

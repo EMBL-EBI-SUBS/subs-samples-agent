@@ -29,7 +29,7 @@ public class AttributeConversionTest {
     TestUtils utils;
 
     private Attribute usiAttribute;
-    private uk.ac.ebi.biosamples.models.Attribute bsdAttribute;
+    private uk.ac.ebi.biosamples.model.Attribute bsdAttribute;
 
     @Before
     public void setUp() {
@@ -39,7 +39,7 @@ public class AttributeConversionTest {
 
     @Test
     public void convertFromUsiAttribute() {
-        uk.ac.ebi.biosamples.models.
+        uk.ac.ebi.biosamples.model.
                 Attribute conversion = toBsdAttribute.convert(usiAttribute);
 
         Attribute conversionBack = toUsiAttribute.convert(conversion);
@@ -51,7 +51,7 @@ public class AttributeConversionTest {
     public void convertFromBsdAttribute() {
         Attribute conversion = toUsiAttribute.convert(bsdAttribute);
 
-        uk.ac.ebi.biosamples.models.
+        uk.ac.ebi.biosamples.model.
                 Attribute conversionBack = toBsdAttribute.convert(conversion);
 
         Assert.assertEquals(bsdAttribute, conversionBack);

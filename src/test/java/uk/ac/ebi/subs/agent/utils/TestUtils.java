@@ -1,7 +1,7 @@
 package uk.ac.ebi.subs.agent.utils;
 
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biosamples.models.Relationship;
+import uk.ac.ebi.biosamples.model.Relationship;
 import uk.ac.ebi.subs.data.component.Archive;
 import uk.ac.ebi.subs.data.component.Attribute;
 import uk.ac.ebi.subs.data.component.SampleRelationship;
@@ -150,15 +150,15 @@ public class TestUtils {
 
     // -- BioSamples objects -- //
 
-    public uk.ac.ebi.biosamples.models.Sample generateBsdSample() {
-        Set<uk.ac.ebi.biosamples.models.Attribute> attributeSet = new TreeSet<>();
+    public uk.ac.ebi.biosamples.model.Sample generateBsdSample() {
+        Set<uk.ac.ebi.biosamples.model.Attribute> attributeSet = new TreeSet<>();
         attributeSet.add(generateBsdAttribute());
 
         Set<Relationship> relationshipSet = new TreeSet<>();
         relationshipSet.add(generateBsdRelationship());
 
-        uk.ac.ebi.biosamples.models.
-                Sample bsdSample = uk.ac.ebi.biosamples.models.Sample.build(
+        uk.ac.ebi.biosamples.model.
+                Sample bsdSample = uk.ac.ebi.biosamples.model.Sample.build(
                         "This is a BioSamples name",    // name
                         "SAM123",                       // accession
                         LocalDateTime.now(),            // release date
@@ -170,8 +170,8 @@ public class TestUtils {
         return bsdSample;
     }
 
-    public uk.ac.ebi.biosamples.models.Attribute generateBsdAttribute() {
-        uk.ac.ebi.biosamples.models.Attribute bsdAttribute = uk.ac.ebi.biosamples.models.Attribute.build(
+    public uk.ac.ebi.biosamples.model.Attribute generateBsdAttribute() {
+        uk.ac.ebi.biosamples.model.Attribute bsdAttribute = uk.ac.ebi.biosamples.model.Attribute.build(
                 "age",
                 "1.5",
                 "http://purl.obolibrary.org/obo/UO_0000036",

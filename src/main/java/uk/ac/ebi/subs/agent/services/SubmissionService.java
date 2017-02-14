@@ -38,8 +38,8 @@ public class SubmissionService {
 
     public List<Sample> submit(List<Sample> sampleList) {
         sampleList.forEach(usiSample -> {
-            uk.ac.ebi.biosamples.models.Sample bsdSample = toBsdSample.convert(usiSample);
-            uk.ac.ebi.biosamples.models.Sample submitted = submit(bsdSample);
+            uk.ac.ebi.biosamples.model.Sample bsdSample = toBsdSample.convert(usiSample);
+            uk.ac.ebi.biosamples.model.Sample submitted = submit(bsdSample);
             if(submitted != null) {
                 usiSample.setAccession(submitted.getAccession());
                 usiSample.setStatus(ProcessingStatus.Done);
@@ -50,7 +50,7 @@ public class SubmissionService {
         return sampleList;
     }
 
-    private uk.ac.ebi.biosamples.models.Sample submit(uk.ac.ebi.biosamples.models.Sample bsdSample) {
+    private uk.ac.ebi.biosamples.model.Sample submit(uk.ac.ebi.biosamples.model.Sample bsdSample) {
         URI uri = UriComponentsBuilder
                 .fromUriString(apiUrl)
                 .build()
@@ -59,12 +59,12 @@ public class SubmissionService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        RequestEntity<uk.ac.ebi.biosamples.models.Sample> requestEntity;
-        ResponseEntity<uk.ac.ebi.biosamples.models.Sample> responseEntity;
+        RequestEntity<uk.ac.ebi.biosamples.model.Sample> requestEntity;
+        ResponseEntity<uk.ac.ebi.biosamples.model.Sample> responseEntity;
 
         try {
             requestEntity = new RequestEntity<>(bsdSample, headers, HttpMethod.POST, uri);
-            responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.models.Sample.class);
+            responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.model.Sample.class);
             if(!responseEntity.getStatusCode().is2xxSuccessful()) {
                 logger.error("Unable to POST:" + responseEntity.toString());
                 return null;

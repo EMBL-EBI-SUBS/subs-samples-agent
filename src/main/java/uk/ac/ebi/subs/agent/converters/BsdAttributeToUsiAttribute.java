@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosamples.models.Attribute, Attribute> {
+public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosamples.model.Attribute, Attribute> {
 
     @Override
-    public Attribute convert(uk.ac.ebi.biosamples.models.Attribute bsdAttribute) {
+    public Attribute convert(uk.ac.ebi.biosamples.model.Attribute bsdAttribute) {
         Attribute usiAttribute = new Attribute();
         usiAttribute.setName(bsdAttribute.getKey());
         usiAttribute.setValue(bsdAttribute.getValue());
@@ -29,7 +29,7 @@ public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosample
         return usiAttribute;
     }
 
-    public List<Attribute> convert(Set<uk.ac.ebi.biosamples.models.Attribute> bsdAttributes) {
+    public List<Attribute> convert(Set<uk.ac.ebi.biosamples.model.Attribute> bsdAttributes) {
         List<Attribute> usiAttributes = new ArrayList<>();
 
         bsdAttributes.forEach(bsdAttribute -> usiAttributes.add(convert(bsdAttribute)));
