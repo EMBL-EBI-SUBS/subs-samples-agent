@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.data.component.Archive;
 import uk.ac.ebi.subs.data.component.SampleRef;
-import uk.ac.ebi.subs.data.status.ProcessingStatus;
+import uk.ac.ebi.subs.data.status.ProcessingStatusEnum;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
@@ -106,12 +106,12 @@ public class SamplesListener {
         }
 
         submission.getSamples().forEach(s -> {
-            s.setStatus(ProcessingStatus.Done);
+            s.setStatus(ProcessingStatusEnum.Done);
 
             certs.add(new ProcessingCertificate(
                     s,
                     Archive.BioSamples,
-                    ProcessingStatus.Done,
+                    ProcessingStatusEnum.Done,
                     s.getAccession())
             );
 
