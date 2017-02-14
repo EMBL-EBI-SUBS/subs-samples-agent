@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
@@ -56,11 +57,18 @@ public class UpdateService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        RequestEntity<uk.ac.ebi.biosamples.models.Sample> requestEntity = new RequestEntity<>(bsdSample, headers, HttpMethod.PUT, uri);
-        ResponseEntity<uk.ac.ebi.biosamples.models.Sample> responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.models.Sample.class);
+        RequestEntity<uk.ac.ebi.biosamples.models.Sample> requestEntity;
+        ResponseEntity<uk.ac.ebi.biosamples.models.Sample> responseEntity;
 
-        if(!responseEntity.getStatusCode().is2xxSuccessful()) {
-            logger.error("Unable to PUT [" + bsdSample.getAccession() + "]:" + responseEntity.toString());
+        try {
+            requestEntity = new RequestEntity<>(bsdSample, headers, HttpMethod.PUT, uri);
+            responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.models.Sample.class);
+            if(!responseEntity.getStatusCode().is2xxSuccessful()) {
+                logger.error("Unable to PUT [" + bsdSample.getAccession() + "]:" + responseEntity.toString());
+                return false;
+            }
+        } catch (HttpClientErrorException e) {
+            logger.error("Update [" + bsdSample.getAccession() + "] failed with error:", e);
             return false;
         }
         return true;

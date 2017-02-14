@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
@@ -58,13 +59,21 @@ public class SubmissionService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        RequestEntity<uk.ac.ebi.biosamples.models.Sample> requestEntity = new RequestEntity<>(bsdSample, headers, HttpMethod.POST, uri);
-        ResponseEntity<uk.ac.ebi.biosamples.models.Sample> responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.models.Sample.class);
+        RequestEntity<uk.ac.ebi.biosamples.models.Sample> requestEntity;
+        ResponseEntity<uk.ac.ebi.biosamples.models.Sample> responseEntity;
 
-        if(!responseEntity.getStatusCode().is2xxSuccessful()) {
-            logger.error("Unable to POST:" + responseEntity.toString());
+        try {
+            requestEntity = new RequestEntity<>(bsdSample, headers, HttpMethod.POST, uri);
+            responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.models.Sample.class);
+            if(!responseEntity.getStatusCode().is2xxSuccessful()) {
+                logger.error("Unable to POST:" + responseEntity.toString());
+                return null;
+            }
+        } catch (HttpClientErrorException e) {
+            logger.error("Submission failed with error:", e);
             return null;
         }
+
         logger.info("Submitted sample [" + responseEntity.getBody().getAccession() + "]");
         return responseEntity.getBody();
     }

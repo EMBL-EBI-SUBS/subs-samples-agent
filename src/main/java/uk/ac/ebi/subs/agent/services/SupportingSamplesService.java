@@ -10,10 +10,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
-import uk.ac.ebi.subs.agent.converters.UsiSampleToBsdSample;
 import uk.ac.ebi.subs.data.component.SampleRef;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
@@ -62,14 +62,21 @@ public class SupportingSamplesService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        RequestEntity<uk.ac.ebi.biosamples.models.Sample> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, uri);
-        ResponseEntity<uk.ac.ebi.biosamples.models.Sample> responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.models.Sample.class);
+        RequestEntity<uk.ac.ebi.biosamples.models.Sample> requestEntity;
+        ResponseEntity<uk.ac.ebi.biosamples.models.Sample> responseEntity;
 
-        if(!responseEntity.getStatusCode().is2xxSuccessful()) {
-            logger.error("Unable to GET:" + responseEntity.toString());
+        try {
+            requestEntity = new RequestEntity<>(headers, HttpMethod.GET, uri);
+            responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.models.Sample.class);
+            if(!responseEntity.getStatusCode().is2xxSuccessful()) {
+                logger.error("Unable to GET:" + responseEntity.toString());
+                return null;
+            }
+        } catch (HttpClientErrorException e) {
+            logger.error("Sample fetching failed with error:", e);
             return null;
         }
-        logger.info("Got sample [" + responseEntity.getBody().getAccession() + "]");
+        logger.info("Got sample [" + accession + "]");
         return toUsiSample.convert(responseEntity.getBody());
     }
 
