@@ -42,7 +42,7 @@ public class UpdateService {
             if(update(bsdSample)) {
                 usiSample.setStatus(ProcessingStatus.Done);
             } else {
-                usiSample.setStatus(ProcessingStatus.ActionRequired);
+                usiSample.setStatus(ProcessingStatus.Error);
             }
         });
     }

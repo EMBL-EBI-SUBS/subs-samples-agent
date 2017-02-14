@@ -44,7 +44,7 @@ public class SubmissionService {
                 usiSample.setAccession(submitted.getAccession());
                 usiSample.setStatus(ProcessingStatus.Done);
             } else {
-                usiSample.setStatus(ProcessingStatus.ActionRequired);
+                usiSample.setStatus(ProcessingStatus.Error);
             }
         });
         return sampleList;

@@ -37,7 +37,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
 public class SubmissionServiceTest {
-/*
+
     @Autowired
     SubmissionService submissionService;
 
@@ -63,5 +63,5 @@ public class SubmissionServiceTest {
 
         sampleList.forEach(sample -> Assert.assertNotNull(sample.getAccession()));
     }
-*/
+
 }

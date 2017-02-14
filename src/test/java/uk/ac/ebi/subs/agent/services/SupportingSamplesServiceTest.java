@@ -34,7 +34,7 @@ import java.util.UUID;
 @ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
 public class SupportingSamplesServiceTest {
-/*
+
     @Autowired
     SupportingSamplesService service;
 
@@ -91,5 +91,4 @@ public class SupportingSamplesServiceTest {
     public void setAccession(String accession) {
         this.accession = accession;
     }
-    */
 }

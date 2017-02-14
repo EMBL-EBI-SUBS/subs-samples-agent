@@ -20,6 +20,7 @@ import uk.ac.ebi.subs.messaging.Topics;
 import uk.ac.ebi.subs.processing.ProcessingCertificate;
 import uk.ac.ebi.subs.processing.ProcessingCertificateEnvelope;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
+import uk.ac.ebi.subs.processing.UpdatedSamplesEnvelope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,27 +49,25 @@ public class Listener {
     public void handleSamplesSubmission(SubmissionEnvelope envelope) {
         FullSubmission submission = envelope.getSubmission();
         logger.debug("Received submission [" + submission.getId() + "]");
-        List<Sample> completeSampleList = new ArrayList<>(submission.getSamples());
         ProcessingCertificateEnvelope certificateEnvelope = new ProcessingCertificateEnvelope(submission.getId());
 
-        // Update existing samples
-        List<Sample> existingSamples = completeSampleList
-                .parallelStream()
-                .filter(sample -> sample.getAccession() != null && !sample.getAccession().isEmpty())
-                .collect(Collectors.toList());
-        updateService.update(existingSamples);
-        List<Sample> handledSamples = new ArrayList<>(existingSamples);
+        List<Sample> samplesToUpdate = getSamplesToUpdate(submission.getSamples()); // Update
+        updateService.update(samplesToUpdate);
+        List<Sample> handledSamples = new ArrayList<>(samplesToUpdate);
 
-        // Submit new samples
-        List<Sample> newSamples = completeSampleList
-                .parallelStream()
-                .filter(sample -> sample.getAccession() == null || sample.getAccession().isEmpty())
-                .collect(Collectors.toList());
-        handledSamples.addAll(submissionService.submit(newSamples));
+        List<Sample> samplesToSubmit = getSamplesToSubmit(submission.getSamples()); // Submit
+        handledSamples.addAll(submissionService.submit(samplesToSubmit));
 
-        List<ProcessingCertificate> processingCertificateList = generateCertificates(handledSamples);
+        UpdatedSamplesEnvelope updatedSamplesEnvelope = new UpdatedSamplesEnvelope(); // Updated envelope
+        updatedSamplesEnvelope.setSubmissionId(submission.getId());
+        updatedSamplesEnvelope.setUpdatedSamples(samplesToUpdate);
+
+        List<ProcessingCertificate> processingCertificateList = generateCertificates(handledSamples); // Handled certificates
         certificateEnvelope.setProcessingCertificates(processingCertificateList);
 
+        // TODO - if a sample has status = error
+
+        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SAMPLES_UPDATED, updatedSamplesEnvelope);
         rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_AGENT_RESULTS, certificateEnvelope);
     }
 
@@ -80,8 +79,12 @@ public class Listener {
         List<Sample> sampleList = supportingSamplesService.findSamples(envelope);
         envelope.setSupportingSamples(sampleList);
 
-        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);
-        logger.debug("Supporting samples provided for submission {" + envelope.getSubmission().getId() + "}");
+        if(!envelope.getSupportingSamplesRequired().isEmpty()) {    // Missing required samples
+            rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_NEEDS_SAMPLES, envelope);
+        } else{
+            rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);
+            logger.debug("Supporting samples provided for submission {" + envelope.getSubmission().getId() + "}");
+        }
     }
 
     private List<ProcessingCertificate> generateCertificates(List<Sample> sampleList) {
@@ -96,5 +99,19 @@ public class Listener {
             processingCertificateList.add(pc);
         });
         return processingCertificateList;
+    }
+
+    private List<Sample> getSamplesToUpdate(List<Sample> allSamples) {
+        return allSamples
+                .stream()
+                .filter(sample -> sample.getAccession() != null && !sample.getAccession().isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    private List<Sample> getSamplesToSubmit(List<Sample> allSamples) {
+        return allSamples
+                .stream()
+                .filter(sample -> sample.getAccession() == null || sample.getAccession().isEmpty())
+                .collect(Collectors.toList());
     }
 }
