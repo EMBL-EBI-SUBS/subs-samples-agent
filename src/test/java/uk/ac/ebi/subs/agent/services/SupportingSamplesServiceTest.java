@@ -3,6 +3,7 @@ package uk.ac.ebi.subs.agent.services;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.subs.BioSamplesDependentTest;
 import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
 import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
@@ -60,8 +62,8 @@ public class SupportingSamplesServiceTest {
     }
 
     @Test
+    @Category(BioSamplesDependentTest.class)
     public void successfulSupportingSamplesServiceTest() {
-        /*
         List<Sample> sampleList = null;
         try {
             sampleList = service.findSamples(envelope);
@@ -70,12 +72,12 @@ public class SupportingSamplesServiceTest {
         }
         System.out.println(sampleList.get(0));
         Assert.assertNotNull(sampleList);
-        */
     }
 
     @Test
+    @Category(BioSamplesDependentTest.class)
     public void sampleNotFoundTest() {
-        /*envelope.getSupportingSamplesRequired().iterator().forEachRemaining(s -> s.setAccession("SAM"));
+        envelope.getSupportingSamplesRequired().iterator().forEachRemaining(s -> s.setAccession("SAM"));
 
         List<Sample> sampleList = null;
         try {
@@ -83,7 +85,7 @@ public class SupportingSamplesServiceTest {
         } catch (Exception e) {
             e.printStackTrace();
             Assert.assertNull(sampleList);
-        }*/
+        }
     }
 
     public String getAccession() {

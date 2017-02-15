@@ -3,6 +3,7 @@ package uk.ac.ebi.subs.agent.services;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -10,6 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.subs.BioSamplesDependentTest;
 import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
 import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
@@ -52,8 +54,8 @@ public class SubmissionServiceTest {
     }
 
     @Test
+    @Category(BioSamplesDependentTest.class)
     public void submit() {
-        /*
         List<Sample> sampleList = null;
         try {
             sampleList = submissionService.submit(Arrays.asList(sample));
@@ -61,9 +63,7 @@ public class SubmissionServiceTest {
             e.printStackTrace();
             Assert.fail();
         }
-
         sampleList.forEach(sample -> Assert.assertNotNull(sample.getAccession()));
-        */
     }
 
 }
