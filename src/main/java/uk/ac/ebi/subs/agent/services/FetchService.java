@@ -26,8 +26,8 @@ import java.util.TreeSet;
 
 @Service
 @ConfigurationProperties(prefix = "biosamples")
-public class SupportingSamplesService {
-    private static final Logger logger = LoggerFactory.getLogger(SupportingSamplesService.class);
+public class FetchService {
+    private static final Logger logger = LoggerFactory.getLogger(FetchService.class);
 
     @Autowired
     private RestTemplate restTemplate;

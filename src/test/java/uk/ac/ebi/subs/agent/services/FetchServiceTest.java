@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
-        SupportingSamplesService.class,
+        FetchService.class,
         RestTemplate.class,
         BsdSampleToUsiSample.class,
         BsdAttributeToUsiAttribute.class,
@@ -35,10 +35,10 @@ import java.util.UUID;
 })
 @ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
-public class SupportingSamplesServiceTest {
+public class FetchServiceTest {
 
     @Autowired
-    SupportingSamplesService service;
+    FetchService service;
 
     private String accession;
 

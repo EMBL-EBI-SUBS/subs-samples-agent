@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.subs.agent.services.SubmissionService;
-import uk.ac.ebi.subs.agent.services.SupportingSamplesService;
+import uk.ac.ebi.subs.agent.services.FetchService;
 import uk.ac.ebi.subs.agent.services.UpdateService;
 import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.data.component.Archive;
@@ -33,7 +33,7 @@ public class Listener {
     private RabbitMessagingTemplate rabbitMessagingTemplate;
 
     @Autowired
-    SupportingSamplesService supportingSamplesService;
+    FetchService fetchService;
     @Autowired
     SubmissionService submissionService;
     @Autowired
@@ -76,7 +76,7 @@ public class Listener {
         FullSubmission submission = envelope.getSubmission();
         logger.debug("Received supporting samples request from submission [" + submission.getId() + "]");
 
-        List<Sample> sampleList = supportingSamplesService.findSamples(envelope);
+        List<Sample> sampleList = fetchService.findSamples(envelope);
         envelope.setSupportingSamples(sampleList);
 
         if(!envelope.getSupportingSamplesRequired().isEmpty()) {    // Missing required samples
