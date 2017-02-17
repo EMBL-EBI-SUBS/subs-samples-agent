@@ -8,9 +8,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
@@ -53,22 +53,21 @@ public class UpdateService {
                 .path(bsdSample.getAccession())
                 .build()
                 .toUri();
-        logger.debug("URI: " + uri);
+        logger.info("URI: " + uri);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         RequestEntity<uk.ac.ebi.biosamples.model.Sample> requestEntity;
-        ResponseEntity<uk.ac.ebi.biosamples.model.Sample> responseEntity;
 
         try {
             requestEntity = new RequestEntity<>(bsdSample, headers, HttpMethod.PUT, uri);
-            responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.model.Sample.class);
-            if(!responseEntity.getStatusCode().is2xxSuccessful()) {
-                logger.error("Unable to PUT [" + bsdSample.getAccession() + "]:" + responseEntity.toString());
-                return false;
-            }
-        } catch (HttpClientErrorException e) {
+            restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.model.Sample.class);
+
+        } catch (HttpServerErrorException e) {
             logger.error("Update [" + bsdSample.getAccession() + "] failed with error:", e);
+            return false;
+        } catch (ResourceAccessException e) {
+            logger.error("Could not reach BioSamples", e);
             return false;
         }
         return true;

@@ -10,7 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
@@ -39,7 +40,7 @@ public class SubmissionService {
     public List<Sample> submit(List<Sample> sampleList) {
         sampleList.forEach(usiSample -> {
             uk.ac.ebi.biosamples.model.Sample bsdSample = toBsdSample.convert(usiSample);
-            uk.ac.ebi.biosamples.model.Sample submitted = submit(bsdSample);
+            Sample submitted = submit(bsdSample);
             if(submitted != null) {
                 usiSample.setAccession(submitted.getAccession());
                 usiSample.setStatus(ProcessingStatus.Done);
@@ -50,7 +51,8 @@ public class SubmissionService {
         return sampleList;
     }
 
-    private uk.ac.ebi.biosamples.model.Sample submit(uk.ac.ebi.biosamples.model.Sample bsdSample) {
+    private Sample submit(uk.ac.ebi.biosamples.model.Sample bsdSample) {
+        logger.info("Submitting sample.");
         URI uri = UriComponentsBuilder
                 .fromUriString(apiUrl)
                 .build()
@@ -62,20 +64,25 @@ public class SubmissionService {
         RequestEntity<uk.ac.ebi.biosamples.model.Sample> requestEntity;
         ResponseEntity<uk.ac.ebi.biosamples.model.Sample> responseEntity;
 
+        Sample usiSample = null;
         try {
             requestEntity = new RequestEntity<>(bsdSample, headers, HttpMethod.POST, uri);
             responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.model.Sample.class);
-            if(!responseEntity.getStatusCode().is2xxSuccessful()) {
-                logger.error("Unable to POST:" + responseEntity.toString());
-                return null;
-            }
-        } catch (HttpClientErrorException e) {
-            logger.error("Submission failed with error:", e);
-            return null;
-        }
+            usiSample = toUsiSample.convert(responseEntity.getBody());
 
-        logger.info("Submitted sample [" + responseEntity.getBody().getAccession() + "]");
-        return responseEntity.getBody();
+        } catch (HttpServerErrorException e) {
+            logger.error("Submission failed with error:", e);
+        } catch (ResourceAccessException e) {
+            logger.error("Could not reach BioSamples", e);
+        } finally {
+            if(usiSample == null) {
+                usiSample = new Sample();
+                usiSample.setStatus(ProcessingStatus.Error);
+                logger.error("Sample submission failed.");
+            }
+        }
+        logger.info("Got accession [" + usiSample.getAccession() + "]");
+        return usiSample;
     }
 
     public String getApiUrl() {

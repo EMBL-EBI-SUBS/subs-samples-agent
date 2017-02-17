@@ -57,4 +57,10 @@ public class UpdateServiceTest {
         updateService.update(Arrays.asList(sample));
     }
 
+    @Test
+    @Category(BioSamplesDependentTest.class)
+    public void updateFail() {
+        sample.setAccession("FAIL");
+        updateService.update(Arrays.asList(sample));
+    }
 }

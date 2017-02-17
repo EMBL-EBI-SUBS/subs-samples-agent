@@ -10,10 +10,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
+import uk.ac.ebi.subs.agent.exceptions.SampleNotFoundException;
 import uk.ac.ebi.subs.data.component.SampleRef;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
@@ -26,7 +28,7 @@ import java.util.TreeSet;
 
 @Service
 @ConfigurationProperties(prefix = "biosamples")
-public class FetchService {
+public class   FetchService {
     private static final Logger logger = LoggerFactory.getLogger(FetchService.class);
 
     @Autowired
@@ -43,7 +45,12 @@ public class FetchService {
         Set<String> sampleSet = identifySamplesToFind(sampleRefs);
 
         sampleSet.forEach(acc -> {
-            Sample usiSample = findSample(acc);
+            Sample usiSample = null;
+            try {
+                usiSample = findSample(acc);
+            } catch (SampleNotFoundException e) {
+                logger.error("Sample not found.", e);
+            }
             if(usiSample != null) {
                 sampleList.add(usiSample);
                 sampleRefs.removeIf(ref -> acc.equals(ref.getAccession()));
@@ -52,7 +59,7 @@ public class FetchService {
         return sampleList;
     }
 
-    private Sample findSample(String accession) {
+    private Sample findSample(String accession) throws SampleNotFoundException {
         URI uri = UriComponentsBuilder
                 .fromUriString(apiUrl)
                 .path(accession)
@@ -65,19 +72,17 @@ public class FetchService {
         RequestEntity<uk.ac.ebi.biosamples.model.Sample> requestEntity;
         ResponseEntity<uk.ac.ebi.biosamples.model.Sample> responseEntity;
 
+        Sample usiSample = new Sample();
         try {
             requestEntity = new RequestEntity<>(headers, HttpMethod.GET, uri);
             responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.model.Sample.class);
-            if(!responseEntity.getStatusCode().is2xxSuccessful()) {
-                logger.error("Unable to GET:" + responseEntity.toString());
-                return null;
-            }
-        } catch (HttpClientErrorException e) {
-            logger.error("Sample fetching failed with error:", e);
-            return null;
+            usiSample = toUsiSample.convert(responseEntity.getBody());
+        } catch (HttpServerErrorException e) {
+            throw new SampleNotFoundException(accession, e);
+        } catch (ResourceAccessException e) {
+            logger.error("Could not reach BioSamples", e);
         }
-        logger.info("Got sample [" + accession + "]");
-        return toUsiSample.convert(responseEntity.getBody());
+        return usiSample;
     }
 
     private Set<String> identifySamplesToFind(Set<SampleRef> sampleRefs) {

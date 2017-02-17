@@ -22,6 +22,7 @@ import uk.ac.ebi.subs.data.component.SampleRef;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,13 +80,8 @@ public class FetchServiceTest {
     public void sampleNotFoundTest() {
         envelope.getSupportingSamplesRequired().iterator().forEachRemaining(s -> s.setAccession("SAM"));
 
-        List<Sample> sampleList = null;
-        try {
-            sampleList = service.findSamples(envelope);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.assertNull(sampleList);
-        }
+        List<Sample> sampleList = service.findSamples(envelope);
+        Assert.assertEquals(new ArrayList<>(), sampleList);
     }
 
     public String getAccession() {
