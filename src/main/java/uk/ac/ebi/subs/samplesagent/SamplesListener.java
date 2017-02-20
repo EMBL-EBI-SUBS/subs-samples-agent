@@ -106,7 +106,6 @@ public class SamplesListener {
         }
 
         submission.getSamples().forEach(s -> {
-            s.setStatus(ProcessingStatusEnum.Done);
 
             certs.add(new ProcessingCertificate(
                     s,
