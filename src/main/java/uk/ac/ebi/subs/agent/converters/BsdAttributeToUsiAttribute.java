@@ -21,8 +21,8 @@ public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosample
         usiAttribute.setUnits(bsdAttribute.getUnit());
 
         Term term = new Term();
-        if(bsdAttribute.getIri() != null && !bsdAttribute.getIri().isEmpty()) {
-            term.setUrl(bsdAttribute.getIri());
+        if(bsdAttribute.getIri() != null) {
+            term.setUrl(bsdAttribute.getIri().toASCIIString());
             usiAttribute.setTerms(Arrays.asList(term));
         }
 
@@ -32,7 +32,7 @@ public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosample
     public List<Attribute> convert(Set<uk.ac.ebi.biosamples.model.Attribute> bsdAttributes) {
         List<Attribute> usiAttributes = new ArrayList<>();
 
-        bsdAttributes.forEach(bsdAttribute -> usiAttributes.add(convert(bsdAttribute)));
+        if (bsdAttributes != null) bsdAttributes.forEach(bsdAttribute -> usiAttributes.add(convert(bsdAttribute)));
 
         return usiAttributes;
     }
