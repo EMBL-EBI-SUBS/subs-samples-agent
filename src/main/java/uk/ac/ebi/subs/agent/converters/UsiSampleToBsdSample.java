@@ -1,5 +1,7 @@
 package uk.ac.ebi.subs.agent.converters;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.convert.converter.Converter;
@@ -7,6 +9,10 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biosamples.model.Attribute;
 import uk.ac.ebi.biosamples.model.Sample;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +29,8 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
     UsiRelationshipToBsdRelationship toBsdRelationship;
 
     private String ncbiBaseUrl = "http://purl.obolibrary.org/obo/NCBITaxon_";
+
+    private static final Logger logger = LoggerFactory.getLogger(UsiSampleToBsdSample.class);
 
     @Override
     public Sample convert(uk.ac.ebi.subs.data.submittable.Sample usiSample) {
@@ -54,7 +62,17 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
             attributeSet.add(att);
         }
         if(usiSample.getTaxon() != null) {
-            Attribute att = Attribute.build("taxon", usiSample.getTaxon(), ncbiBaseUrl + usiSample.getTaxonId(), null);
+            URI uri = null;
+            try {
+                URL url = new URL(ncbiBaseUrl + usiSample.getTaxonId());
+                uri = url.toURI();
+            } catch (MalformedURLException e) {
+                logger.error("Malformed URL " + ncbiBaseUrl, e);
+            } catch (URISyntaxException use) {
+                logger.error("URISyntaxException " + ncbiBaseUrl, use);
+            }
+
+            Attribute att = Attribute.build("taxon", usiSample.getTaxon(), uri, null);
             attributeSet.add(att);
         }
         if(usiSample.getDescription() != null) {

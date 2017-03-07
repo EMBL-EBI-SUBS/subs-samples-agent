@@ -8,6 +8,8 @@ import uk.ac.ebi.subs.data.component.SampleRelationship;
 import uk.ac.ebi.subs.data.component.Term;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
@@ -171,10 +173,16 @@ public class TestUtils {
     }
 
     public uk.ac.ebi.biosamples.model.Attribute generateBsdAttribute() {
+        URI uri = null;
+        try {
+            uri = new URI("http://purl.obolibrary.org/obo/UO_0000036");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         uk.ac.ebi.biosamples.model.Attribute bsdAttribute = uk.ac.ebi.biosamples.model.Attribute.build(
                 "age",
                 "1.5",
-                "http://purl.obolibrary.org/obo/UO_0000036",
+                uri,
                 "year"
         );
         return bsdAttribute;
