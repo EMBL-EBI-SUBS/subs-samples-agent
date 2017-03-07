@@ -110,7 +110,7 @@ public class SamplesListener {
             certs.add(new ProcessingCertificate(
                     s,
                     Archive.BioSamples,
-                    ProcessingStatusEnum.Done,
+                    ProcessingStatusEnum.Completed,
                     s.getAccession())
             );
 
