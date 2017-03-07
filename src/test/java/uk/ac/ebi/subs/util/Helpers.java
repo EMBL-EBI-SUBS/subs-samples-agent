@@ -2,9 +2,8 @@ package uk.ac.ebi.subs.util;
 
 
 import uk.ac.ebi.subs.data.FullSubmission;
-import uk.ac.ebi.subs.data.component.Domain;
+import uk.ac.ebi.subs.data.component.Team;
 import uk.ac.ebi.subs.data.submittable.Sample;
-import uk.ac.ebi.subs.data.Submission;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +38,10 @@ public class Helpers {
         samples.add(sample3);
         sample3.setDescription("Test sample 3.");
 
-        Domain d = new Domain();
-        d.setName("sampleTestDomain");
+        Team d = new Team();
+        d.setName("sampleTestTeam");
 
-        samples.forEach(s -> s.setDomain(d));
+        samples.forEach(s -> s.setTeam(d));
 
         return samples;
     }
@@ -51,7 +50,7 @@ public class Helpers {
         FullSubmission sub = new FullSubmission();
         sub.setSamples(generateTestSamples());
         sub.getSubmitter().setEmail("test@ebi.ac.uk");
-        sub.getDomain().setName("test-subs");
+        sub.getTeam().setName("test-subs");
         return sub;
     }
 

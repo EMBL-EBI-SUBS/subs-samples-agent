@@ -78,7 +78,7 @@ public class SamplesListener {
         // these samples must be updates, as they are already accessioned
         List<Sample> accessionedSamples = submission.getSamples().stream().filter(s -> s.getAccession() != null).collect(Collectors.toList());
 
-        //these samples might be updates, if the alias+domain are already used
+        //these samples might be updates, if the alias+team are already used
         List<Sample> samplesWithoutAccession = submission.getSamples().stream().filter(s -> s.getAccession() == null).collect(Collectors.toList());
 
         //we need the aliases in an array to make a bulk query
@@ -87,7 +87,7 @@ public class SamplesListener {
 
         // check the db for these aliases, store any by alias
         Map<String, Sample> knownSamplesByAlias = new HashMap<>();
-        repository.findByDomainAndAlias(submission.getDomain().getName(), aliasesForSamplesWithoutAccession).forEach(
+        repository.findByTeamAndAlias(submission.getTeam().getName(), aliasesForSamplesWithoutAccession).forEach(
                 sample -> knownSamplesByAlias.put(sample.getAlias(), sample)
         );
 
