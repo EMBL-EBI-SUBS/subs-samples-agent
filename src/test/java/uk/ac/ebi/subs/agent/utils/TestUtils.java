@@ -166,7 +166,8 @@ public class TestUtils {
                         LocalDateTime.now(),            // release date
                         LocalDateTime.now(),            // update date
                         attributeSet,                   // attributes
-                        relationshipSet                 // relationships
+                        relationshipSet,                // relationships
+                        new TreeSet<URI>()
         );
 
         return bsdSample;

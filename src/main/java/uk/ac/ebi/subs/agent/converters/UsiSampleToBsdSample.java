@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 @Service
@@ -38,6 +39,8 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
 
         LocalDateTime release = null;
         LocalDateTime update = null;
+
+        TreeSet<URI> externalRefs = new TreeSet<>();
 
         if(usiSample.getAttributes() != null) {
             for (uk.ac.ebi.subs.data.component.Attribute att : usiSample.getAttributes()) {
@@ -88,7 +91,8 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
                 release,                                                        // release date
                 update,                                                         // update date
                 attributeSet,                                                   // attributes
-                toBsdRelationship.convert(usiSample.getSampleRelationships())   // relationships
+                toBsdRelationship.convert(usiSample.getSampleRelationships()),  // relationships
+                externalRefs
         );
 
         return bioSample;
