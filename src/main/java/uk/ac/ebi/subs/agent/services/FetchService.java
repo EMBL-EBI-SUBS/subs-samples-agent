@@ -72,7 +72,7 @@ public class   FetchService {
         RequestEntity<uk.ac.ebi.biosamples.model.Sample> requestEntity;
         ResponseEntity<uk.ac.ebi.biosamples.model.Sample> responseEntity;
 
-        Sample usiSample = new Sample();
+        Sample usiSample = null;
         try {
             requestEntity = new RequestEntity<>(headers, HttpMethod.GET, uri);
             responseEntity = restTemplate.exchange(requestEntity, uk.ac.ebi.biosamples.model.Sample.class);
