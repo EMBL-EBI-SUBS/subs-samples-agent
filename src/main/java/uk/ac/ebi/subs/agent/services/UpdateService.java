@@ -39,11 +39,11 @@ public class UpdateService {
     public void update(List<Sample> sampleList) {
         sampleList.forEach(usiSample -> {
             uk.ac.ebi.biosamples.model.Sample bsdSample = toBsdSample.convert(usiSample);
-            if(update(bsdSample)) {
-                usiSample.setStatus(ProcessingStatus.Done);
+            /*if(update(bsdSample)) {
+                usiSample.setStatus(ProcessingStatus.Done); FIXME
             } else {
                 usiSample.setStatus(ProcessingStatus.Error);
-            }
+            }*/
         });
     }
 

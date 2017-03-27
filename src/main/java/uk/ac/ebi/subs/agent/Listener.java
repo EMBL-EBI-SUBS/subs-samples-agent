@@ -13,6 +13,7 @@ import uk.ac.ebi.subs.agent.services.UpdateService;
 import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.data.component.Archive;
 import uk.ac.ebi.subs.data.status.ProcessingStatus;
+import uk.ac.ebi.subs.data.status.ProcessingStatusEnum;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
@@ -94,7 +95,8 @@ public class Listener {
             ProcessingCertificate pc = new ProcessingCertificate(
                     sample,
                     Archive.BioSamples,
-                    ProcessingStatus.valueOf(sample.getStatus())
+                    ProcessingStatusEnum.Accepted, // FIXME - infer correct status
+                    sample.getAccession()
             );
             processingCertificateList.add(pc);
         });

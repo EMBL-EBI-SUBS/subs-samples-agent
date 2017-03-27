@@ -17,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
 import uk.ac.ebi.subs.agent.converters.UsiSampleToBsdSample;
 import uk.ac.ebi.subs.data.status.ProcessingStatus;
+import uk.ac.ebi.subs.data.status.ProcessingStatusEnum;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.net.URI;
@@ -43,10 +44,10 @@ public class SubmissionService {
             Sample submitted = submit(bsdSample);
             if(submitted != null) {
                 usiSample.setAccession(submitted.getAccession());
-                usiSample.setStatus(ProcessingStatus.Done);
-            } else {
-                usiSample.setStatus(ProcessingStatus.Error);
-            }
+                //usiSample.s.setStatus(ProcessingStatusEnum.Submitted); FIXME
+            }// else {
+            //    usiSample.setStatus(ProcessingStatus.Error);
+            //}
         });
         return sampleList;
     }
@@ -77,7 +78,7 @@ public class SubmissionService {
         } finally {
             if(usiSample == null) {
                 usiSample = new Sample();
-                usiSample.setStatus(ProcessingStatus.Error);
+                //usiSample.setStatus(ProcessingStatus.Error);
                 logger.error("Sample submission failed.");
             }
         }
