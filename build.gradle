@@ -13,6 +13,11 @@ apply plugin: 'application'
 
 version = "1.0.0"
 
+mainClassName = "uk.ac.ebi.subs.SamplesAgentApplication"
+springBoot {
+    executable = true
+}
+
 configure(allprojects) {
     apply plugin: 'propdeps'
     apply plugin: 'propdeps-maven'
