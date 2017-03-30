@@ -11,7 +11,11 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.biosamples.client.BioSamplesClient;
+import uk.ac.ebi.biosamples.client.BioSamplesClientConfig;
+import uk.ac.ebi.biosamples.client.ClientProperties;
 import uk.ac.ebi.subs.BioSamplesDependentTest;
 import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
 import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
@@ -29,7 +33,10 @@ import java.util.UUID;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
         FetchService.class,
-        RestTemplate.class,
+        BioSamplesClient.class,
+        ClientProperties.class,
+        BioSamplesClientConfig.class,
+        RestOperations.class,
         BsdSampleToUsiSample.class,
         BsdAttributeToUsiAttribute.class,
         BsdRelationshipToUsiRelationship.class
@@ -65,7 +72,6 @@ public class FetchServiceTest {
     @Test
     @Category(BioSamplesDependentTest.class)
     public void successfulSupportingSamplesServiceTest() {
-        /*
         List<Sample> sampleList = null;
         try {
             sampleList = service.findSamples(envelope);
@@ -74,17 +80,15 @@ public class FetchServiceTest {
         }
         System.out.println(sampleList.get(0));
         Assert.assertNotNull(sampleList);
-        */
     }
 
     @Test
     @Category(BioSamplesDependentTest.class)
     public void sampleNotFoundTest() {
-        /*
         envelope.getSupportingSamplesRequired().iterator().forEachRemaining(s -> s.setAccession("SAM"));
 
         List<Sample> sampleList = service.findSamples(envelope);
-        Assert.assertEquals(new ArrayList<>(), sampleList);*/
+        Assert.assertEquals(new ArrayList<>(), sampleList);
     }
 
     public String getAccession() {

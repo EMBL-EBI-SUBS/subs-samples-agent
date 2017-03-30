@@ -37,6 +37,11 @@ dependencies {
         exclude group: 'org.springframework.boot'
     }
 
+    compile('uk.ac.ebi.biosamples:client:4.0.0-SNAPSHOT') {
+        changing = true
+        exclude group: 'org.springframework.boot'
+    }
+
     testCompile("junit:junit")
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile project(':subs-test-categories')
