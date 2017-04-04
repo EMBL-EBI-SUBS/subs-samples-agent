@@ -16,13 +16,13 @@ public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosample
     @Override
     public Attribute convert(uk.ac.ebi.biosamples.model.Attribute bsdAttribute) {
         Attribute usiAttribute = new Attribute();
-        usiAttribute.setName(bsdAttribute.getKey());
+        usiAttribute.setName(bsdAttribute.getType());
         usiAttribute.setValue(bsdAttribute.getValue());
         usiAttribute.setUnits(bsdAttribute.getUnit());
 
         Term term = new Term();
         if(bsdAttribute.getIri() != null) {
-            term.setUrl(bsdAttribute.getIri().toASCIIString());
+            term.setUrl(bsdAttribute.getIri());
             usiAttribute.setTerms(Arrays.asList(term));
         }
 

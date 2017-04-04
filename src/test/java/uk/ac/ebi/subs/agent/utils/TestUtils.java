@@ -1,6 +1,7 @@
 package uk.ac.ebi.subs.agent.utils;
 
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.biosamples.model.ExternalReference;
 import uk.ac.ebi.biosamples.model.Relationship;
 import uk.ac.ebi.subs.data.component.Archive;
 import uk.ac.ebi.subs.data.component.Attribute;
@@ -146,7 +147,8 @@ public class TestUtils {
     public SampleRelationship generateUsiRelationship() {
         SampleRelationship usiRelationship = new SampleRelationship();
         usiRelationship.setRelationshipNature("Child of");
-        usiRelationship.setAccession("SAM123");
+        usiRelationship.setAccession("SAM990");
+        usiRelationship.setTargetAccession("SAM678");
         return usiRelationship;
     }
 
@@ -167,19 +169,15 @@ public class TestUtils {
                         LocalDateTime.now(),            // update date
                         attributeSet,                   // attributes
                         relationshipSet,                // relationships
-                        new TreeSet<URI>()
+                        new TreeSet<ExternalReference>()
         );
 
         return bsdSample;
     }
 
     public uk.ac.ebi.biosamples.model.Attribute generateBsdAttribute() {
-        URI uri = null;
-        try {
-            uri = new URI("http://purl.obolibrary.org/obo/UO_0000036");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        String uri = "http://purl.obolibrary.org/obo/UO_0000036";
+
         uk.ac.ebi.biosamples.model.Attribute bsdAttribute = uk.ac.ebi.biosamples.model.Attribute.build(
                 "age",
                 "1.5",
@@ -192,8 +190,8 @@ public class TestUtils {
     public Relationship generateBsdRelationship() {
         Relationship bsdRelationship = Relationship.build(
                 "Child of", // type
-                "",         // target
-                "SAM123"    // source
+                "SAM456",  // target
+                "SAM123"   // source
         );
         return bsdRelationship;
     }

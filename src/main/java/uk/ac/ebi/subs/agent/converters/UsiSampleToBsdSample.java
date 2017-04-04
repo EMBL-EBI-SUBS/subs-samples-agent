@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biosamples.model.Attribute;
+import uk.ac.ebi.biosamples.model.ExternalReference;
 import uk.ac.ebi.biosamples.model.Sample;
 
 import java.net.MalformedURLException;
@@ -40,7 +41,7 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
         LocalDateTime release = null;
         LocalDateTime update = null;
 
-        TreeSet<URI> externalRefs = new TreeSet<>();
+        TreeSet<ExternalReference> externalRefs = new TreeSet<>();
 
         if(usiSample.getAttributes() != null) {
             for (uk.ac.ebi.subs.data.component.Attribute att : usiSample.getAttributes()) {
@@ -65,16 +66,7 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
             attributeSet.add(att);
         }
         if(usiSample.getTaxon() != null) {
-            URI uri = null;
-            try {
-                URL url = new URL(ncbiBaseUrl + usiSample.getTaxonId());
-                uri = url.toURI();
-            } catch (MalformedURLException e) {
-                logger.error("Malformed URL " + ncbiBaseUrl, e);
-            } catch (URISyntaxException use) {
-                logger.error("URISyntaxException " + ncbiBaseUrl, use);
-            }
-
+            String uri = ncbiBaseUrl + usiSample.getTaxonId();
             Attribute att = Attribute.build("taxon", usiSample.getTaxon(), uri, null);
             attributeSet.add(att);
         }

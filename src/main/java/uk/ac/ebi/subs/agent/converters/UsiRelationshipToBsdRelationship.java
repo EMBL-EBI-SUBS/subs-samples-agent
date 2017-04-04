@@ -18,8 +18,8 @@ public class UsiRelationshipToBsdRelationship implements Converter<SampleRelatio
         if(usiRelationship != null) {
             bsdRelationship = Relationship.build(
                     usiRelationship.getRelationshipNature(),    // type
-                    "",                                         // target FIXME
-                    usiRelationship.getAccession()              // source ???
+                    usiRelationship.getTargetAccession(),       // target
+                    usiRelationship.getAccession()              // source (itself)
             );
         }
         return bsdRelationship;

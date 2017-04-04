@@ -19,13 +19,10 @@ public class UsiAttributeToBsdAttribute implements Converter<uk.ac.ebi.subs.data
 
     @Override
     public Attribute convert(uk.ac.ebi.subs.data.component.Attribute usiAttribute) {
-        URI uri = null;
+        String uri = null;
         if(usiAttribute.getTerms() != null && !usiAttribute.getTerms().isEmpty()) {
-            try {
-                uri = new URI(usiAttribute.getTerms().get(0).getUrl());
-            } catch (URISyntaxException e) {
-                logger.error("URISyntaxException " + usiAttribute.getTerms().get(0).getUrl(),e);
-            }
+            uri = usiAttribute.getTerms().get(0).getUrl();
+
         }
 
         Attribute bsdAttribute = Attribute.build(
