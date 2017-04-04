@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biosamples.client.BioSamplesClient;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
+import uk.ac.ebi.subs.agent.exceptions.SampleNotFoundException;
 import uk.ac.ebi.subs.data.component.SampleRef;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
@@ -27,7 +28,7 @@ public class   FetchService {
     @Autowired
     BsdSampleToUsiSample toUsiSample;
 
-    public List<Sample> findSamples(SubmissionEnvelope envelope) {
+    public List<Sample> findSamples(SubmissionEnvelope envelope) throws SampleNotFoundException {
         Set<SampleRef> sampleRefs = envelope.getSupportingSamplesRequired();
         List<Sample> sampleList = new ArrayList<>();
         Set<String> sampleSet = identifySamplesToFind(sampleRefs);
@@ -37,8 +38,7 @@ public class   FetchService {
             try {
                 sample = toUsiSample.convert(client.fetchResource(acc).getContent());
             } catch (RuntimeException e) {
-                //throw new SampleNotFoundException(acc, e);
-                logger.error("Could not find sample with accession [" + acc + "]", e);
+                throw new SampleNotFoundException(acc, e);
             }
             if(sample !=  null) {
                 sampleList.add(sample);

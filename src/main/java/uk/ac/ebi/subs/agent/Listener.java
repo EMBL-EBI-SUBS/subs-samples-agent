@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.subs.agent.exceptions.SampleNotFoundException;
 import uk.ac.ebi.subs.agent.services.SubmissionService;
 import uk.ac.ebi.subs.agent.services.FetchService;
 import uk.ac.ebi.subs.agent.services.UpdateService;
@@ -77,7 +78,12 @@ public class Listener {
         FullSubmission submission = envelope.getSubmission();
         logger.debug("Received supporting samples request from submission [" + submission.getId() + "]");
 
-        List<Sample> sampleList = fetchService.findSamples(envelope);
+        List<Sample> sampleList = null;
+        try {
+            sampleList = fetchService.findSamples(envelope);
+        } catch (SampleNotFoundException e) {
+            e.printStackTrace();
+        }
         envelope.setSupportingSamples(sampleList);
 
         if(!envelope.getSupportingSamplesRequired().isEmpty()) {    // Missing required samples

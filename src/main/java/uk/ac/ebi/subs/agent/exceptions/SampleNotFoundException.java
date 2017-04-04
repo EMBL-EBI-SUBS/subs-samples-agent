@@ -1,6 +1,6 @@
 package uk.ac.ebi.subs.agent.exceptions;
 
-public class SampleNotFoundException extends RuntimeException {
+public class SampleNotFoundException extends Exception {
     private static final long serialVersionUID = -7380626029205082044L;
 
     public SampleNotFoundException(String accession, Throwable e) {
