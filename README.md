@@ -1,4 +1,4 @@
-#Samples Agent
+# Samples Agent
 [![Build Status](https://travis-ci.org/EMBL-EBI-SUBS/subs.svg?branch=SUBS-287-samples-agent)](https://travis-ci.org/EMBL-EBI-SUBS/subs)
 Under active development on branch [SUBS-287-samples-agent](https://github.com/EMBL-EBI-SUBS/subs/tree/SUBS-287-samples-agent)
 
@@ -7,20 +7,28 @@ This module contains the USI Sample Agent which is the agent in charge of mediat
 - Update of existing samples
 - Fetching existing samples
 
-##About
+## About
 This is a Spring Boot application, to run it you'll have to download the entire subs project, this agent parent project.
-The agent is structered as follows:
-- Listener
-- services/
-  - Submission
-  - Update
-  - Fetch
-- converters/
-  - Attribute BioSamples to USI
-  - Attribute USI to BioSamples
-  - Relationship BioSamples to USI
-  - Relationship USI to BioSamples
-  - Sample BioSamples to USI
-  - Sample USI to BioSamples
-- exceptions/
-  - SampleNotFoundException
+The agent is structured as follows:
+
+- SamplesAgentApplication
+- agent/
+  - Listener
+  - SamplesProcessor
+  - CertificatesGenerator
+  - services/
+    - Submission
+    - Update
+    - Fetch
+  - converters/
+    - Attribute BioSamples to USI
+    - Attribute USI to BioSamples
+    - Relationship BioSamples to USI
+    - Relationship USI to BioSamples
+    - Sample BioSamples to USI
+    - Sample USI to BioSamples
+  - exceptions/
+    - SampleNotFoundException
+    
+## License
+See the [LICENSE](../LICENSE) file in parent project for license rights and limitations (Apache 2.0).
