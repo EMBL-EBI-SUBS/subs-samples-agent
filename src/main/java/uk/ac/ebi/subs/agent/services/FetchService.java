@@ -8,18 +8,14 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biosamples.client.BioSamplesClient;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
 import uk.ac.ebi.subs.agent.exceptions.SampleNotFoundException;
-import uk.ac.ebi.subs.data.component.SampleRef;
 import uk.ac.ebi.subs.data.submittable.Sample;
-import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 @Service
 @ConfigurationProperties
-public class   FetchService {
+public class FetchService {
     private static final Logger logger = LoggerFactory.getLogger(FetchService.class);
 
     @Autowired
@@ -28,33 +24,29 @@ public class   FetchService {
     @Autowired
     BsdSampleToUsiSample toUsiSample;
 
-    public List<Sample> findSamples(SubmissionEnvelope envelope) throws SampleNotFoundException {
-        Set<SampleRef> sampleRefs = envelope.getSupportingSamplesRequired();
-        List<Sample> sampleList = new ArrayList<>();
-        Set<String> sampleSet = identifySamplesToFind(sampleRefs);
+    public List<Sample> findSamples(List<String> accessions) {
+        List<Sample> foundSamples = new ArrayList<>();
 
-        for (String acc : sampleSet) {
-            Sample sample = null;
+        accessions.forEach(accession -> {
             try {
-                sample = toUsiSample.convert(client.fetchResource(acc).getContent());
-            } catch (RuntimeException e) {
-                throw new SampleNotFoundException(acc, e);
-            }
-            if(sample !=  null) {
-                sampleList.add(sample);
-            }
-        }
-        return sampleList;
-    }
-
-    private Set<String> identifySamplesToFind(Set<SampleRef> sampleRefs) {
-        Set<String> sampleAccessions = new TreeSet<>();
-        sampleRefs.forEach(ref -> {
-            if(ref.getAccession() != null && !ref.getAccession().isEmpty()) {
-                sampleAccessions.add(ref.getAccession());
+                Sample found = findSample(accession);
+                foundSamples.add(found);
+            } catch (SampleNotFoundException e) {
+                e.printStackTrace();
             }
         });
-        return sampleAccessions;
+
+        return foundSamples;
+    }
+
+    private Sample findSample(String accession) throws SampleNotFoundException {
+        logger.debug("Searching for sample {}", accession);
+
+        try {
+            return toUsiSample.convert(client.fetch(accession));
+        } catch (RuntimeException e) {
+            throw new SampleNotFoundException(accession, e);
+        }
     }
 
 }

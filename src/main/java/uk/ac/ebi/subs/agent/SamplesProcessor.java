@@ -1,0 +1,93 @@
+package uk.ac.ebi.subs.agent;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.converter.MessageConverter;
+import org.springframework.stereotype.Component;
+import uk.ac.ebi.subs.agent.services.FetchService;
+import uk.ac.ebi.subs.agent.services.SubmissionService;
+import uk.ac.ebi.subs.agent.services.UpdateService;
+import uk.ac.ebi.subs.data.FullSubmission;
+import uk.ac.ebi.subs.data.submittable.Sample;
+import uk.ac.ebi.subs.messaging.Exchanges;
+import uk.ac.ebi.subs.messaging.Topics;
+import uk.ac.ebi.subs.processing.ProcessingCertificate;
+import uk.ac.ebi.subs.processing.SubmissionEnvelope;
+import uk.ac.ebi.subs.processing.UpdatedSamplesEnvelope;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component
+public class SamplesProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(SamplesProcessor.class);
+
+    private RabbitMessagingTemplate rabbitMessagingTemplate;
+
+    @Autowired
+    SubmissionService submissionService;
+    @Autowired
+    UpdateService updateService;
+    @Autowired
+    FetchService fetchService;
+
+    @Autowired
+    public SamplesProcessor(RabbitMessagingTemplate rabbitMessagingTemplate, MessageConverter messageConverter) {
+        this.rabbitMessagingTemplate = rabbitMessagingTemplate;
+        this.rabbitMessagingTemplate.setMessageConverter(messageConverter);
+    }
+
+    protected List<ProcessingCertificate> processSamples(SubmissionEnvelope envelope) {
+        FullSubmission submission = envelope.getSubmission(); submission = envelope.getSubmission();
+        logger.debug("Processing {} samples from {} submission", submission.getSamples().size(), submission.getId());
+
+        List<ProcessingCertificate> certificates = new ArrayList<>();
+
+        // Update
+        List<Sample> accessionedSamples = submission.getSamples().stream()
+                .filter(s -> (s.getAccession() != null || !s.getAccession().isEmpty()))
+                .collect(Collectors.toList());
+
+        List<Sample> updatedSamples = updateService.update(accessionedSamples);
+        announceSampleUpdate(submission.getId(), accessionedSamples);
+
+        // Submission
+        List<Sample> samplesWithoutAccession = submission.getSamples().stream()
+                .filter(s -> s.getAccession() == null || s.getAccession().isEmpty())
+                .collect(Collectors.toList());
+
+        List<Sample> submittedSamples = submissionService.submit(samplesWithoutAccession);
+
+        // TODO - return certificates
+        return certificates;
+    }
+
+    protected List<Sample> findSamples(SubmissionEnvelope envelope) {
+        logger.debug("Finding {} samples from {} submission", envelope.getSupportingSamplesRequired().size(), envelope.getSubmission().getId());
+
+        List<String> accessions = new ArrayList<>();
+
+        envelope.getSupportingSamplesRequired().forEach(sampleRef -> {
+            accessions.add(sampleRef.getAccession());
+        });
+
+        return fetchService.findSamples(accessions);
+    }
+
+    private void announceSampleUpdate(String submissionId, List<Sample> updatedSamples) {
+        if (!updatedSamples.isEmpty()) {
+            UpdatedSamplesEnvelope updatedSamplesEnvelope = new UpdatedSamplesEnvelope();
+            updatedSamplesEnvelope.setSubmissionId(submissionId);
+            updatedSamplesEnvelope.setUpdatedSamples(updatedSamples);
+
+            logger.debug("Submission {} with {} samples updates", submissionId, updatedSamples.size());
+
+            rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SAMPLES_UPDATED, updatedSamplesEnvelope);
+
+        }
+    }
+
+}
