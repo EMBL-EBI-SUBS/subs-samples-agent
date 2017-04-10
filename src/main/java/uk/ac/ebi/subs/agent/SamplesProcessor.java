@@ -35,6 +35,9 @@ public class SamplesProcessor {
     FetchService fetchService;
 
     @Autowired
+    CertificatesGenerator certificatesGenerator;
+
+    @Autowired
     public SamplesProcessor(RabbitMessagingTemplate rabbitMessagingTemplate, MessageConverter messageConverter) {
         this.rabbitMessagingTemplate = rabbitMessagingTemplate;
         this.rabbitMessagingTemplate.setMessageConverter(messageConverter);
@@ -47,21 +50,24 @@ public class SamplesProcessor {
         List<ProcessingCertificate> certificates = new ArrayList<>();
 
         // Update
-        List<Sample> accessionedSamples = submission.getSamples().stream()
+        List<Sample> samplesToUpdate = submission.getSamples().stream()
                 .filter(s -> (s.getAccession() != null || !s.getAccession().isEmpty()))
                 .collect(Collectors.toList());
 
-        List<Sample> updatedSamples = updateService.update(accessionedSamples);
-        announceSampleUpdate(submission.getId(), accessionedSamples);
+        List<Sample> updatedSamples = updateService.update(samplesToUpdate);
+        announceSampleUpdate(submission.getId(), updatedSamples);
+
+        certificates.addAll(certificatesGenerator.generateCertificates(updatedSamples));
 
         // Submission
-        List<Sample> samplesWithoutAccession = submission.getSamples().stream()
+        List<Sample> samplesToSubmit = submission.getSamples().stream()
                 .filter(s -> s.getAccession() == null || s.getAccession().isEmpty())
                 .collect(Collectors.toList());
 
-        List<Sample> submittedSamples = submissionService.submit(samplesWithoutAccession);
+        List<Sample> submittedSamples = submissionService.submit(samplesToSubmit);
 
-        // TODO - return certificates
+        certificates.addAll(certificatesGenerator.generateCertificates(submittedSamples));
+
         return certificates;
     }
 
@@ -70,11 +76,16 @@ public class SamplesProcessor {
 
         List<String> accessions = new ArrayList<>();
 
-        envelope.getSupportingSamplesRequired().forEach(sampleRef -> {
-            accessions.add(sampleRef.getAccession());
-        });
+        envelope.getSupportingSamplesRequired().forEach(sampleRef -> accessions.add(sampleRef.getAccession()));
 
-        return fetchService.findSamples(accessions);
+        List<Sample> samples = fetchService.findSamples(accessions);
+
+        // Filter samples found from missing samples
+        samples.forEach(sample ->
+                envelope.getSupportingSamplesRequired()
+                        .removeIf(sampleRef -> sampleRef.getAccession() == sample.getAccession()));
+
+        return samples;
     }
 
     private void announceSampleUpdate(String submissionId, List<Sample> updatedSamples) {

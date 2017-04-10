@@ -28,6 +28,9 @@ public class Listener {
     SamplesProcessor samplesProcessor;
 
     @Autowired
+    CertificatesGenerator certificatesGenerator;
+
+    @Autowired
     public Listener(RabbitMessagingTemplate rabbitMessagingTemplate, MessageConverter messageConverter) {
         this.rabbitMessagingTemplate = rabbitMessagingTemplate;
         this.rabbitMessagingTemplate.setMessageConverter(messageConverter);
@@ -39,14 +42,21 @@ public class Listener {
 
         logger.info("Received submission {}", submission.getId());
 
-        List<ProcessingCertificate> certificates = samplesProcessor.processSamples(envelope);
-
-        ProcessingCertificateEnvelope certificateEnvelope = new ProcessingCertificateEnvelope(
+        // Acknowledge submission reception
+        List<ProcessingCertificate> certificatesReceived = certificatesGenerator.acknowledgeReception(submission.getSamples());
+        ProcessingCertificateEnvelope certificateEnvelopeReceived = new ProcessingCertificateEnvelope(
                 submission.getId(),
-                certificates
+                certificatesReceived
         );
+        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS,Topics.EVENT_SUBMISSION_AGENT_RESULTS, certificateEnvelopeReceived);
 
-        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_AGENT_RESULTS, certificateEnvelope);
+        // Process samples
+        List<ProcessingCertificate> certificatesCompleted = samplesProcessor.processSamples(envelope);
+        ProcessingCertificateEnvelope certificateEnvelopeCompleted = new ProcessingCertificateEnvelope(
+                submission.getId(),
+                certificatesCompleted
+        );
+        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_AGENT_RESULTS, certificateEnvelopeCompleted);
 
         logger.info("Processed submission {}", submission.getId());
     }
@@ -60,7 +70,8 @@ public class Listener {
         List<Sample> sampleList = samplesProcessor.findSamples(envelope);
         envelope.setSupportingSamples(sampleList);
 
-        if (!envelope.getSupportingSamplesRequired().isEmpty()) {    // Missing required samples
+        // Missing all required samples
+        if (!envelope.getSupportingSamplesRequired().isEmpty()) {
             rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_NEEDS_SAMPLES, envelope);
         } else {
             rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);

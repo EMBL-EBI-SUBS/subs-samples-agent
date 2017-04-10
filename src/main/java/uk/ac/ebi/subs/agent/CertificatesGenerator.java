@@ -15,19 +15,48 @@ import java.util.List;
 public class CertificatesGenerator {
     private static final Logger logger = LoggerFactory.getLogger(CertificatesGenerator.class);
 
-    public List<ProcessingCertificate> generateCertificates(List<Sample> sampleList) {
-        logger.info("Generating certificates...");
+    public List<ProcessingCertificate> acknowledgeReception(List<Sample> sampleList) {
+        logger.debug("Acknowledging submission reception");
+
         List<ProcessingCertificate> processingCertificateList = new ArrayList<>();
 
         sampleList.forEach(sample -> {
             ProcessingCertificate pc = new ProcessingCertificate(
                     sample,
                     Archive.BioSamples,
-                    ProcessingStatusEnum.Accepted, // FIXME - infer correct status
-                    sample.getAccession()
+                    ProcessingStatusEnum.Received
             );
             processingCertificateList.add(pc);
         });
+
         return processingCertificateList;
     }
+
+    public List<ProcessingCertificate> generateCertificates(List<Sample> sampleList) {
+        logger.debug("Generating certificates...");
+
+        List<ProcessingCertificate> processingCertificateList = new ArrayList<>();
+
+        sampleList.forEach(sample -> {
+            if (sample.getAccession() != null && !sample.getAccession().isEmpty()){
+                ProcessingCertificate pc = new ProcessingCertificate(
+                        sample,
+                        Archive.BioSamples,
+                        ProcessingStatusEnum.Completed,
+                        sample.getAccession()
+                );
+                processingCertificateList.add(pc);
+            } else {
+                ProcessingCertificate pc = new ProcessingCertificate(
+                        sample,
+                        Archive.BioSamples,
+                        ProcessingStatusEnum.Error
+                );
+                processingCertificateList.add(pc);
+            }
+        });
+
+        return processingCertificateList;
+    }
+
 }
