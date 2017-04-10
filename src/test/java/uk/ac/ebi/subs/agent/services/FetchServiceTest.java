@@ -12,7 +12,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biosamples.client.BioSamplesClient;
 import uk.ac.ebi.biosamples.client.BioSamplesClientConfig;
 import uk.ac.ebi.biosamples.client.ClientProperties;
@@ -20,7 +19,6 @@ import uk.ac.ebi.subs.BioSamplesDependentTest;
 import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
 import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
-import uk.ac.ebi.subs.agent.exceptions.SampleNotFoundException;
 import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.component.SampleRef;
@@ -28,6 +26,7 @@ import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,6 +43,7 @@ import java.util.UUID;
 })
 @ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
+@Category(BioSamplesDependentTest.class)
 public class FetchServiceTest {
 
     @Autowired
@@ -71,34 +71,21 @@ public class FetchServiceTest {
     }
 
     @Test
-    @Category(BioSamplesDependentTest.class)
     public void successfulSupportingSamplesServiceTest() {
-        /*
         List<Sample> sampleList = null;
-        try {
-            sampleList = service.findSamples(envelope);
-        } catch (SampleNotFoundException e) {
-            Assert.fail(e.getMessage());
-        }
+        sampleList = service.findSamples(Arrays.asList(accession));
+
         System.out.println(sampleList.get(0));
         Assert.assertNotNull(sampleList);
-        */
     }
 
     @Test
-    @Category(BioSamplesDependentTest.class)
     public void sampleNotFoundTest() {
-        /*
-        envelope.getSupportingSamplesRequired().iterator().forEachRemaining(s -> s.setAccession("SAM"));
 
         List<Sample> sampleList = null;
-        try {
-            sampleList = service.findSamples(envelope);
-        } catch (SampleNotFoundException e) {
-            e.printStackTrace();
-        }
-        Assert.assertEquals(null, sampleList);
-        */
+        sampleList = service.findSamples(Arrays.asList("SAM"));
+
+        Assert.assertEquals(new ArrayList<>(), sampleList);
     }
 
     public String getAccession() {

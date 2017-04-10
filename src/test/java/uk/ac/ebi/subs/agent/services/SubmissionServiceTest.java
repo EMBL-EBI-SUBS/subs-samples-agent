@@ -11,7 +11,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biosamples.client.BioSamplesClient;
 import uk.ac.ebi.biosamples.client.BioSamplesClientConfig;
 import uk.ac.ebi.biosamples.client.ClientProperties;
@@ -45,6 +44,7 @@ import java.util.List;
 })
 @ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
+@Category(BioSamplesDependentTest.class)
 public class SubmissionServiceTest {
 
     @Autowired
@@ -61,9 +61,7 @@ public class SubmissionServiceTest {
     }
 
     @Test
-    @Category(BioSamplesDependentTest.class)
     public void submit() {
-        /*
         List<Sample> sampleList = null;
         try {
             sampleList = submissionService.submit(Arrays.asList(sample));
@@ -71,8 +69,8 @@ public class SubmissionServiceTest {
             e.printStackTrace();
             Assert.fail();
         }
+        sampleList.forEach(System.out::println);
         sampleList.forEach(sample -> Assert.assertNotNull(sample.getAccession()));
-    */
     }
 
 }

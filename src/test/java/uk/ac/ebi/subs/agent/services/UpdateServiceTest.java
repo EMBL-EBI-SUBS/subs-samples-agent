@@ -11,7 +11,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biosamples.client.BioSamplesClient;
 import uk.ac.ebi.biosamples.client.BioSamplesClientConfig;
 import uk.ac.ebi.biosamples.client.ClientProperties;
@@ -26,6 +25,7 @@ import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
@@ -62,7 +62,8 @@ public class UpdateServiceTest {
     @Test
     @Category(BioSamplesDependentTest.class)
     public void update() {
-        //updateService.update(Arrays.asList(sample));
+        List<Sample> updated = updateService.update(Arrays.asList(sample));
+        Assert.assertEquals(updated.get(0).getAccession(), sample.getAccession());
     }
 
 }

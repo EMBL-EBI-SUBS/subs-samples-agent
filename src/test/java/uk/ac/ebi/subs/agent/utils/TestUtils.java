@@ -9,8 +9,6 @@ import uk.ac.ebi.subs.data.component.SampleRelationship;
 import uk.ac.ebi.subs.data.component.Term;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
@@ -88,7 +86,7 @@ public class TestUtils {
     public Sample generateUsiSampleForUpdate() {
         Sample usiSample = new Sample();
         usiSample.setArchive(Archive.BioSamples);
-        usiSample.setAccession("TSTE107");
+        usiSample.setAccession("SAMEA100003");
         usiSample.setTaxon("Mus musculus");
         usiSample.setTaxonId(10090L);
         usiSample.setTitle("Experiment on mice.");
