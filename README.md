@@ -24,8 +24,6 @@ The agent is structured as follows:
     - Relationship USI to BioSamples
     - Sample BioSamples to USI
     - Sample USI to BioSamples
-  - exceptions/
-    - SampleNotFoundException
     
 ## License
 See the [LICENSE](../LICENSE) file in parent project for license rights and limitations (Apache 2.0).

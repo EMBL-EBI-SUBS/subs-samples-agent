@@ -43,11 +43,10 @@ public class SubmissionService {
         try {
             return toUsiSample.convert(client.persist(bsdSample));
         } catch (HttpClientErrorException e) {
-            logger.error("Submission failed with error:", e);
+            throw new RuntimeException("Submission failed with error:", e);
         } catch (ResourceAccessException e) {
-            logger.error("Could not reach BioSamples", e);
+            throw new RuntimeException("Submission failed with error:", e);
         }
 
-        return new Sample();
     }
 }

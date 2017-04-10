@@ -43,11 +43,10 @@ public class UpdateService {
         try {
             return toUsiSample.convert(client.persist(bsdSample));
         } catch (HttpClientErrorException e) {
-            logger.error("Update [" + bsdSample.getAccession() + "] failed with error:", e);
+            throw new RuntimeException("Update [" + bsdSample.getAccession() + "] failed with error:", e);
         } catch (ResourceAccessException e) {
-            logger.error("Could not reach BioSamples", e);
+            throw new RuntimeException("Update [" + bsdSample.getAccession() + "] failed with error:", e);
         }
 
-        return new Sample();
     }
 }

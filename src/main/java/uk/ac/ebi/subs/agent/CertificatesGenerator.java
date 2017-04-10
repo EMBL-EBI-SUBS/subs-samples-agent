@@ -38,22 +38,13 @@ public class CertificatesGenerator {
         List<ProcessingCertificate> processingCertificateList = new ArrayList<>();
 
         sampleList.forEach(sample -> {
-            if (sample.getAccession() != null && !sample.getAccession().isEmpty()){
-                ProcessingCertificate pc = new ProcessingCertificate(
-                        sample,
-                        Archive.BioSamples,
-                        ProcessingStatusEnum.Completed,
-                        sample.getAccession()
-                );
-                processingCertificateList.add(pc);
-            } else {
-                ProcessingCertificate pc = new ProcessingCertificate(
-                        sample,
-                        Archive.BioSamples,
-                        ProcessingStatusEnum.Error
-                );
-                processingCertificateList.add(pc);
-            }
+            ProcessingCertificate pc = new ProcessingCertificate(
+                    sample,
+                    Archive.BioSamples,
+                    ProcessingStatusEnum.Completed,
+                    sample.getAccession()
+            );
+            processingCertificateList.add(pc);
         });
 
         return processingCertificateList;

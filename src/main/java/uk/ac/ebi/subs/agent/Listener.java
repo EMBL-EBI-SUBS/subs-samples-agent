@@ -69,15 +69,10 @@ public class Listener {
 
         List<Sample> sampleList = samplesProcessor.findSamples(envelope);
         envelope.setSupportingSamples(sampleList);
+        envelope.getSupportingSamplesRequired().clear();
 
-        // Missing all required samples
-        if (!envelope.getSupportingSamplesRequired().isEmpty()) {
-            rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_NEEDS_SAMPLES, envelope);
-        } else {
-            rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);
-            logger.debug("Supporting samples provided for submission {}", envelope.getSubmission().getId());
-        }
-
+        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);
+        logger.debug("Supporting samples provided for submission {}", envelope.getSubmission().getId());
     }
 
 }

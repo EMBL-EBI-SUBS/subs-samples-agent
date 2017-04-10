@@ -78,14 +78,7 @@ public class SamplesProcessor {
 
         envelope.getSupportingSamplesRequired().forEach(sampleRef -> accessions.add(sampleRef.getAccession()));
 
-        List<Sample> samples = fetchService.findSamples(accessions);
-
-        // Filter samples found from missing samples
-        samples.forEach(sample ->
-                envelope.getSupportingSamplesRequired()
-                        .removeIf(sampleRef -> sampleRef.getAccession() == sample.getAccession()));
-
-        return samples;
+        return fetchService.findSamples(accessions);
     }
 
     private void announceSampleUpdate(String submissionId, List<Sample> updatedSamples) {
