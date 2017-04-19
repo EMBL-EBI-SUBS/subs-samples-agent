@@ -44,6 +44,7 @@ import java.util.List;
 })
 @ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
+@Category(BioSamplesDependentTest.class)
 public class UpdateServiceTest {
 
     @Autowired
