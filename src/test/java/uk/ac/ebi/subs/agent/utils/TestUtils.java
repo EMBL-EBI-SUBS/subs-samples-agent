@@ -86,7 +86,7 @@ public class TestUtils {
     public Sample generateUsiSampleForUpdate() {
         Sample usiSample = new Sample();
         usiSample.setArchive(Archive.BioSamples);
-        usiSample.setAccession("SAMEA100003");
+        usiSample.setAccession("SAMEA100002");
         usiSample.setTaxon("Mus musculus");
         usiSample.setTaxonId(10090L);
         usiSample.setTitle("Experiment on mice.");
