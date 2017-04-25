@@ -19,7 +19,6 @@ import uk.ac.ebi.subs.BioSamplesDependentTest;
 import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
 import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
-import uk.ac.ebi.subs.data.FullSubmission;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.component.SampleRef;
 import uk.ac.ebi.subs.data.submittable.Sample;
@@ -51,7 +50,6 @@ public class FetchServiceTest {
     private String accession;
 
     private SubmissionEnvelope envelope;
-    private FullSubmission fullSubmission;
     private Submission submission;
     private SampleRef sampleRef;
 
@@ -62,10 +60,9 @@ public class FetchServiceTest {
 
         submission = new Submission();
         submission.setId(UUID.randomUUID().toString());
-        fullSubmission = new FullSubmission(submission);
 
         envelope = new SubmissionEnvelope();
-        envelope.setSubmission(fullSubmission);
+        envelope.setSubmission(submission);
         envelope.setSupportingSamplesRequired(Sets.newSet(sampleRef));
     }
 

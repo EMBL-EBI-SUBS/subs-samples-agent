@@ -7,7 +7,7 @@ import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.subs.data.FullSubmission;
+import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
@@ -38,12 +38,12 @@ public class Listener {
 
     @RabbitListener(queues = Queues.BIOSAMPLES_AGENT)
     public void handleSamplesSubmission(SubmissionEnvelope envelope) {
-        FullSubmission submission = envelope.getSubmission();
+        Submission submission = envelope.getSubmission();
 
         logger.info("Received submission {}", submission.getId());
 
         // Acknowledge submission reception
-        List<ProcessingCertificate> certificatesReceived = certificatesGenerator.acknowledgeReception(submission.getSamples());
+        List<ProcessingCertificate> certificatesReceived = certificatesGenerator.acknowledgeReception(envelope.getSamples());
         ProcessingCertificateEnvelope certificateEnvelopeReceived = new ProcessingCertificateEnvelope(
                 submission.getId(),
                 certificatesReceived
@@ -63,7 +63,7 @@ public class Listener {
 
     @RabbitListener(queues = Queues.SUBMISSION_NEEDS_SAMPLE_INFO)
     public void fetchSupportingSamples(SubmissionEnvelope envelope) {
-        FullSubmission submission = envelope.getSubmission();
+        Submission submission = envelope.getSubmission();
 
         logger.debug("Received supporting samples request from submission {}", submission.getId());
 
@@ -72,7 +72,7 @@ public class Listener {
         envelope.getSupportingSamplesRequired().clear();
 
         rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);
-        logger.debug("Supporting samples provided for submission {}", envelope.getSubmission().getId());
+        logger.debug("Supporting samples provided for submission {}", submission.getId());
     }
 
 }

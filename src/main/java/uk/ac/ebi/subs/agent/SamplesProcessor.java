@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import uk.ac.ebi.subs.agent.services.FetchService;
 import uk.ac.ebi.subs.agent.services.SubmissionService;
 import uk.ac.ebi.subs.agent.services.UpdateService;
-import uk.ac.ebi.subs.data.FullSubmission;
+import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Topics;
@@ -44,13 +44,14 @@ public class SamplesProcessor {
     }
 
     protected List<ProcessingCertificate> processSamples(SubmissionEnvelope envelope) {
-        FullSubmission submission = envelope.getSubmission(); submission = envelope.getSubmission();
-        logger.debug("Processing {} samples from {} submission", submission.getSamples().size(), submission.getId());
+        Submission submission = envelope.getSubmission();
+
+        logger.debug("Processing {} samples from {} submission", envelope.getSamples().size(), submission.getId());
 
         List<ProcessingCertificate> certificates = new ArrayList<>();
 
         // Update
-        List<Sample> samplesToUpdate = submission.getSamples().stream()
+        List<Sample> samplesToUpdate = envelope.getSamples().stream()
                 .filter(s -> (s.getAccession() != null || !s.getAccession().isEmpty()))
                 .collect(Collectors.toList());
 
@@ -60,7 +61,7 @@ public class SamplesProcessor {
         certificates.addAll(certificatesGenerator.generateCertificates(updatedSamples));
 
         // Submission
-        List<Sample> samplesToSubmit = submission.getSamples().stream()
+        List<Sample> samplesToSubmit = envelope.getSamples().stream()
                 .filter(s -> s.getAccession() == null || s.getAccession().isEmpty())
                 .collect(Collectors.toList());
 
