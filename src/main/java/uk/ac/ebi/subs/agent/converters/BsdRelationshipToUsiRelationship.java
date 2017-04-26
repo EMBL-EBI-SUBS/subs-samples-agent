@@ -15,8 +15,7 @@ public class BsdRelationshipToUsiRelationship implements Converter<Relationship,
     @Override
     public SampleRelationship convert(Relationship bsdRelationship) {
         SampleRelationship usiRelationship = new SampleRelationship();
-        usiRelationship.setAccession(bsdRelationship.getSource());
-        usiRelationship.setTargetAccession(bsdRelationship.getTarget());
+        usiRelationship.setAccession(bsdRelationship.getTarget());
         usiRelationship.setRelationshipNature(bsdRelationship.getType());
         return usiRelationship;
     }

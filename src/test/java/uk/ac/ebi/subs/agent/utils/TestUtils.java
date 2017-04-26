@@ -146,7 +146,6 @@ public class TestUtils {
         SampleRelationship usiRelationship = new SampleRelationship();
         usiRelationship.setRelationshipNature("Child of");
         usiRelationship.setAccession("SAM990");
-        usiRelationship.setTargetAccession("SAM678");
         return usiRelationship;
     }
 
@@ -187,9 +186,9 @@ public class TestUtils {
 
     public Relationship generateBsdRelationship() {
         Relationship bsdRelationship = Relationship.build(
-                "Child of", // type
-                "SAM456",  // target
-                "SAM123"   // source
+                "SAM123",
+                "Chilf of",
+                "SAM456"
         );
         return bsdRelationship;
     }
