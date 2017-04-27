@@ -11,6 +11,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.biosamples.model.Relationship;
 import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.component.SampleRelationship;
+import uk.ac.ebi.subs.data.submittable.Sample;
+
+import java.util.Arrays;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
@@ -31,16 +34,21 @@ public class RelationshipConverterTest {
 
     private SampleRelationship usiRelationship;
     private Relationship bsdRelationship;
+    private Sample sample;
 
     @Before
     public void setUp() {
         usiRelationship = utils.generateUsiRelationship();
         bsdRelationship = utils.generateBsdRelationship();
+
+        sample = new Sample();
+        sample.setAccession("SAM910");
+        sample.setSampleRelationships(Arrays.asList(usiRelationship));
     }
 
     @Test
     public void convertFromUsiRelationship() {
-        Relationship conversion = toBsdRelationship.convert(usiRelationship);
+        Relationship conversion = toBsdRelationship.convert(sample).iterator().next();
         SampleRelationship conversionBack = toUsiRelationship.convert(conversion);
         Assert.assertEquals(usiRelationship, conversionBack);
     }
@@ -48,7 +56,12 @@ public class RelationshipConverterTest {
     @Test
     public void convertFromBsdRelationship() {
         SampleRelationship conversion = toUsiRelationship.convert(bsdRelationship);
-        Relationship conversionBack = toBsdRelationship.convert(conversion);
+
+        Sample sample = new Sample();
+        sample.setAccession("SAM123");
+        sample.setSampleRelationships(Arrays.asList(conversion));
+
+        Relationship conversionBack = toBsdRelationship.convert(sample).iterator().next();
         Assert.assertEquals(bsdRelationship, conversionBack);
     }
 

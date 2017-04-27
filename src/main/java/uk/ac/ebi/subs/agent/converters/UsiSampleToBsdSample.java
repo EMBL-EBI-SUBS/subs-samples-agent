@@ -10,15 +10,10 @@ import uk.ac.ebi.biosamples.model.Attribute;
 import uk.ac.ebi.biosamples.model.ExternalReference;
 import uk.ac.ebi.biosamples.model.Sample;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 @Service
@@ -78,12 +73,12 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
         // Archive for samples is BioSamples
 
         Sample bioSample = Sample.build(
-                usiSample.getAlias(),                                           // name
-                usiSample.getAccession(),                                       // accession
-                release,                                                        // release date
-                update,                                                         // update date
-                attributeSet,                                                   // attributes
-                toBsdRelationship.convert(usiSample.getSampleRelationships()),  // relationships
+                usiSample.getAlias(),                   // name
+                usiSample.getAccession(),               // accession
+                release,                                // release date
+                update,                                 // update date
+                attributeSet,                           // attributes
+                toBsdRelationship.convert(usiSample),   // relationships
                 externalRefs
         );
 
