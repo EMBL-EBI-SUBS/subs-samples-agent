@@ -12,9 +12,7 @@ import java.util.TreeSet;
 @Service
 public class UsiRelationshipToBsdRelationship {
 
-    private String sourceAccession;
-
-    private Relationship convert(SampleRelationship usiRelationship) {
+    private Relationship convert(String sourceAccession, SampleRelationship usiRelationship) {
         Relationship bsdRelationship = null;
         if(usiRelationship != null) {
             bsdRelationship = Relationship.build(
@@ -27,13 +25,13 @@ public class UsiRelationshipToBsdRelationship {
     }
 
     public Set<Relationship> convert(Sample usiSample) {
-        sourceAccession = usiSample.getAccession();
+        String sourceAccession = usiSample.getAccession();
         List<SampleRelationship> sampleRelationships = usiSample.getSampleRelationships();
 
         Set<Relationship> relationshipSet = new TreeSet<>();
         if(sampleRelationships != null) {
             for(SampleRelationship usiRelationship : sampleRelationships) {
-                relationshipSet.add(convert(usiRelationship));
+                relationshipSet.add(convert(sourceAccession, usiRelationship));
             }
         }
         return relationshipSet;
