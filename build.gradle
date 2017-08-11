@@ -1,22 +1,26 @@
+group 'uk.ac.ebi.subs'
+version '0.1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'application'
+apply plugin: 'org.springframework.boot'
+
+mainClassName = "uk.ac.ebi.subs.SamplesAgentApplication"
+
 buildscript {
     repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
         maven { url 'http://repo.spring.io/plugins-release' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     }
     dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.1.RELEASE")
         classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'application'
-
-version = "1.0.0"
-
-mainClassName = "uk.ac.ebi.subs.SamplesAgentApplication"
-springBoot {
-    executable = true
-}
 
 configure(allprojects) {
     apply plugin: 'propdeps'
@@ -25,9 +29,15 @@ configure(allprojects) {
     apply plugin: 'propdeps-eclipse'
 }
 
-dependencies {
-    compile project(':subs-processing-model')
+repositories {
+        mavenLocal()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        mavenCentral()
+}
 
+dependencies {
+
+    compile("uk.ac.ebi.subs:subs-processing-model:0.1.0-SNAPSHOT")
     compile("uk.ac.ebi.subs:subs-data-model:1.0.3-SNAPSHOT")
     compile("uk.ac.ebi.subs:subs-messaging:1.0.3-SNAPSHOT")
 
@@ -45,7 +55,63 @@ dependencies {
 
     testCompile("junit:junit")
     testCompile("org.springframework.boot:spring-boot-starter-test")
-    testCompile project(':subs-test-categories')
+    testCompile("uk.ac.ebi.subs:subs-test-categories:0.1.0-SNAPSHOT")
+}
+
+task sourceJar(type: Jar) { from sourceSets.main.allJava }
+
+artifacts {
+    archives jar
+    archives sourceJar { classifier "sources" }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+                if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+            }
+
+            pom.project {
+                packaging 'jar'
+                url 'https://github.com/EMBL-EBI-SUBS/subs-repository'
+
+                scm {
+                    url 'https://github.com/EMBL-EBI-SUBS/subs-repository.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'subs-internal'
+                        name 'EMBL-EBI-SUBS'
+                        email 'subs-internal@ebi.ac.uk'
+                    }
+                }
+            }
+        }
+    }
 }
 
 compileJava.dependsOn(processResources)
+
+springBoot {
+    executable = true
+}
+
