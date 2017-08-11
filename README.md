@@ -1,4 +1,7 @@
 # Samples Agent
+
+ [![Build Status](https://travis-ci.org/EMBL-EBI-SUBS/subs-samples-agent.svg?branch=master)]([https://travis-ci.org/EMBL-EBI-SUBS/subs-samples-agent])
+
 This module contains the USI Sample Agent which is the agent in charge of mediating the comunication between USI and [BioSamples](https://www.ebi.ac.uk/biosamples/). This agent will submit new samples, update and fetch existing ones. It has an external dependency on [BioSamples v4.0.0](https://github.com/EBIBioSamples/biosamples-v4), which at this point is still under active development. The agent 'listens' to two queues from RabbitMQ and processes  three types of requests:
 - Submission of new samples
 - Update of existing samples
