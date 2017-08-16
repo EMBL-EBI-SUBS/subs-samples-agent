@@ -68,6 +68,15 @@ artifacts {
     }
 }
 
+task('externalCiTest', type: Test) {
+	useJUnit {
+		excludeCategories 'uk.ac.ebi.subs.BioSamplesDependentTest'
+	}
+	testLogging {
+		exceptionFormat = 'full'
+	}
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {
