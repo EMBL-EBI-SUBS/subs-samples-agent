@@ -24,7 +24,6 @@ public class TestUtils {
 
     public Sample generateUsiSample() {
         Sample usiSample = new Sample();
-        usiSample.setArchive(Archive.BioSamples);
         usiSample.setAccession("SAM123");
         usiSample.setTaxon("Mus musculus");
         usiSample.setTaxonId(10090L);
@@ -42,7 +41,6 @@ public class TestUtils {
 
     public Sample generateUsiSampleForSubmission() {
         Sample usiSample = new Sample();
-        usiSample.setArchive(Archive.BioSamples);
         usiSample.setTaxon("Mus musculus");
         usiSample.setTaxonId(10090L);
         usiSample.setTitle("Experiment on mice.");
@@ -85,7 +83,6 @@ public class TestUtils {
 
     public Sample generateUsiSampleForUpdate() {
         Sample usiSample = new Sample();
-        usiSample.setArchive(Archive.BioSamples);
         usiSample.setAccession("SAMEA100002");
         usiSample.setTaxon("Mus musculus");
         usiSample.setTaxonId(10090L);
