@@ -38,7 +38,7 @@ repositories {
 dependencies {
 
     compile("uk.ac.ebi.subs:subs-processing-model:0.1.0-SNAPSHOT")
-    compile("uk.ac.ebi.subs:subs-data-model:1.0.3-SNAPSHOT")
+    compile("uk.ac.ebi.subs:subs-data-model:0.1.0-SNAPSHOT")
     compile("uk.ac.ebi.subs:subs-messaging:1.0.3-SNAPSHOT")
 
     optional("org.springframework.boot:spring-boot-configuration-processor")
@@ -62,7 +62,19 @@ task sourceJar(type: Jar) { from sourceSets.main.allJava }
 
 artifacts {
     archives jar
-    archives sourceJar { classifier "sources" }
+    archives sourceJar {
+        classifier "sources" 
+        destinationDir = new File("build/libs/sources")
+    }
+}
+
+task('externalCiTest', type: Test) {
+	useJUnit {
+		excludeCategories 'uk.ac.ebi.subs.BioSamplesDependentTest'
+	}
+	testLogging {
+		exceptionFormat = 'full'
+	}
 }
 
 uploadArchives {

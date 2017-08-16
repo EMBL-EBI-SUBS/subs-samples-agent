@@ -24,7 +24,6 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
     public Sample convert(uk.ac.ebi.biosamples.model.Sample bioSample) {
         Sample usiSample = new Sample();
         usiSample.setAccession(bioSample.getAccession());
-        usiSample.setArchive(Archive.BioSamples);
         usiSample.setAlias(bioSample.getName());
 
         List<Attribute> attributes = toUsiAttribute.convert(bioSample.getAttributes());
