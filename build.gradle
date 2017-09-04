@@ -39,7 +39,9 @@ dependencies {
 
     compile("uk.ac.ebi.subs:subs-processing-model:0.1.1-SNAPSHOT")
     compile("uk.ac.ebi.subs:subs-data-model:0.1.0-SNAPSHOT")
-    compile("uk.ac.ebi.subs:subs-messaging:0.1.1-SNAPSHOT")
+    compile("uk.ac.ebi.subs:subs-messaging:0.2.0-SNAPSHOT") {
+        changing = true
+    }
 
     optional("org.springframework.boot:spring-boot-configuration-processor")
 
