@@ -43,7 +43,7 @@ public class SubmissionService {
         logger.debug("Submitting sample.");
 
         try {
-            return toUsiSample.convert(client.persist(bsdSample));
+            return toUsiSample.convert(client.persistSample(bsdSample));
         } catch (HttpClientErrorException e) {
             throw new RuntimeException("Submission failed with error:", e);
         } catch (ResourceAccessException e) {

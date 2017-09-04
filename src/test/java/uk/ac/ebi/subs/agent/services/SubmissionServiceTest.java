@@ -11,13 +11,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestOperations;
-import uk.ac.ebi.subs.BioSamplesDependentTest;
 import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
 import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
 import uk.ac.ebi.subs.agent.converters.UsiAttributeToBsdAttribute;
 import uk.ac.ebi.subs.agent.converters.UsiRelationshipToBsdRelationship;
 import uk.ac.ebi.subs.agent.converters.UsiSampleToBsdSample;
+import uk.ac.ebi.subs.agent.utils.BioSamplesDependentTest;
 import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.submittable.Sample;
 

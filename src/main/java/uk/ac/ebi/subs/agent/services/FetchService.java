@@ -40,7 +40,7 @@ public class FetchService {
         logger.debug("Searching for sample {}", accession);
 
         try {
-            return toUsiSample.convert(client.fetch(accession));
+            return toUsiSample.convert(client.fetchSample(accession).get());
         } catch (HttpClientErrorException e) {
             throw new RuntimeException("Could not find sample [" + accession + "]", e);
         } catch (ResourceAccessException e) {

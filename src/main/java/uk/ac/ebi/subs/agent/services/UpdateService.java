@@ -41,7 +41,7 @@ public class UpdateService {
         logger.debug("Updating sample {}", bsdSample.getAccession());
 
         try {
-            return toUsiSample.convert(client.persist(bsdSample));
+            return toUsiSample.convert(client.persistSample(bsdSample));
         } catch (HttpClientErrorException e) {
             throw new RuntimeException("Update [" + bsdSample.getAccession() + "] failed with error:", e);
         } catch (ResourceAccessException e) {
