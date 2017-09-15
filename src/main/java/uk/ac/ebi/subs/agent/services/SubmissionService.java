@@ -31,11 +31,13 @@ public class SubmissionService {
     public List<Sample> submit(List<Sample> sampleList) {
         ArrayList<Sample> submittedSamples = new ArrayList<>();
 
-        sampleList.forEach(usiSample -> {
-            uk.ac.ebi.biosamples.model.Sample bsdSample = toBsdSample.convert(usiSample);
-            Sample submitted = submit(bsdSample);
+        for (Sample usiSample : sampleList) {
+            String usiId = usiSample.getId();
+
+            Sample submitted = submit(toBsdSample.convert(usiSample));
+            submitted.setId(usiId);
             submittedSamples.add(submitted);
-        });
+        }
         return submittedSamples;
     }
 
