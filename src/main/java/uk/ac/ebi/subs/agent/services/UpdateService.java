@@ -30,10 +30,14 @@ public class UpdateService {
 
     public List<Sample> update(List<Sample> sampleList) {
         ArrayList<Sample> updatedSamples = new ArrayList<>();
-        sampleList.forEach(usiSample -> {
+
+        for (Sample usiSample : sampleList) {
+            String usiId = usiSample.getId();
+
             Sample updated = update(toBsdSample.convert(usiSample));
+            updated.setId(usiId);
             updatedSamples.add(updated);
-        });
+        }
         return updatedSamples;
     }
 
