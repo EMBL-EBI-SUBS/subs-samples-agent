@@ -12,10 +12,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestOperations;
-import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
-import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
-import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
+import uk.ac.ebi.subs.agent.converters.*;
 import uk.ac.ebi.subs.agent.utils.BioSamplesDependentTest;
+import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.component.SampleRef;
 import uk.ac.ebi.subs.data.submittable.Sample;
@@ -29,9 +28,14 @@ import java.util.UUID;
 @SpringBootTest(classes = {
         FetchService.class,
         RestOperations.class,
+        SubmissionService.class,
+        UsiSampleToBsdSample.class,
+        UsiAttributeToBsdAttribute.class,
+        UsiRelationshipToBsdRelationship.class,
         BsdSampleToUsiSample.class,
         BsdAttributeToUsiAttribute.class,
-        BsdRelationshipToUsiRelationship.class
+        BsdRelationshipToUsiRelationship.class,
+        TestUtils.class,
 })
 @ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
@@ -40,6 +44,12 @@ public class FetchServiceTest {
 
     @Autowired
     FetchService service;
+
+    @Autowired
+    SubmissionService submissionService;
+
+    @Autowired
+    TestUtils utils;
 
     private String accession;
 
@@ -62,10 +72,9 @@ public class FetchServiceTest {
 
     @Test
     public void successfulSupportingSamplesServiceTest() {
-        List<Sample> sampleList = null;
-        sampleList = service.findSamples(Arrays.asList(accession));
-
-        System.out.println(sampleList.get(0));
+        final Sample sample = utils.generateUsiSampleForSubmission();
+        final List<Sample> submit = submissionService.submit(Arrays.asList(sample));
+        List<Sample> sampleList = service.findSamples(Arrays.asList(submit.get(0).getAccession()));
         Assert.assertNotNull(sampleList);
     }
 
