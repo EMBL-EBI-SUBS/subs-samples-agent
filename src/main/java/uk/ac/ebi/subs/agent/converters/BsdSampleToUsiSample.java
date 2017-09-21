@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.subs.data.component.Archive;
 import uk.ac.ebi.subs.data.component.Attribute;
 import uk.ac.ebi.subs.data.component.SampleRelationship;
+import uk.ac.ebi.subs.data.component.Team;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.ArrayList;
@@ -25,6 +26,11 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
         Sample usiSample = new Sample();
         usiSample.setAccession(bioSample.getAccession());
         usiSample.setAlias(bioSample.getName());
+        if (bioSample.getDomain() != null) {
+            Team team = new Team();
+            team.setName(bioSample.getDomain());
+            usiSample.setTeam(team);
+        }
 
         List<Attribute> attributes = toUsiAttribute.convert(bioSample.getAttributes());
         attributes

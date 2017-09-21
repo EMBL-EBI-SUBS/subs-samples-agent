@@ -3,10 +3,7 @@ package uk.ac.ebi.subs.agent.utils;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biosamples.model.ExternalReference;
 import uk.ac.ebi.biosamples.model.Relationship;
-import uk.ac.ebi.subs.data.component.Archive;
-import uk.ac.ebi.subs.data.component.Attribute;
-import uk.ac.ebi.subs.data.component.SampleRelationship;
-import uk.ac.ebi.subs.data.component.Term;
+import uk.ac.ebi.subs.data.component.*;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.time.LocalDateTime;
@@ -22,9 +19,16 @@ public class TestUtils {
 
     // -- USI objects -- //
 
+    public Team generateTeam (){
+        Team team = new Team();
+        team.setName("self.usi-team");
+        return team;
+    }
+
     public Sample generateUsiSample() {
         Sample usiSample = new Sample();
         usiSample.setAccession("SAM123");
+        usiSample.setTeam(generateTeam());
         usiSample.setTaxon("Mus musculus");
         usiSample.setTaxonId(10090L);
         usiSample.setTitle("Experiment on mice.");
@@ -42,10 +46,12 @@ public class TestUtils {
     public Sample generateUsiSampleForSubmission() {
         Sample usiSample = new Sample();
         usiSample.setTaxon("Mus musculus");
+        usiSample.setTeam(generateTeam());
         usiSample.setTaxonId(10090L);
         usiSample.setTitle("Experiment on mice.");
         usiSample.setDescription("Sample from Mus musculus.");
         usiSample.setAlias("This is an USI alias");
+
 
         List<Attribute> attributeList = new ArrayList<>();
         Attribute usiAttribute_1 = new Attribute();
@@ -84,6 +90,7 @@ public class TestUtils {
     public Sample generateUsiSampleForUpdate() {
         Sample usiSample = new Sample();
         usiSample.setAccession("SAMEA100002");
+        usiSample.setTeam(generateTeam());
         usiSample.setTaxon("Mus musculus");
         usiSample.setTaxonId(10090L);
         usiSample.setTitle("Experiment on mice.");
@@ -159,6 +166,7 @@ public class TestUtils {
                 Sample bsdSample = uk.ac.ebi.biosamples.model.Sample.build(
                         "This is a BioSamples name",    // name
                         "SAM123",                       // accession
+                        "self.usi-team",        // domain
                         LocalDateTime.now(),            // release date
                         LocalDateTime.now(),            // update date
                         attributeSet,                   // attributes
