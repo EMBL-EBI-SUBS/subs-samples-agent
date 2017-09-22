@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.subs.agent.services.FetchService;
+import uk.ac.ebi.subs.agent.services.IntegrityService;
 import uk.ac.ebi.subs.agent.services.SubmissionService;
 import uk.ac.ebi.subs.agent.services.UpdateService;
 import uk.ac.ebi.subs.data.Submission;
@@ -31,14 +32,16 @@ public class SamplesProcessor {
     private RabbitMessagingTemplate rabbitMessagingTemplate;
 
     @Autowired
-    SubmissionService submissionService;
+    private SubmissionService submissionService;
     @Autowired
-    UpdateService updateService;
+    private UpdateService updateService;
     @Autowired
-    FetchService fetchService;
+    private FetchService fetchService;
+    @Autowired
+    private IntegrityService integrityService;
 
     @Autowired
-    CertificatesGenerator certificatesGenerator;
+    private CertificatesGenerator certificatesGenerator;
 
     @Autowired
     public SamplesProcessor(RabbitMessagingTemplate rabbitMessagingTemplate, MessageConverter messageConverter) {
@@ -63,22 +66,25 @@ public class SamplesProcessor {
 
         // Update
         List<Sample> samplesToUpdate = envelope.getSamples().stream()
-                .filter(s -> (s.isAccessioned()))
+                .filter(s -> s.isAccessioned())
                 .collect(Collectors.toList());
 
         List<Sample> updatedSamples = updateService.update(samplesToUpdate);
         announceSampleUpdate(submission.getId(), updatedSamples);
-
         certificates.addAll(certificatesGenerator.generateCertificates(updatedSamples));
 
         // Submission
         List<Sample> samplesToSubmit = envelope.getSamples().stream()
-                .filter(s -> !s.isAccessioned())
+                .filter(s -> !s.isAccessioned() && !integrityService.doesSampleExistInBiosamples(s))
                 .collect(Collectors.toList());
 
         List<Sample> submittedSamples = submissionService.submit(samplesToSubmit);
-
         certificates.addAll(certificatesGenerator.generateCertificates(submittedSamples));
+
+        List<Sample> resubmissionList = envelope.getSamples().stream()
+                .filter(s -> !s.isAccessioned() && integrityService.doesSampleExistInBiosamples(s))
+                .collect(Collectors.toList());
+        logger.warn("Stopped resubmission of {} samples for submission {}", resubmissionList.size(), envelope.getSubmission().getId());
 
         return certificates;
     }

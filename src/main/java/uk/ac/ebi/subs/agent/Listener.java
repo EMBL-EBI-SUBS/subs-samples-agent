@@ -42,13 +42,15 @@ public class Listener {
 
         logger.info("Received submission {}", submission.getId());
 
-        // Process samples
         List<ProcessingCertificate> certificatesCompleted = samplesProcessor.processSamples(envelope);
-        ProcessingCertificateEnvelope certificateEnvelopeCompleted = new ProcessingCertificateEnvelope(
-                submission.getId(),
-                certificatesCompleted
-        );
-        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_AGENT_RESULTS, certificateEnvelopeCompleted);
+
+        if (!certificatesCompleted.isEmpty()) {
+            ProcessingCertificateEnvelope certificateEnvelopeCompleted = new ProcessingCertificateEnvelope(
+                    submission.getId(),
+                    certificatesCompleted
+            );
+            rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_AGENT_RESULTS, certificateEnvelopeCompleted);
+        }
 
         logger.info("Processed submission {}", submission.getId());
     }
