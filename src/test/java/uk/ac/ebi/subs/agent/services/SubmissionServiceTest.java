@@ -1,6 +1,5 @@
 package uk.ac.ebi.subs.agent.services;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -10,6 +9,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
 import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
@@ -23,6 +23,8 @@ import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
@@ -55,16 +57,14 @@ public class SubmissionServiceTest {
     }
 
     @Test
-    public void submit() {
+    public void submitTest() {
         List<Sample> sampleList = null;
         try {
             sampleList = submissionService.submit(Arrays.asList(sample));
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail();
+        } catch (HttpClientErrorException e) {
+            System.out.println(e.getResponseBodyAsString());
         }
-        sampleList.forEach(System.out::println);
-        sampleList.forEach(sample -> Assert.assertNotNull(sample.getAccession()));
+        assertNotNull(sampleList);
     }
 
 }

@@ -41,11 +41,12 @@ public class SampleConverterTest {
 
     @Test
     public void convertFromUsiSample() {
-        uk.ac.ebi.biosamples.model.
-                Sample conversion = toBsdSample.convert(usiSample);
+        uk.ac.ebi.biosamples.model.Sample conversion = toBsdSample.convert(usiSample);
 
         Sample conversionBack = toUsiSample.convert(conversion);
 
+        System.out.println(usiSample.getAttributes());
+        System.out.println(conversionBack.getAttributes());
         Assert.assertTrue(conversionBack.getAttributes().containsAll(usiSample.getAttributes()));
         Assert.assertTrue(usiSample.getAttributes().containsAll(conversionBack.getAttributes()));
         usiSample.setAttributes(null);
