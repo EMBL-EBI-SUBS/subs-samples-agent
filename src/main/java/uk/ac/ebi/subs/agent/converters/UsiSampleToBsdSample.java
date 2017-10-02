@@ -47,7 +47,7 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
             }
 
             List<uk.ac.ebi.subs.data.component.Attribute> attributeList = new ArrayList<>(usiSample.getAttributes());
-            attributeList.removeIf(attribute -> "release".equals(attribute.getName()) || "update".equals(attribute.getName()));
+            attributeList.removeIf(attribute -> "release".equals(attribute.getName().toLowerCase()) || "update".equals(attribute.getName().toLowerCase()));
             attributeSet = toBsdAttribute.convert(attributeList);
 
         } else {
