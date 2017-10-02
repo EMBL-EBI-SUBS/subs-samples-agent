@@ -1,7 +1,5 @@
 package uk.ac.ebi.subs.agent.converters;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.convert.converter.Converter;
@@ -10,41 +8,41 @@ import uk.ac.ebi.biosamples.model.Attribute;
 import uk.ac.ebi.biosamples.model.ExternalReference;
 import uk.ac.ebi.biosamples.model.Sample;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import static uk.ac.ebi.subs.agent.utils.ConverterHelper.getInstantFromString;
 
 @Service
 @ConfigurationProperties()
 public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submittable.Sample, Sample> {
 
     @Autowired
-    UsiAttributeToBsdAttribute toBsdAttribute;
+    private UsiAttributeToBsdAttribute toBsdAttribute;
     @Autowired
-    UsiRelationshipToBsdRelationship toBsdRelationship;
+    private UsiRelationshipToBsdRelationship toBsdRelationship;
 
     private String ncbiBaseUrl = "http://purl.obolibrary.org/obo/NCBITaxon_";
-
-    private static final Logger logger = LoggerFactory.getLogger(UsiSampleToBsdSample.class);
 
     @Override
     public Sample convert(uk.ac.ebi.subs.data.submittable.Sample usiSample) {
         Set<Attribute> attributeSet;
 
-        LocalDateTime release = null;
-        LocalDateTime update = null;
+        Instant releaseDate = null;
+        Instant updateDate = null;
 
         TreeSet<ExternalReference> externalRefs = new TreeSet<>();
 
         if(usiSample.getAttributes() != null) {
             for (uk.ac.ebi.subs.data.component.Attribute att : usiSample.getAttributes()) {
-                if("release".equals(att.getName())) {
-                    release = LocalDateTime.parse(att.getValue());
+                if("release".equals(att.getName().toLowerCase())) {
+                    releaseDate = getInstantFromString(att.getValue());
                 }
-                if("update".equals(att.getName())) {
-                    update = LocalDateTime.parse(att.getValue());
+                if("update".equals(att.getName().toLowerCase())) {
+                    updateDate = getInstantFromString(att.getValue());
                 }
             }
 
@@ -70,27 +68,16 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
             attributeSet.add(att);
         }
 
-        // Archive for samples is BioSamples
-
         Sample bioSample = Sample.build(
-                usiSample.getAlias(),                   // name
+                usiSample.getAlias(),
                 usiSample.getAccession(),
-                usiSample.getTeam().getName(),// accession
-                release,                                // release date
-                update,                                 // update date
-                attributeSet,                           // attributes
-                toBsdRelationship.convert(usiSample),   // relationships
+                usiSample.getTeam().getName(),
+                releaseDate,
+                updateDate,
+                attributeSet,
+                toBsdRelationship.convert(usiSample),
                 externalRefs
         );
-
         return bioSample;
-    }
-
-    public String getNcbiBaseUrl() {
-        return ncbiBaseUrl;
-    }
-
-    public void setNcbiBaseUrl(String ncbiBaseUrl) {
-        this.ncbiBaseUrl = ncbiBaseUrl;
     }
 }

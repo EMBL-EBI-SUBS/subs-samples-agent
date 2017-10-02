@@ -13,6 +13,8 @@ import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @ConfigurationProperties
@@ -29,22 +31,25 @@ public class FetchService {
         List<Sample> foundSamples = new ArrayList<>();
 
         accessions.forEach(accession -> {
-            Sample found = findSample(accession);
-            foundSamples.add(found);
+            Optional<Sample> sample = findSample(accession);
+            if (sample.isPresent()) {
+                foundSamples.add(sample.get());
+            }
         });
-
         return foundSamples;
     }
 
-    private Sample findSample(String accession) {
+    private Optional<Sample> findSample(String accession) {
         logger.debug("Searching for sample {}", accession);
-
         try {
-            return toUsiSample.convert(client.fetchSample(accession).get());
+            return Optional.of(toUsiSample.convert(client.fetchSample(accession).get()));
         } catch (HttpClientErrorException e) {
             throw new RuntimeException("Could not find sample [" + accession + "]", e);
         } catch (ResourceAccessException e) {
             throw new RuntimeException("Could not find sample [" + accession + "]", e);
+        } catch (NoSuchElementException e) {
+            logger.warn("Could not find sample with accession {}", accession);
+            return Optional.empty();
         }
     }
 

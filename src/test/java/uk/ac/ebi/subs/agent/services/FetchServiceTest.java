@@ -1,28 +1,30 @@
 package uk.ac.ebi.subs.agent.services;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
-import uk.ac.ebi.subs.agent.converters.*;
+import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
+import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
+import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
+import uk.ac.ebi.subs.agent.converters.UsiAttributeToBsdAttribute;
+import uk.ac.ebi.subs.agent.converters.UsiRelationshipToBsdRelationship;
+import uk.ac.ebi.subs.agent.converters.UsiSampleToBsdSample;
 import uk.ac.ebi.subs.agent.utils.BioSamplesDependentTest;
 import uk.ac.ebi.subs.agent.utils.TestUtils;
-import uk.ac.ebi.subs.data.Submission;
-import uk.ac.ebi.subs.data.component.SampleRef;
 import uk.ac.ebi.subs.data.submittable.Sample;
-import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
@@ -37,7 +39,6 @@ import java.util.UUID;
         BsdRelationshipToUsiRelationship.class,
         TestUtils.class,
 })
-@ConfigurationProperties(prefix = "test")
 @EnableAutoConfiguration
 @Category(BioSamplesDependentTest.class)
 public class FetchServiceTest {
@@ -51,50 +52,30 @@ public class FetchServiceTest {
     @Autowired
     TestUtils utils;
 
-    private String accession;
-
-    private SubmissionEnvelope envelope;
-    private Submission submission;
-    private SampleRef sampleRef;
+    Sample sample;
+    List<Sample> submitted;
 
     @Before
     public void setUp() {
-        sampleRef = new SampleRef();
-        sampleRef.setAccession(accession);
-
-        submission = new Submission();
-        submission.setId(UUID.randomUUID().toString());
-
-        envelope = new SubmissionEnvelope();
-        envelope.setSubmission(submission);
-        envelope.setSupportingSamplesRequired(Sets.newSet(sampleRef));
+        sample = utils.generateUsiSampleForSubmission();
+        submitted = submissionService.submit(Arrays.asList(sample));
     }
 
     @Test
     public void successfulSupportingSamplesServiceTest() {
-        final Sample sample = utils.generateUsiSampleForSubmission();
-        final List<Sample> submit = submissionService.submit(Arrays.asList(sample));
-        List<Sample> sampleList = service.findSamples(Arrays.asList(submit.get(0).getAccession()));
-        Assert.assertNotNull(sampleList);
+        List<Sample> sampleList;
+        try {
+            sampleList = service.findSamples(Arrays.asList(submitted.get(0).getAccession()));
+        } catch (HttpClientErrorException exception) {
+            System.out.println(exception.getResponseBodyAsString());
+            throw exception;
+        }
+        assertNotNull(sampleList);
     }
 
     @Test
     public void sampleNotFoundTest() {
-
-        List<Sample> sampleList = null;
-        try {
-            sampleList = service.findSamples(Arrays.asList("SAM"));
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-        }
-
-    }
-
-    public String getAccession() {
-        return accession;
-    }
-
-    public void setAccession(String accession) {
-        this.accession = accession;
+        List<Sample> sampleList = service.findSamples(Arrays.asList("SAM"));
+        assertTrue(sampleList.isEmpty());
     }
 }

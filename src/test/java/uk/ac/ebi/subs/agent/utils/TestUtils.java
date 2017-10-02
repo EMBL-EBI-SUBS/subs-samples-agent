@@ -3,11 +3,13 @@ package uk.ac.ebi.subs.agent.utils;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biosamples.model.ExternalReference;
 import uk.ac.ebi.biosamples.model.Relationship;
-import uk.ac.ebi.subs.data.component.*;
+import uk.ac.ebi.subs.data.component.Attribute;
+import uk.ac.ebi.subs.data.component.SampleRelationship;
+import uk.ac.ebi.subs.data.component.Team;
+import uk.ac.ebi.subs.data.component.Term;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
-import java.time.LocalDateTime;
-import java.time.Month;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +54,6 @@ public class TestUtils {
         usiSample.setDescription("Sample from Mus musculus.");
         usiSample.setAlias("This is an USI alias");
 
-
         List<Attribute> attributeList = new ArrayList<>();
         Attribute usiAttribute_1 = new Attribute();
         usiAttribute_1.setName("age");
@@ -65,12 +66,12 @@ public class TestUtils {
         // 2
         Attribute usiAttribute_2 = new Attribute();
         usiAttribute_2.setName("release");
-        usiAttribute_2.setValue(LocalDateTime.of(2016, Month.APRIL, 12, 12, 0, 0).toString());
+        usiAttribute_2.setValue("2017-08-25T12:00:00.012Z");
         attributeList.add(usiAttribute_2);
         // 3
         Attribute usiAttribute_3 = new Attribute();
         usiAttribute_3.setName("update");
-        usiAttribute_3.setValue(LocalDateTime.now().toString());
+        usiAttribute_3.setValue(Instant.now().toString());
         attributeList.add(usiAttribute_3);
         // 4
         Attribute usiAttribute_4 = new Attribute();
@@ -116,12 +117,12 @@ public class TestUtils {
         // 2
         Attribute usiAttribute_2 = new Attribute();
         usiAttribute_2.setName("release");
-        usiAttribute_2.setValue(LocalDateTime.of(2016, Month.APRIL, 12, 12, 0, 0).toString());
+        usiAttribute_2.setValue(Instant.now().toString());
         attributeList.add(usiAttribute_2);
         // 3
         Attribute usiAttribute_3 = new Attribute();
         usiAttribute_3.setName("update");
-        usiAttribute_3.setValue(LocalDateTime.of(2016, Month.MAY, 12, 12, 0, 0).toString());
+        usiAttribute_3.setValue(Instant.now().toString());
         attributeList.add(usiAttribute_3);
         // 4
         Attribute usiAttribute_4 = new Attribute();
@@ -164,16 +165,15 @@ public class TestUtils {
 
         uk.ac.ebi.biosamples.model.
                 Sample bsdSample = uk.ac.ebi.biosamples.model.Sample.build(
-                        "This is a BioSamples name",    // name
-                        "SAM123",                       // accession
-                        "self.usi-team",        // domain
-                        LocalDateTime.now(),            // release date
-                        LocalDateTime.now(),            // update date
-                        attributeSet,                   // attributes
-                        relationshipSet,                // relationships
+                        "This is a BioSamples name",
+                        "SAM123",
+                        "self.usi-team",
+                        Instant.parse("2017-08-25T12:00:00.012Z"),
+                        Instant.now(),
+                        attributeSet,
+                        relationshipSet,
                         new TreeSet<ExternalReference>()
         );
-
         return bsdSample;
     }
 
