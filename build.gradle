@@ -43,15 +43,15 @@ dependencies {
 
     optional("org.springframework.boot:spring-boot-configuration-processor")
 
-
     compile ('uk.ac.ebi.biosamples:biosamples-spring-boot-starter:4.0.0-SNAPSHOT') {
         changing = true
         exclude group: 'org.springframework.boot'
     }
 
-
-    testCompile("junit:junit")
-    testCompile("org.springframework.boot:spring-boot-starter-test")
+    testCompile("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: 'org.hamcrest'
+    }
+    testCompile("org.hamcrest:java-hamcrest:2.0.0.0")
 }
 
 task sourceJar(type: Jar) { from sourceSets.main.allJava }

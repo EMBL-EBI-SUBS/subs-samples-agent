@@ -6,8 +6,17 @@ public class ConverterHelper {
 
     public static Instant getInstantFromString(String dateTime) {
         try {
-            if (dateTime.length() > 18 && !dateTime.endsWith("Z")) {
-                dateTime = dateTime + "Z";
+            if (dateTime.length() >18 && !dateTime.endsWith("Z")) {
+                return Instant.parse(dateTime + "Z");
+            }
+            if (dateTime.matches("\\b[0-9]{4}-[0-9]{2}-[0-9]{2}\\b")) { // date only yyyy-MM-dd
+                return Instant.parse(dateTime + "T00:00:00Z");
+            }
+            if (dateTime.matches("\\b[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}\\b")) { // date, hours and minutes yyyy-MM-ddTHH:mm
+                return Instant.parse(dateTime + ":00Z");
+            }
+            if (dateTime.matches("\\b[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}Z\\b")) { // date, hours and minutes and Z yyyy-MM-ddTHH:mmZ
+                dateTime = dateTime.replace("Z", ":00Z");
             }
             return Instant.parse(dateTime);
         } catch (Exception e) {
