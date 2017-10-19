@@ -163,14 +163,17 @@ ext.gradle_env = hasProperty('env') ? env : 'dev'
 remotes {
     submission_dev {
         role('dev')
-        host = 'mac-subs-004'
+        host = 'mac-subs-010'
     }
     submission_test {
         role('test')
-        host = 'mac-subs-003'
+        host = 'mac-subs-011'
+    }
+    submission_prod {
+        role('prod')
+        host = 'mac-subs-012'
     }
 }
-
 
 task deployJar(type: SshTask, dependsOn: 'assemble') {
     doLast {
