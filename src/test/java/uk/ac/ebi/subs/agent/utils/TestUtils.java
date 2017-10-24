@@ -10,6 +10,8 @@ import uk.ac.ebi.subs.data.component.Term;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +38,7 @@ public class TestUtils {
         usiSample.setTitle("Experiment on mice.");
         usiSample.setDescription("Sample from Mus musculus.");
         usiSample.setAlias("This is an USI alias");
+        usiSample.setReleaseDate(LocalDate.now());
         usiSample.setAttributes(
                 generateUsiAttributes()
         );
@@ -53,6 +56,7 @@ public class TestUtils {
         usiSample.setTitle("Experiment on mice.");
         usiSample.setDescription("Sample from Mus musculus.");
         usiSample.setAlias("This is an USI alias");
+        usiSample.setReleaseDate(LocalDate.of(2017, Month.AUGUST, 25));
 
         List<Attribute> attributeList = new ArrayList<>();
         Attribute usiAttribute_1 = new Attribute();
@@ -63,24 +67,19 @@ public class TestUtils {
         usiAttribute_1.setTerms(Arrays.asList(term));
         usiAttribute_1.setUnits("year");
         attributeList.add(usiAttribute_1);
-        // 2
+
         Attribute usiAttribute_2 = new Attribute();
-        usiAttribute_2.setName("release");
-        usiAttribute_2.setValue("2017-08-25T12:00:00.012Z");
+        usiAttribute_2.setName("update");
+        usiAttribute_2.setValue(Instant.now().toString());
         attributeList.add(usiAttribute_2);
-        // 3
+
         Attribute usiAttribute_3 = new Attribute();
-        usiAttribute_3.setName("update");
-        usiAttribute_3.setValue(Instant.now().toString());
-        attributeList.add(usiAttribute_3);
-        // 4
-        Attribute usiAttribute_4 = new Attribute();
-        usiAttribute_4.setName("synonym");
-        usiAttribute_4.setValue("mouse");
+        usiAttribute_3.setName("synonym");
+        usiAttribute_3.setValue("mouse");
         Term t = new Term();
         t.setUrl("http://purl.obolibrary.org/obo/NCBITaxon_10090");
-        usiAttribute_4.setTerms(Arrays.asList(t));
-        attributeList.add(usiAttribute_4);
+        usiAttribute_3.setTerms(Arrays.asList(t));
+        attributeList.add(usiAttribute_3);
         usiSample.setAttributes(
                 attributeList
         );
@@ -97,6 +96,7 @@ public class TestUtils {
         usiSample.setTitle("Experiment on mice.");
         usiSample.setDescription("Sample from Mus musculus - is this up to date?");
         usiSample.setAlias("This is an USI alias");
+        usiSample.setReleaseDate(LocalDate.now());
         usiSample.setAttributes(
                 generateUsiAttributes()
         );
@@ -105,7 +105,7 @@ public class TestUtils {
 
     public List<Attribute> generateUsiAttributes() {
         List<Attribute> attributeList = new ArrayList<>();
-        // 1
+
         Attribute usiAttribute_1 = new Attribute();
         usiAttribute_1.setName("age");
         usiAttribute_1.setValue("1.5");
@@ -114,24 +114,19 @@ public class TestUtils {
         usiAttribute_1.setTerms(Arrays.asList(term));
         usiAttribute_1.setUnits("year");
         attributeList.add(usiAttribute_1);
-        // 2
+
         Attribute usiAttribute_2 = new Attribute();
-        usiAttribute_2.setName("release");
+        usiAttribute_2.setName("update");
         usiAttribute_2.setValue(Instant.now().toString());
         attributeList.add(usiAttribute_2);
-        // 3
+
         Attribute usiAttribute_3 = new Attribute();
-        usiAttribute_3.setName("update");
-        usiAttribute_3.setValue(Instant.now().toString());
-        attributeList.add(usiAttribute_3);
-        // 4
-        Attribute usiAttribute_4 = new Attribute();
-        usiAttribute_4.setName("synonym");
-        usiAttribute_4.setValue("mouse");
+        usiAttribute_3.setName("synonym");
+        usiAttribute_3.setValue("mouse");
         Term t = new Term();
         t.setUrl("http://purl.obolibrary.org/obo/NCBITaxon_10090");
-        usiAttribute_4.setTerms(Arrays.asList(t));
-        attributeList.add(usiAttribute_4);
+        usiAttribute_3.setTerms(Arrays.asList(t));
+        attributeList.add(usiAttribute_3);
 
         return attributeList;
     }
@@ -168,7 +163,7 @@ public class TestUtils {
                         "This is a BioSamples name",
                         "SAM123",
                         "self.usi-team",
-                        Instant.parse("2017-08-25T12:00:00.012Z"),
+                        Instant.parse("2017-08-25T00:00:00Z"),
                         Instant.now(),
                         attributeSet,
                         relationshipSet,
