@@ -9,6 +9,7 @@ import uk.ac.ebi.biosamples.model.ExternalReference;
 import uk.ac.ebi.biosamples.model.Sample;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -31,16 +32,12 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
     public Sample convert(uk.ac.ebi.subs.data.submittable.Sample usiSample) {
         Set<Attribute> attributeSet;
 
-        Instant releaseDate = null;
         Instant updateDate = null;
 
         TreeSet<ExternalReference> externalRefs = new TreeSet<>();
 
         if(usiSample.getAttributes() != null) {
             for (uk.ac.ebi.subs.data.component.Attribute att : usiSample.getAttributes()) {
-                if("release".equals(att.getName().toLowerCase())) {
-                    releaseDate = getInstantFromString(att.getValue());
-                }
                 if("update".equals(att.getName().toLowerCase())) {
                     updateDate = getInstantFromString(att.getValue());
                 }
@@ -72,7 +69,7 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
                 usiSample.getAlias(),
                 usiSample.getAccession(),
                 usiSample.getTeam().getName(),
-                releaseDate,
+                usiSample.getReleaseDate().atStartOfDay().toInstant(ZoneOffset.UTC),
                 updateDate,
                 attributeSet,
                 toBsdRelationship.convert(usiSample),
