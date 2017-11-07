@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -52,7 +53,7 @@ public class SamplesProcessor {
     protected List<ProcessingCertificate> processSamples(SubmissionEnvelope envelope) {
         Submission submission = envelope.getSubmission();
 
-        logger.debug("Processing {} samples from {} submission", envelope.getSamples().size(), submission.getId());
+        logger.debug("Processing {} samples from submission {}", envelope.getSamples().size(), submission.getId());
 
         List<ProcessingCertificate> certificates = new ArrayList<>();
 
@@ -64,29 +65,69 @@ public class SamplesProcessor {
             sample.getAttributes().add(attribute);
         }
 
+        Map<Boolean, List<Sample>> samplesWithUpdateRequirement = envelope.getSamples().stream()
+                .map(s -> sampleUpdateRequirement(s))
+                .collect(
+                        Collectors.groupingBy(
+                                SampleUpdateRequired::isUpdateRequired,
+                                Collectors.mapping(
+                                        SampleUpdateRequired::getSample,
+                                        Collectors.toList()
+                                )
+                        )
+                );
+
         // Update
-        List<Sample> samplesToUpdate = envelope.getSamples().stream()
-                .filter(s -> s.isAccessioned())
-                .collect(Collectors.toList());
+        List<Sample> samplesToUpdate = samplesWithUpdateRequirement.get(true);
 
-        List<Sample> updatedSamples = updateService.update(samplesToUpdate);
-        announceSampleUpdate(submission.getId(), updatedSamples);
-        certificates.addAll(certificatesGenerator.generateCertificates(updatedSamples));
+        List<Sample> samplesUpdated = updateService.update(samplesToUpdate);
+        logger.info("Updated {} samples for submission {}",samplesUpdated.size(), envelope.getSubmission().getId());
+        announceSampleUpdate(submission.getId(), samplesUpdated);
+        certificates.addAll(certificatesGenerator.generateCertificates(samplesUpdated));
 
-        // Submission
-        List<Sample> samplesToSubmit = envelope.getSamples().stream()
-                .filter(s -> !s.isAccessioned() && !integrityService.doesSampleExistInBiosamples(s))
-                .collect(Collectors.toList());
 
-        List<Sample> submittedSamples = submissionService.submit(samplesToSubmit);
-        certificates.addAll(certificatesGenerator.generateCertificates(submittedSamples));
+        // Create
+        List<Sample> samplesToCreate = samplesWithUpdateRequirement.get(false);
 
-        List<Sample> resubmissionList = envelope.getSamples().stream()
-                .filter(s -> !s.isAccessioned() && integrityService.doesSampleExistInBiosamples(s))
-                .collect(Collectors.toList());
-        logger.warn("Stopped resubmission of {} samples for submission {}", resubmissionList.size(), envelope.getSubmission().getId());
+        List<Sample> samplesCreated = submissionService.submit(samplesToCreate);
+        logger.info("Created {} samples for submission {}",samplesUpdated.size(), envelope.getSubmission().getId());
+        certificates.addAll(certificatesGenerator.generateCertificates(samplesCreated));
 
         return certificates;
+    }
+
+    private SampleUpdateRequired sampleUpdateRequirement(Sample s) {
+        return new SampleUpdateRequired(
+                s,
+                s.isAccessioned() || integrityService.doesSampleExistInBiosamples(s) // does it need an update
+        );
+    }
+
+
+    private static class SampleUpdateRequired {
+        private SampleUpdateRequired(Sample sample, boolean updateRequired) {
+            this.sample = sample;
+            this.updateRequired = updateRequired;
+        }
+
+        Sample sample;
+        boolean updateRequired;
+
+        public Sample getSample() {
+            return sample;
+        }
+
+        public void setSample(Sample sample) {
+            this.sample = sample;
+        }
+
+        public Boolean isUpdateRequired() {
+            return updateRequired;
+        }
+
+        public void setUpdateRequired(boolean updateRequired) {
+            this.updateRequired = updateRequired;
+        }
     }
 
     protected List<Sample> findSamples(SubmissionEnvelope envelope) {
