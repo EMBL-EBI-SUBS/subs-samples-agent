@@ -65,15 +65,15 @@ public class SamplesProcessor {
             sample.getAttributes().add(attribute);
         }
 
+        envelope.getSamples().forEach(
+                s -> integrityService.fillInSampleAccessionIfTeamAndAliasExistInBioSamples(s)
+        );
+
         Map<Boolean, List<Sample>> samplesWithUpdateRequirement = envelope.getSamples().stream()
-                .map(s -> sampleUpdateRequirement(s))
                 .collect(
                         Collectors.groupingBy(
-                                SampleUpdateRequired::isUpdateRequired,
-                                Collectors.mapping(
-                                        SampleUpdateRequired::getSample,
-                                        Collectors.toList()
-                                )
+                                Sample::isAccessioned,
+                                Collectors.toList()
                         )
                 );
 
@@ -81,7 +81,7 @@ public class SamplesProcessor {
         List<Sample> samplesToUpdate = samplesWithUpdateRequirement.get(true);
 
         List<Sample> samplesUpdated = updateService.update(samplesToUpdate);
-        logger.info("Updated {} samples for submission {}",samplesUpdated.size(), envelope.getSubmission().getId());
+        logger.info("Updated {} samples for submission {}", samplesUpdated.size(), envelope.getSubmission().getId());
         announceSampleUpdate(submission.getId(), samplesUpdated);
         certificates.addAll(certificatesGenerator.generateCertificates(samplesUpdated));
 
@@ -90,45 +90,12 @@ public class SamplesProcessor {
         List<Sample> samplesToCreate = samplesWithUpdateRequirement.get(false);
 
         List<Sample> samplesCreated = submissionService.submit(samplesToCreate);
-        logger.info("Created {} samples for submission {}",samplesUpdated.size(), envelope.getSubmission().getId());
+        logger.info("Created {} samples for submission {}", samplesUpdated.size(), envelope.getSubmission().getId());
         certificates.addAll(certificatesGenerator.generateCertificates(samplesCreated));
 
         return certificates;
     }
 
-    private SampleUpdateRequired sampleUpdateRequirement(Sample s) {
-        return new SampleUpdateRequired(
-                s,
-                s.isAccessioned() || integrityService.doesSampleExistInBiosamples(s) // does it need an update
-        );
-    }
-
-
-    private static class SampleUpdateRequired {
-        private SampleUpdateRequired(Sample sample, boolean updateRequired) {
-            this.sample = sample;
-            this.updateRequired = updateRequired;
-        }
-
-        Sample sample;
-        boolean updateRequired;
-
-        public Sample getSample() {
-            return sample;
-        }
-
-        public void setSample(Sample sample) {
-            this.sample = sample;
-        }
-
-        public Boolean isUpdateRequired() {
-            return updateRequired;
-        }
-
-        public void setUpdateRequired(boolean updateRequired) {
-            this.updateRequired = updateRequired;
-        }
-    }
 
     protected List<Sample> findSamples(SubmissionEnvelope envelope) {
         logger.debug("Finding {} samples from {} submission", envelope.getSupportingSamplesRequired().size(), envelope.getSubmission().getId());
