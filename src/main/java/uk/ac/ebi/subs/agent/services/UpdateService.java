@@ -31,6 +31,8 @@ public class UpdateService {
     public List<Sample> update(List<Sample> sampleList) {
         ArrayList<Sample> updatedSamples = new ArrayList<>();
 
+        if (sampleList == null) return updatedSamples;
+
         for (Sample usiSample : sampleList) {
             String usiId = usiSample.getId();
 
