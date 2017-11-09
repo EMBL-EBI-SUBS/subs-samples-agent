@@ -65,9 +65,11 @@ public class SamplesProcessor {
             sample.getAttributes().add(attribute);
         }
 
-        envelope.getSamples().forEach(
-                s -> integrityService.fillInSampleAccessionIfTeamAndAliasExistInBioSamples(s)
-        );
+        envelope.getSamples().stream()
+                .filter(s -> !s.isAccessioned())
+                .forEach(
+                        s -> integrityService.fillInSampleAccessionIfTeamAndAliasExistInBioSamples(s)
+                );
 
         Map<Boolean, List<Sample>> samplesWithUpdateRequirement = envelope.getSamples().stream()
                 .collect(
@@ -78,20 +80,23 @@ public class SamplesProcessor {
                 );
 
         // Update
-        List<Sample> samplesToUpdate = samplesWithUpdateRequirement.get(true);
+        if (samplesWithUpdateRequirement.containsKey(true)) {
+            List<Sample> samplesToUpdate = samplesWithUpdateRequirement.get(true);
 
-        List<Sample> samplesUpdated = updateService.update(samplesToUpdate);
-        logger.info("Updated {} samples for submission {}", samplesUpdated.size(), envelope.getSubmission().getId());
-        announceSampleUpdate(submission.getId(), samplesUpdated);
-        certificates.addAll(certificatesGenerator.generateCertificates(samplesUpdated));
-
+            List<Sample> samplesUpdated = updateService.update(samplesToUpdate);
+            logger.info("Updated {} samples for submission {}", samplesUpdated.size(), envelope.getSubmission().getId());
+            announceSampleUpdate(submission.getId(), samplesUpdated);
+            certificates.addAll(certificatesGenerator.generateCertificates(samplesUpdated));
+        }
 
         // Create
-        List<Sample> samplesToCreate = samplesWithUpdateRequirement.get(false);
+        if (samplesWithUpdateRequirement.containsKey(false)) {
+            List<Sample> samplesToCreate = samplesWithUpdateRequirement.get(false);
 
-        List<Sample> samplesCreated = submissionService.submit(samplesToCreate);
-        logger.info("Created {} samples for submission {}", samplesUpdated.size(), envelope.getSubmission().getId());
-        certificates.addAll(certificatesGenerator.generateCertificates(samplesCreated));
+            List<Sample> samplesCreated = submissionService.submit(samplesToCreate);
+            logger.info("Created {} samples for submission {}", samplesCreated.size(), envelope.getSubmission().getId());
+            certificates.addAll(certificatesGenerator.generateCertificates(samplesCreated));
+        }
 
         return certificates;
     }
