@@ -33,8 +33,6 @@ public class UpdateService {
         Assert.notNull(sampleList);
         ArrayList<Sample> updatedSamples = new ArrayList<>();
 
-        if (sampleList ==  null) return updatedSamples;
-
         for (Sample usiSample : sampleList) {
             String usiId = usiSample.getId();
 
