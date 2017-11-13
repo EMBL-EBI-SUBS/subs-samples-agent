@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import uk.ac.ebi.biosamples.client.BioSamplesClient;
@@ -29,6 +30,7 @@ public class UpdateService {
     BsdSampleToUsiSample toUsiSample;
 
     public List<Sample> update(List<Sample> sampleList) {
+        Assert.notNull(sampleList);
         ArrayList<Sample> updatedSamples = new ArrayList<>();
 
         for (Sample usiSample : sampleList) {

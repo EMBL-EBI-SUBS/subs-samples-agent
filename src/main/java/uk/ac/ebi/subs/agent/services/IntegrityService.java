@@ -11,6 +11,7 @@ import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class IntegrityService {
@@ -21,10 +22,21 @@ public class IntegrityService {
 
     public boolean doesSampleExistInBiosamples(Sample sample) {
         logger.debug("Searching for sample by team and alias.");
-        return searchByTeamNameAndAlias(sample.getTeam().getName(), sample.getAlias());
+        return searchByTeamNameAndAlias(sample.getTeam().getName(), sample.getAlias()).isPresent();
     }
 
-    private boolean searchByTeamNameAndAlias(String teamName, String alias) {
+    public void fillInSampleAccessionIfTeamAndAliasExistInBioSamples(Sample s){
+        Optional<uk.ac.ebi.biosamples.model.Sample> optionalBioSampleEntry = this.searchByTeamNameAndAlias(
+                s.getTeam().getName(),
+                s.getAlias()
+        );
+
+        if (optionalBioSampleEntry.isPresent()){
+            s.setAccession( optionalBioSampleEntry.get().getAccession() );
+        }
+    }
+
+    private Optional<uk.ac.ebi.biosamples.model.Sample> searchByTeamNameAndAlias(String teamName, String alias) {
         List<uk.ac.ebi.biosamples.model.Sample> bsdSampleList = new ArrayList<>();
 
         try {
@@ -39,7 +51,7 @@ public class IntegrityService {
 
         return bsdSampleList.stream()
                 .filter(s -> s.getDomain().equals(teamName) && s.getName().equals(alias)).findFirst()
-                .isPresent();
+                ;
     }
 
 }
