@@ -23,7 +23,7 @@ public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosample
 
         if(bsdAttribute.getIri() != null) {
             List<Term> terms = bsdAttribute.getIri().stream()
-                    .filter( bsdTerm -> bsdTerm != null)
+                    .filter( bsdIri -> bsdIri != null)
                     .map(bsdIri -> makeTerm(bsdIri))
                     .collect(Collectors.toList());
 

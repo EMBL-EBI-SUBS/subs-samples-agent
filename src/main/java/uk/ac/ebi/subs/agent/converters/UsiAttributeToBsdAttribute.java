@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biosamples.model.Attribute;
 import uk.ac.ebi.subs.data.component.Term;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -24,20 +22,20 @@ public class UsiAttributeToBsdAttribute implements Converter<uk.ac.ebi.subs.data
     @Override
     public Attribute convert(uk.ac.ebi.subs.data.component.Attribute usiAttribute) {
 
-        Collection<String> termUrls = Collections.emptySet();
+        Collection<String> iris = Collections.emptySet();
 
 
         if(usiAttribute.getTerms() != null) {
-            termUrls = usiAttribute.getTerms().stream()
+            iris = usiAttribute.getTerms().stream()
                     .map(Term::getUrl)
-                    .filter(term -> term != null)
+                    .filter(iri -> iri != null)
                     .collect(Collectors.toList());
         }
 
         Attribute bsdAttribute = Attribute.build(
                 usiAttribute.getName(),     // key
                 usiAttribute.getValue(),    // value
-                termUrls,                   // iri
+                iris,                       // iri
                 usiAttribute.getUnits()     // unit
         );
 
