@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosamples.model.Attribute, Attribute> {
@@ -20,10 +21,13 @@ public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosample
         usiAttribute.setValue(bsdAttribute.getValue());
         usiAttribute.setUnits(bsdAttribute.getUnit());
 
-        Term term = new Term();
         if(bsdAttribute.getIri() != null) {
-            term.setUrl(bsdAttribute.getIri());
-            usiAttribute.setTerms(Arrays.asList(term));
+            List<Term> terms = bsdAttribute.getIri().stream()
+                    .filter( bsdTerm -> bsdTerm != null)
+                    .map(bsdIri -> makeTerm(bsdIri))
+                    .collect(Collectors.toList());
+
+            usiAttribute.setTerms(terms);
         }
 
         return usiAttribute;
@@ -35,5 +39,11 @@ public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosample
         if (bsdAttributes != null) bsdAttributes.forEach(bsdAttribute -> usiAttributes.add(convert(bsdAttribute)));
 
         return usiAttributes;
+    }
+
+    private Term makeTerm(String iri){
+        Term t = new Term();
+        t.setUrl(iri);
+        return t;
     }
 }
