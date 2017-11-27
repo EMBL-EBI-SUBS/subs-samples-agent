@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import uk.ac.ebi.biosamples.client.BioSamplesClient;
+import uk.ac.ebi.biosamples.model.filter.Filter;
+import uk.ac.ebi.biosamples.service.FilterBuilder;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.ArrayList;
@@ -31,26 +33,31 @@ public class IntegrityService {
         return searchByTeamNameAndAlias(sample.getTeam().getName(), sample.getAlias()).isPresent();
     }
 
-    public void fillInSampleAccessionIfTeamAndAliasExistInBioSamples(Sample s){
+    public void fillInSampleAccessionIfTeamAndAliasExistInBioSamples(Sample s) {
         Optional<uk.ac.ebi.biosamples.model.Sample> optionalBioSampleEntry = this.searchByTeamNameAndAlias(
                 s.getTeam().getName(),
                 s.getAlias()
         );
 
-        if (optionalBioSampleEntry.isPresent()){
-            s.setAccession( optionalBioSampleEntry.get().getAccession() );
+        if (optionalBioSampleEntry.isPresent()) {
+            s.setAccession(optionalBioSampleEntry.get().getAccession());
         }
     }
 
     private Optional<uk.ac.ebi.biosamples.model.Sample> searchByTeamNameAndAlias(String teamName, String alias) {
         try {
+
+            List<Filter> filterList = new ArrayList<>(2);
+            filterList.add(FilterBuilder.create().onName(alias).build());
+            filterList.add(FilterBuilder.create().onDomain(teamName).build());
             Iterator<Resource<uk.ac.ebi.biosamples.model.Sample>> iterator = client
-                    .fetchSampleResourceAll("\"" + teamName + "\" AND \"" + alias + "\"")
+                    .fetchSampleResourceAll(null, filterList)
                     .iterator();
 
             Stream<Resource<uk.ac.ebi.biosamples.model.Sample>> sampleResourceStream = StreamSupport.stream(
-                    Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED),false
+                    Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false
             );
+
 
             return sampleResourceStream
                     .map(Resource::getContent)
