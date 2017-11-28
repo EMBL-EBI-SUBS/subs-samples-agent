@@ -10,8 +10,9 @@ import uk.ac.ebi.biosamples.model.Sample;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -37,15 +38,15 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
         TreeSet<ExternalReference> externalRefs = new TreeSet<>();
 
         if(usiSample.getAttributes() != null) {
-            for (uk.ac.ebi.subs.data.component.Attribute att : usiSample.getAttributes()) {
-                if("update".equals(att.getName().toLowerCase())) {
-                    updateDate = getInstantFromString(att.getValue());
+
+            for (Map.Entry<String, Collection<uk.ac.ebi.subs.data.component.Attribute>> attributeEntry : usiSample.getAttributes().entrySet()) {
+                if("update".equals(attributeEntry.getKey().toLowerCase())) {
+                    updateDate = getInstantFromString(attributeEntry.getValue().iterator().next().getValue());
                 }
             }
 
-            List<uk.ac.ebi.subs.data.component.Attribute> attributeList = new ArrayList<>(usiSample.getAttributes());
-            attributeList.removeIf(attribute -> "release".equals(attribute.getName().toLowerCase()) || "update".equals(attribute.getName().toLowerCase()));
-            attributeSet = toBsdAttribute.convert(attributeList);
+            Map<String, Collection<uk.ac.ebi.subs.data.component.Attribute>> filteredAttributes = getOtherAttributes(usiSample.getAttributes());
+            attributeSet = toBsdAttribute.convert(filteredAttributes);
 
         } else {
             attributeSet = new TreeSet<>();
@@ -76,5 +77,13 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
                 externalRefs
         );
         return bioSample;
+    }
+
+    private Map<String, Collection<uk.ac.ebi.subs.data.component.Attribute>> getOtherAttributes(Map<String, Collection<uk.ac.ebi.subs.data.component.Attribute>> attributes) {
+        Map<String, Collection<uk.ac.ebi.subs.data.component.Attribute>> filteredAttributes = new HashMap<>();
+        filteredAttributes.putAll(attributes);
+        filteredAttributes.remove("release");
+        filteredAttributes.remove("update");
+        return filteredAttributes;
     }
 }

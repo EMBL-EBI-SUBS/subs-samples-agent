@@ -11,16 +11,23 @@ import uk.ac.ebi.subs.data.submittable.Sample;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.model.Sample, Sample> {
 
     @Autowired
-    BsdAttributeToUsiAttribute toUsiAttribute;
+    private BsdAttributeToUsiAttribute toUsiAttribute;
     @Autowired
-    BsdRelationshipToUsiRelationship toUsiRelationship;
+    private BsdRelationshipToUsiRelationship toUsiRelationship;
+
+    private static final String DESCRIPTION = "description";
+    private static final String TITLE = "title";
+    private static final String TAXON = "taxon";
 
     @Override
     public Sample convert(uk.ac.ebi.biosamples.model.Sample bioSample) {
@@ -33,40 +40,32 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
             usiSample.setTeam(team);
         }
 
-        List<Attribute> attributes = toUsiAttribute.convert(bioSample.getAttributes());
-        attributes
-                .parallelStream()
-                .forEach(attribute -> {
-            if("description".equals(attribute.getName())) {
-                usiSample.setDescription(attribute.getValue());
-            } else if("title".equals(attribute.getName())) {
-                usiSample.setTitle(attribute.getValue());
-            } else if("taxon".equals(attribute.getName())) {
-                usiSample.setTaxon(attribute.getValue());
-                String url = attribute.getTerms().get(0).getUrl();
+        Map<String, Collection<Attribute>> attributes = toUsiAttribute.convert(bioSample.getAttributes());
+
+        attributes.entrySet().iterator().forEachRemaining(attribute -> {
+            if(DESCRIPTION.equals(attribute.getKey())) {
+                usiSample.setDescription(attribute.getValue().iterator().next().getValue());
+            } else if(TITLE.equals(attribute.getValue().iterator().next().getValue())) {
+                usiSample.setTitle(attribute.getValue().iterator().next().getValue());
+            } else if(TAXON.equals(attribute.getValue().iterator().next().getValue())) {
+                usiSample.setTaxon(attribute.getValue().iterator().next().getValue());
+                String url = attribute.getValue().iterator().next().getTerms().get(0).getUrl();
                 String taxon = url.substring(url.lastIndexOf("_") + 1).trim();
                 usiSample.setTaxonId(Long.parseLong(taxon));
             }
         });
 
-        // Get all non 'description', 'title' and 'taxon' attributes
-        List<Attribute> filteredAttributes = attributes
-                .stream()
-                .filter(attribute ->
-                        !"description".equals(attribute.getName()) &&
-                        !"title".equals(attribute.getName()) &&
-                        !"taxon".equals(attribute.getName())
-        ).collect(Collectors.toList());
+        // Keep all non 'description', 'title' and 'taxon' attributes
+        Map<String, Collection<Attribute>> filteredAttributes = getOtherAttributes(attributes);
 
-        if(bioSample.getRelease() != null) {    // Get release date
+        if(bioSample.getRelease() != null) {
             usiSample.setReleaseDate(
                     LocalDateTime.ofInstant(bioSample.getRelease(), ZoneOffset.UTC).toLocalDate());
         }
-        if(bioSample.getUpdate() != null) { // Get update date
+        if(bioSample.getUpdate() != null) {
             Attribute update = new Attribute();
-            update.setName("update");
             update.setValue(bioSample.getUpdate().toString());
-            filteredAttributes.add(update);
+            filteredAttributes.put("update", Arrays.asList(update));
         }
         usiSample.setAttributes(filteredAttributes);
 
@@ -82,5 +81,14 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
         biosamples.forEach(biosample -> usisamples.add(convert(biosample)));
 
         return usisamples;
+    }
+
+    private Map<String, Collection<Attribute>> getOtherAttributes(Map<String, Collection<Attribute>> attributes) {
+        Map<String, Collection<Attribute>> filteredAttributes = new HashMap<>();
+        filteredAttributes.putAll(attributes);
+        filteredAttributes.remove(DESCRIPTION);
+        filteredAttributes.remove(TITLE);
+        filteredAttributes.remove(TAXON);
+        return filteredAttributes;
     }
 }
