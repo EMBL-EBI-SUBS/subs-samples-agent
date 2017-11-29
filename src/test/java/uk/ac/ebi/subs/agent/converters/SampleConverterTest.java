@@ -1,6 +1,5 @@
 package uk.ac.ebi.subs.agent.converters;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.submittable.Sample;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
@@ -48,14 +49,11 @@ public class SampleConverterTest {
         System.out.println(usiSample.getAttributes());
         System.out.println(conversionBack.getAttributes());
 
-
-        //Assert.assertTrue(conversionBack.getAttributes().containsAll(usiSample.getAttributes()));
-        //Assert.assertTrue(usiSample.getAttributes().containsAll(conversionBack.getAttributes()));
-
+        assertEquals(conversionBack.getAttributes(), usiSample.getAttributes());
 
         usiSample.setAttributes(null);
         conversionBack.setAttributes(null);
-        Assert.assertEquals(usiSample, conversionBack);
+        assertEquals(usiSample, conversionBack);
     }
 
     @Test
@@ -65,7 +63,9 @@ public class SampleConverterTest {
         uk.ac.ebi.biosamples.model.
                 Sample conversionBack = toBsdSample.convert(conversion);
 
-        Assert.assertEquals(bsdSample, conversionBack);
+        assertEquals(bsdSample.getAttributes(), conversionBack.getAttributes());
+
+        assertEquals(bsdSample, conversionBack);
     }
 
 }

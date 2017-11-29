@@ -41,13 +41,12 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
         }
 
         Map<String, Collection<Attribute>> attributes = toUsiAttribute.convert(bioSample.getAttributes());
-
         attributes.entrySet().iterator().forEachRemaining(attribute -> {
             if(DESCRIPTION.equals(attribute.getKey())) {
                 usiSample.setDescription(attribute.getValue().iterator().next().getValue());
-            } else if(TITLE.equals(attribute.getValue().iterator().next().getValue())) {
+            } else if(TITLE.equals(attribute.getKey())) {
                 usiSample.setTitle(attribute.getValue().iterator().next().getValue());
-            } else if(TAXON.equals(attribute.getValue().iterator().next().getValue())) {
+            } else if(TAXON.equals(attribute.getKey())) {
                 usiSample.setTaxon(attribute.getValue().iterator().next().getValue());
                 String url = attribute.getValue().iterator().next().getTerms().get(0).getUrl();
                 String taxon = url.substring(url.lastIndexOf("_") + 1).trim();
