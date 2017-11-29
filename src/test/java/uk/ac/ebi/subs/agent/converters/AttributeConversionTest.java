@@ -1,6 +1,5 @@
 package uk.ac.ebi.subs.agent.converters;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +12,8 @@ import uk.ac.ebi.subs.data.component.Attribute;
 
 import java.util.Collection;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
@@ -47,7 +48,7 @@ public class AttributeConversionTest {
 
         Map.Entry<String, Collection<Attribute>> conversionBack = toUsiAttribute.convert(conversion);
 
-        Assert.assertEquals(usiAttribute, conversionBack);
+        assertEquals(usiAttribute, conversionBack);
     }
 
     @Test
@@ -57,7 +58,7 @@ public class AttributeConversionTest {
         uk.ac.ebi.biosamples.model.
                 Attribute conversionBack = toBsdAttribute.convert(conversion);
 
-        Assert.assertEquals(bsdAttribute, conversionBack);
+        assertEquals(bsdAttribute, conversionBack);
     }
 
 }

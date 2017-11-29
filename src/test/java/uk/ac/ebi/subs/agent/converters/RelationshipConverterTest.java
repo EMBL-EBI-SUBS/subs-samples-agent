@@ -1,6 +1,5 @@
 package uk.ac.ebi.subs.agent.converters;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +13,8 @@ import uk.ac.ebi.subs.data.component.SampleRelationship;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
@@ -50,7 +51,8 @@ public class RelationshipConverterTest {
     public void convertFromUsiRelationship() {
         Relationship conversion = toBsdRelationship.convert(sample).iterator().next();
         SampleRelationship conversionBack = toUsiRelationship.convert(conversion);
-        Assert.assertEquals(usiRelationship, conversionBack);
+
+        assertEquals(usiRelationship, conversionBack);
     }
 
     @Test
@@ -62,7 +64,8 @@ public class RelationshipConverterTest {
         sample.setSampleRelationships(Arrays.asList(conversion));
 
         Relationship conversionBack = toBsdRelationship.convert(sample).iterator().next();
-        Assert.assertEquals(bsdRelationship, conversionBack);
+
+        assertEquals(bsdRelationship, conversionBack);
     }
 
 }
