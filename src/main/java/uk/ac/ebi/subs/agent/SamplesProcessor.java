@@ -22,6 +22,7 @@ import uk.ac.ebi.subs.processing.UpdatedSamplesEnvelope;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -60,9 +61,8 @@ public class SamplesProcessor {
         // Set updateDate
         for (Sample sample : envelope.getSamples()) {
             Attribute attribute = new Attribute();
-            attribute.setName("update");
             attribute.setValue(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-            sample.getAttributes().add(attribute);
+            sample.getAttributes().put("update", Arrays.asList(attribute));
         }
 
         envelope.getSamples().stream()

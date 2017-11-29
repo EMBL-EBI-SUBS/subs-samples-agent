@@ -12,9 +12,10 @@ import uk.ac.ebi.subs.data.submittable.Sample;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -39,12 +40,8 @@ public class TestUtils {
         usiSample.setDescription("Sample from Mus musculus.");
         usiSample.setAlias("This is an USI alias");
         usiSample.setReleaseDate(LocalDate.now());
-        usiSample.setAttributes(
-                generateUsiAttributes()
-        );
-        usiSample.setSampleRelationships(Arrays.asList(
-                generateUsiRelationship()
-        ));
+        usiSample.setAttributes(generateUsiAttributes());
+        usiSample.setSampleRelationships(Arrays.asList(generateUsiRelationship()));
         return usiSample;
     }
 
@@ -58,31 +55,27 @@ public class TestUtils {
         usiSample.setAlias("This is an USI alias");
         usiSample.setReleaseDate(LocalDate.of(2017, Month.AUGUST, 25));
 
-        List<Attribute> attributeList = new ArrayList<>();
+        Map<String, Collection<Attribute>> usiAttributes = new HashMap<>();
         Attribute usiAttribute_1 = new Attribute();
-        usiAttribute_1.setName("age");
         usiAttribute_1.setValue("1.5");
         Term term = new Term();
         term.setUrl("http://purl.obolibrary.org/obo/UO_0000036");
         usiAttribute_1.setTerms(Arrays.asList(term));
         usiAttribute_1.setUnits("year");
-        attributeList.add(usiAttribute_1);
+        usiAttributes.put("age", Arrays.asList(usiAttribute_1));
 
         Attribute usiAttribute_2 = new Attribute();
-        usiAttribute_2.setName("update");
         usiAttribute_2.setValue(Instant.now().toString());
-        attributeList.add(usiAttribute_2);
+        usiAttributes.put("update", Arrays.asList(usiAttribute_2));
 
         Attribute usiAttribute_3 = new Attribute();
-        usiAttribute_3.setName("synonym");
         usiAttribute_3.setValue("mouse");
         Term t = new Term();
         t.setUrl("http://purl.obolibrary.org/obo/NCBITaxon_10090");
         usiAttribute_3.setTerms(Arrays.asList(t));
-        attributeList.add(usiAttribute_3);
-        usiSample.setAttributes(
-                attributeList
-        );
+        usiAttributes.put("synonym", Arrays.asList(usiAttribute_3));
+
+        usiSample.setAttributes(usiAttributes);
 
         return usiSample;
     }
@@ -97,49 +90,47 @@ public class TestUtils {
         usiSample.setDescription("Sample from Mus musculus - is this up to date?");
         usiSample.setAlias("This is an USI alias");
         usiSample.setReleaseDate(LocalDate.now());
-        usiSample.setAttributes(
-                generateUsiAttributes()
-        );
+        usiSample.setAttributes(generateUsiAttributes());
         return usiSample;
     }
 
-    public List<Attribute> generateUsiAttributes() {
-        List<Attribute> attributeList = new ArrayList<>();
+    public Map<String, Collection<Attribute>> generateUsiAttributes() {
+        Map<String, Collection<Attribute>> usiAttributes = new HashMap<>();
 
         Attribute usiAttribute_1 = new Attribute();
-        usiAttribute_1.setName("age");
         usiAttribute_1.setValue("1.5");
         Term term = new Term();
         term.setUrl("http://purl.obolibrary.org/obo/UO_0000036");
         usiAttribute_1.setTerms(Arrays.asList(term));
         usiAttribute_1.setUnits("year");
-        attributeList.add(usiAttribute_1);
+        usiAttributes.put("age", Arrays.asList(usiAttribute_1));
 
         Attribute usiAttribute_2 = new Attribute();
-        usiAttribute_2.setName("update");
         usiAttribute_2.setValue(Instant.now().toString());
-        attributeList.add(usiAttribute_2);
+        usiAttributes.put("update", Arrays.asList(usiAttribute_2));
 
         Attribute usiAttribute_3 = new Attribute();
-        usiAttribute_3.setName("synonym");
         usiAttribute_3.setValue("mouse");
         Term t = new Term();
         t.setUrl("http://purl.obolibrary.org/obo/NCBITaxon_10090");
         usiAttribute_3.setTerms(Arrays.asList(t));
-        attributeList.add(usiAttribute_3);
+        usiAttributes.put("synonym", Arrays.asList(usiAttribute_3));
 
-        return attributeList;
+        return usiAttributes;
     }
 
-    public Attribute generateUsiAttribute() {
+    public Map.Entry<String, Collection<Attribute>> generateUsiAttribute() {
+        Map<String, Collection<Attribute>> usiAttributes = new HashMap<>();
+
         Attribute attribute = new Attribute();
-        attribute.setName("age");
         attribute.setValue("1.5");
         Term term = new Term();
         term.setUrl("http://purl.obolibrary.org/obo/UO_0000036");
         attribute.setTerms(Arrays.asList(term));
         attribute.setUnits("year");
-        return attribute;
+        usiAttributes.put("age", Arrays.asList(attribute));
+
+        return usiAttributes.entrySet().iterator().next();
     }
 
     public SampleRelationship generateUsiRelationship() {
@@ -187,7 +178,7 @@ public class TestUtils {
     public Relationship generateBsdRelationship() {
         Relationship bsdRelationship = Relationship.build(
                 "SAM123",
-                "Chilf of",
+                "Child of",
                 "SAM456"
         );
         return bsdRelationship;
