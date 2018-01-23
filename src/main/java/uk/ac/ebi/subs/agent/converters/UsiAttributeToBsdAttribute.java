@@ -1,47 +1,50 @@
 package uk.ac.ebi.subs.agent.converters;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biosamples.model.Attribute;
+import uk.ac.ebi.subs.data.component.Term;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @Service
-public class UsiAttributeToBsdAttribute implements Converter<uk.ac.ebi.subs.data.component.Attribute, Attribute> {
-
-    private static final Logger logger = LoggerFactory.getLogger(UsiAttributeToBsdAttribute.class);
+public class UsiAttributeToBsdAttribute implements Converter<Map.Entry<String, Collection<uk.ac.ebi.subs.data.component.Attribute>>, Attribute> {
 
     @Override
-    public Attribute convert(uk.ac.ebi.subs.data.component.Attribute usiAttribute) {
-        String uri = null;
-        if(usiAttribute.getTerms() != null && !usiAttribute.getTerms().isEmpty()) {
-            uri = usiAttribute.getTerms().get(0).getUrl();
+    public Attribute convert(Map.Entry<String, Collection<uk.ac.ebi.subs.data.component.Attribute>> usiAttributeEntry) {
+        uk.ac.ebi.subs.data.component.Attribute usiAttribute = usiAttributeEntry.getValue().iterator().next();
 
+        Collection<String> iris = Collections.emptySet();
+        if (usiAttribute.getTerms() != null) {
+            iris = usiAttribute.getTerms().stream()
+                    .map(Term::getUrl)
+                    .filter(iri -> iri != null)
+                    .collect(Collectors.toList());
         }
 
         Attribute bsdAttribute = Attribute.build(
-                usiAttribute.getName(),     // key
-                usiAttribute.getValue(),    // value
-                uri,                        // iri
-                usiAttribute.getUnits()     // unit
+                usiAttributeEntry.getKey(),     // key
+                usiAttribute.getValue(),        // value
+                iris,                           // iris
+                usiAttribute.getUnits()         // unit
         );
 
         return bsdAttribute;
     }
 
-    public Set<Attribute> convert(List<uk.ac.ebi.subs.data.component.Attribute> usiAttributes) {
+    public Set<Attribute> convert(Map<String, Collection<uk.ac.ebi.subs.data.component.Attribute>> usiAttributes) {
         Set<Attribute> attributeSet = new TreeSet<>();
         if(usiAttributes != null) {
-            for (uk.ac.ebi.subs.data.component.Attribute usiAttribute : usiAttributes) {
-                attributeSet.add(convert(usiAttribute));
+            for (Map.Entry<String, Collection<uk.ac.ebi.subs.data.component.Attribute>> usiAttributeEntry : usiAttributes.entrySet()) {
+                attributeSet.add(convert(usiAttributeEntry));
             }
         }
         return attributeSet;
     }
+
 }
