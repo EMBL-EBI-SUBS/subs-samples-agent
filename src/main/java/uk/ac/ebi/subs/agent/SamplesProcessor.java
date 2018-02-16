@@ -98,9 +98,39 @@ public class SamplesProcessor {
             certificates.addAll(certificatesGenerator.generateCertificates(samplesCreated));
         }
 
+        // samples that need secondary update
+        List<Sample> samplesInNeedOfSampleRelationshipAccessions = envelope.getSamples().stream()
+                .filter(s -> s.getSampleRelationships() != null)
+                .filter(s -> !s.getSampleRelationships().isEmpty())
+                .filter(s -> sampleHasSampleRelationshipsWithoutAccession(s))
+                .collect(Collectors.toList());
+
+        if (!samplesInNeedOfSampleRelationshipAccessions.isEmpty()) {
+            logger.info("Secondary update for sample relationship accessions for {} samples in {}",
+                    samplesInNeedOfSampleRelationshipAccessions.size(),
+                    submission.getId());
+
+            Map<String, String> aliasToAccession = envelope.getSamples().stream()
+                    .collect(Collectors.toMap(Sample::getAlias, Sample::getAccession));
+
+            samplesInNeedOfSampleRelationshipAccessions.stream()
+                    .flatMap(s -> s.getSampleRelationships().stream())
+                    .filter(sr -> sr.getAccession() == null)
+                    .forEach(sr -> sr.setAccession(aliasToAccession.get(sr.getAlias())));
+
+            List<Sample> samplesUpdated = updateService.update(samplesInNeedOfSampleRelationshipAccessions);
+        }
+
+
         return certificates;
     }
 
+    private boolean sampleHasSampleRelationshipsWithoutAccession(Sample s) {
+        return s.getSampleRelationships().stream()
+                .filter(sr -> sr.getAccession() == null)
+                .findAny()
+                .isPresent();
+    }
 
     protected List<Sample> findSamples(SubmissionEnvelope envelope) {
         logger.debug("Finding {} samples from {} submission", envelope.getSupportingSamplesRequired().size(), envelope.getSubmission().getId());

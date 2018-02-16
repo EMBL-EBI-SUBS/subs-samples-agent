@@ -32,6 +32,7 @@ configure(allprojects) {
 
 repositories {
         mavenLocal()
+        maven { url 'https://www.ebi.ac.uk/spot/nexus/repository/maven-releases'}
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         mavenCentral()
 }
@@ -42,7 +43,7 @@ dependencies {
 
     optional("org.springframework.boot:spring-boot-configuration-processor")
 
-    compile ('uk.ac.ebi.biosamples:biosamples-spring-boot-starter:4.0.0-SNAPSHOT') {
+    compile ('uk.ac.ebi.biosamples:biosamples-spring-boot-starter:4.0.4') {
         changing = true
         exclude group: 'org.springframework.boot'
     }
