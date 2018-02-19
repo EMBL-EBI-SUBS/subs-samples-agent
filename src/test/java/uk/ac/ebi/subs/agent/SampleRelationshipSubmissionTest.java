@@ -13,19 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestOperations;
 import uk.ac.ebi.subs.SamplesAgentApplication;
-import uk.ac.ebi.subs.agent.SamplesProcessor;
-import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
-import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
-import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
-import uk.ac.ebi.subs.agent.converters.UsiAttributeToBsdAttribute;
-import uk.ac.ebi.subs.agent.converters.UsiRelationshipToBsdRelationship;
-import uk.ac.ebi.subs.agent.converters.UsiSampleToBsdSample;
-import uk.ac.ebi.subs.agent.services.FetchService;
-import uk.ac.ebi.subs.agent.services.IntegrityService;
-import uk.ac.ebi.subs.agent.services.SubmissionService;
-import uk.ac.ebi.subs.agent.services.UpdateService;
 import uk.ac.ebi.subs.agent.utils.BioSamplesDependentTest;
 import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.Submission;
@@ -78,23 +66,25 @@ public class SampleRelationshipSubmissionTest {
     MessageConverter messageConverter;
 
     @Before
-    public void setUp(){
-       parentSample = utils.generateUsiSample();
-       parentSample.setAlias("p1");
-       parentSample.setAccession(null);
-       childSample = utils.generateUsiSample();
-       childSample.setAlias("c1");
-       childSample.setAccession(null);
+    public void setUp() {
+        parentSample = utils.generateUsiSample();
+        parentSample.setAlias("p1");
+        parentSample.setAccession(null);
+        parentSample.setId("uuid-1");
+        childSample = utils.generateUsiSample();
+        childSample.setAlias("c1");
+        childSample.setAccession(null);
+        childSample.setId("uuid-2");
 
-       SampleRelationship sr = new SampleRelationship();
-       sr.setAlias("p1");
-       sr.setRelationshipNature("child of");
-       childSample.setSampleRelationships(Arrays.asList(sr));
+        SampleRelationship sr = new SampleRelationship();
+        sr.setAlias("p1");
+        sr.setRelationshipNature("child of");
+        childSample.setSampleRelationships(Arrays.asList(sr));
 
-       submissionEnvelope = new SubmissionEnvelope();
-       submissionEnvelope.setSubmission(new Submission());
-       submissionEnvelope.getSubmission().setId("1234");
-       submissionEnvelope.setSamples(Arrays.asList(childSample,parentSample));
+        submissionEnvelope = new SubmissionEnvelope();
+        submissionEnvelope.setSubmission(new Submission());
+        submissionEnvelope.getSubmission().setId("1234");
+        submissionEnvelope.setSamples(Arrays.asList(childSample, parentSample));
     }
 
     @Test
