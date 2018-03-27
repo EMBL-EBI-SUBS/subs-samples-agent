@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -98,9 +99,62 @@ public class SamplesProcessor {
             certificates.addAll(certificatesGenerator.generateCertificates(samplesCreated));
         }
 
+        // samples that need secondary update - you can't always know the accession of the referenced sample in the first round
+        List<Sample> samplesInNeedOfSampleRelationshipAccessions =
+                submittedSamplesInNeedOfSampleRelationshipAccessionUpdate(envelope);
+
+        if (!samplesInNeedOfSampleRelationshipAccessions.isEmpty()) {
+            updateSampleRelationshipAccessions(envelope, submission, certificates, samplesInNeedOfSampleRelationshipAccessions);
+        }
+
+
         return certificates;
     }
 
+    private void updateSampleRelationshipAccessions(SubmissionEnvelope envelope, Submission submission, List<ProcessingCertificate> certificates, List<Sample> samplesInNeedOfSampleRelationshipAccessions) {
+        logger.info("Secondary update for sample relationship accessions for {} samples in {}",
+                samplesInNeedOfSampleRelationshipAccessions.size(),
+                submission.getId());
+
+        Map<String,String> uuidToAccession = certificates.stream().collect(
+                Collectors.toMap(ProcessingCertificate::getSubmittableId,ProcessingCertificate::getAccession)
+        );
+        Map<String,String> aliasToAccession = new HashMap<>();
+        for (Sample s : envelope.getSamples()){
+            String accession = uuidToAccession.get(s.getId());
+            String alias = s.getAlias();
+            aliasToAccession.put(alias,accession);
+        }
+
+        //add the accessions to the samples so updates work
+        samplesInNeedOfSampleRelationshipAccessions.forEach(s ->
+                s.setAccession( uuidToAccession.get( s.getId()) )
+        );
+
+        //add the accession for the referenced sample into the sample relationships
+        samplesInNeedOfSampleRelationshipAccessions.stream()
+                .flatMap(s -> s.getSampleRelationships().stream())
+                .filter(sr -> sr.getAccession() == null)
+                .forEach(sr -> sr.setAccession(aliasToAccession.get(sr.getAlias())));
+
+        //update the samples with the accessions, don't worry about the certificates as we already have what we need
+        updateService.update(samplesInNeedOfSampleRelationshipAccessions);
+    }
+
+    private List<Sample> submittedSamplesInNeedOfSampleRelationshipAccessionUpdate(SubmissionEnvelope envelope) {
+        return envelope.getSamples().stream()
+                .filter(s -> s.getSampleRelationships() != null)
+                .filter(s -> !s.getSampleRelationships().isEmpty())
+                .filter(s -> sampleHasSampleRelationshipsWithoutAccession(s))
+                .collect(Collectors.toList());
+    }
+
+    private boolean sampleHasSampleRelationshipsWithoutAccession(Sample s) {
+        return s.getSampleRelationships().stream()
+                .filter(sr -> sr.getAccession() == null)
+                .findAny()
+                .isPresent();
+    }
 
     protected List<Sample> findSamples(SubmissionEnvelope envelope) {
         logger.debug("Finding {} samples from {} submission", envelope.getSupportingSamplesRequired().size(), envelope.getSubmission().getId());

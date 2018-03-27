@@ -14,7 +14,7 @@ public class UsiRelationshipToBsdRelationship {
 
     private Relationship convert(String sourceAccession, SampleRelationship usiRelationship) {
         Relationship bsdRelationship = null;
-        if(usiRelationship != null) {
+        if (usiRelationship != null) {
             bsdRelationship = Relationship.build(
                     sourceAccession,                            // source
                     usiRelationship.getRelationshipNature(),    // type
@@ -29,11 +29,17 @@ public class UsiRelationshipToBsdRelationship {
         List<SampleRelationship> sampleRelationships = usiSample.getSampleRelationships();
 
         Set<Relationship> relationshipSet = new TreeSet<>();
-        if(sampleRelationships != null) {
-            for(SampleRelationship usiRelationship : sampleRelationships) {
+        if (sampleRelationships == null) {
+            return relationshipSet;
+        }
+
+        for (SampleRelationship usiRelationship : sampleRelationships) {
+            if (usiRelationship.getAccession() != null) {
+                //BioSamples understands relationships to accessioned samples, so you may need two passes to fully submit
                 relationshipSet.add(convert(sourceAccession, usiRelationship));
             }
         }
+
         return relationshipSet;
     }
 
