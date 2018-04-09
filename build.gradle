@@ -1,5 +1,5 @@
 group 'uk.ac.ebi.subs'
-version '1.0.1-SNAPSHOT'
+version '1.1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -38,7 +38,7 @@ repositories {
 }
 
 dependencies {
-    compile("uk.ac.ebi.subs:subs-processing-model:1.0.1-SNAPSHOT")
+    compile("uk.ac.ebi.subs:subs-processing-model:2.0.0-SNAPSHOT")
     compile("uk.ac.ebi.subs:subs-messaging:0.4.0-SNAPSHOT")
 
     optional("org.springframework.boot:spring-boot-configuration-processor")
