@@ -27,7 +27,7 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
 
     private static final String DESCRIPTION = "description";
     private static final String TITLE = "title";
-    private static final String TAXON = "taxon";
+    private static final String TAXON = "organism";
 
     @Override
     public Sample convert(uk.ac.ebi.biosamples.model.Sample bioSample) {
