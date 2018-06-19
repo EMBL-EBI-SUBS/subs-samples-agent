@@ -58,7 +58,7 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
         }
         if(usiSample.getTaxon() != null) {
             String uri = ncbiBaseUrl + usiSample.getTaxonId();
-            Attribute att = Attribute.build("taxon", usiSample.getTaxon(), uri, null);
+            Attribute att = Attribute.build("organism", usiSample.getTaxon(), uri, null);
             attributeSet.add(att);
         }
         if(usiSample.getDescription() != null) {
