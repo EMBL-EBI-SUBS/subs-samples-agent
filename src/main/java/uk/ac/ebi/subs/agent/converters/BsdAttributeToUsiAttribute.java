@@ -7,12 +7,18 @@ import uk.ac.ebi.subs.data.component.Term;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * This is a converter class to convert BioSamples's {@link uk.ac.ebi.biosamples.model.Attribute} model
+ * to USI {@link Attribute} model.
+ */
 @Service
 public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosamples.model.Attribute, Map.Entry<String, Collection<uk.ac.ebi.subs.data.component.Attribute>>> {
 
@@ -24,15 +30,15 @@ public class BsdAttributeToUsiAttribute implements Converter<uk.ac.ebi.biosample
 
         if(bsdAttribute.getIri() != null) {
             List<Term> terms = bsdAttribute.getIri().stream()
-                    .filter( bsdIri -> bsdIri != null)
-                    .map(bsdIri -> makeTerm(bsdIri))
+                    .filter(Objects::nonNull)
+                    .map(this::makeTerm)
                     .collect(Collectors.toList());
 
             usiAttribute.setTerms(terms);
         }
 
         Map<String, Collection<Attribute>> map = new HashMap<>();
-        map.put(bsdAttribute.getType(), Arrays.asList(usiAttribute));
+        map.put(bsdAttribute.getType(), Collections.singletonList(usiAttribute));
         return map.entrySet().iterator().next();
     }
 

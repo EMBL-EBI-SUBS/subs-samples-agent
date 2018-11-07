@@ -11,26 +11,12 @@ import uk.ac.ebi.subs.processing.ProcessingCertificate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This service is generates {@link ProcessingCertificate}s for a given list of submitted {@link Sample}s.
+ */
 @Component
 public class CertificatesGenerator {
     private static final Logger logger = LoggerFactory.getLogger(CertificatesGenerator.class);
-
-    public List<ProcessingCertificate> acknowledgeReception(List<Sample> sampleList) {
-        logger.debug("Acknowledging submission reception");
-
-        List<ProcessingCertificate> processingCertificateList = new ArrayList<>();
-
-        sampleList.forEach(sample -> {
-            ProcessingCertificate pc = new ProcessingCertificate(
-                    sample,
-                    Archive.BioSamples,
-                    ProcessingStatusEnum.Received
-            );
-            processingCertificateList.add(pc);
-        });
-
-        return processingCertificateList;
-    }
 
     public List<ProcessingCertificate> generateCertificates(List<Sample> sampleList) {
         logger.debug("Generating certificates...");

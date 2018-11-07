@@ -16,6 +16,10 @@ import uk.ac.ebi.subs.data.submittable.Sample;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This service is responsible to submit a list of {@link Sample} to the BioSamples archive.
+ * The sample could be a new sample or the user could update an already existing sample in the database.
+ */
 @Service
 @ConfigurationProperties(prefix = "biosamples")
 public class UpdateService {

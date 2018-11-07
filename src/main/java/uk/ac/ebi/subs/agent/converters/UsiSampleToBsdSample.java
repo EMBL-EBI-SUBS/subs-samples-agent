@@ -18,6 +18,10 @@ import java.util.TreeSet;
 
 import static uk.ac.ebi.subs.agent.utils.ConverterHelper.getInstantFromString;
 
+/**
+ * This is a converter class to convert USI's {@link uk.ac.ebi.subs.data.submittable.Sample} model
+ * to BioSamples's {@link uk.ac.ebi.biosamples.model.Sample} model.
+ */
 @Service
 @ConfigurationProperties()
 public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submittable.Sample, Sample> {
