@@ -12,6 +12,10 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+/**
+ * This is a converter class to convert USI's {@link uk.ac.ebi.subs.data.component.Attribute} model
+ * to BioSamples's {@link Attribute} model.
+ */
 @Service
 public class UsiAttributeToBsdAttribute implements Converter<Map.Entry<String, Collection<uk.ac.ebi.subs.data.component.Attribute>>, Attribute> {
 

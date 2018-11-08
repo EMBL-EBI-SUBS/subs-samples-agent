@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+/**
+ * This service is fetching a list of {@link Sample}s given the list of their accession ID.
+ */
 @Service
 @ConfigurationProperties
 public class FetchService {
@@ -32,9 +35,7 @@ public class FetchService {
 
         accessions.forEach(accession -> {
             Optional<Sample> sample = findSample(accession);
-            if (sample.isPresent()) {
-                foundSamples.add(sample.get());
-            }
+            sample.ifPresent(foundSamples::add);
         });
         return foundSamples;
     }
@@ -52,5 +53,4 @@ public class FetchService {
             return Optional.empty();
         }
     }
-
 }

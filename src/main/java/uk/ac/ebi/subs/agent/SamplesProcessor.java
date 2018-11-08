@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * This service is processing the submitted samples and insert or update them into the BioSamples database.
+ */
 @Component
 public class SamplesProcessor {
     private static final Logger logger = LoggerFactory.getLogger(SamplesProcessor.class);
@@ -107,7 +110,6 @@ public class SamplesProcessor {
             updateSampleRelationshipAccessions(envelope, submission, certificates, samplesInNeedOfSampleRelationshipAccessions);
         }
 
-
         return certificates;
     }
 
@@ -145,15 +147,13 @@ public class SamplesProcessor {
         return envelope.getSamples().stream()
                 .filter(s -> s.getSampleRelationships() != null)
                 .filter(s -> !s.getSampleRelationships().isEmpty())
-                .filter(s -> sampleHasSampleRelationshipsWithoutAccession(s))
+                .filter(this::sampleHasSampleRelationshipsWithoutAccession)
                 .collect(Collectors.toList());
     }
 
     private boolean sampleHasSampleRelationshipsWithoutAccession(Sample s) {
         return s.getSampleRelationships().stream()
-                .filter(sr -> sr.getAccession() == null)
-                .findAny()
-                .isPresent();
+                .anyMatch(sr -> sr.getAccession() == null);
     }
 
     protected List<Sample> findSamples(SubmissionEnvelope envelope) {
@@ -175,8 +175,6 @@ public class SamplesProcessor {
             logger.debug("Submission {} with {} samples updates", submissionId, updatedSamples.size());
 
             rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SAMPLES_UPDATED, updatedSamplesEnvelope);
-
         }
     }
-
 }

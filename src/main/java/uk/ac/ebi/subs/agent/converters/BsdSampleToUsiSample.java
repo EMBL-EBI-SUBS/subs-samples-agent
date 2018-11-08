@@ -17,6 +17,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This is a converter class to convert BioSamples's {@link uk.ac.ebi.biosamples.model.Sample} model
+ * to USI {@link Sample} model.
+ */
 @Service
 public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.model.Sample, Sample> {
 

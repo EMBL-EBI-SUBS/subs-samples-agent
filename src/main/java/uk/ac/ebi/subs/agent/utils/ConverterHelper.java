@@ -2,6 +2,9 @@ package uk.ac.ebi.subs.agent.utils;
 
 import java.time.Instant;
 
+/**
+ * This is a helper class to convert the given date from String format to a {@link Instant} date format.
+ */
 public class ConverterHelper {
 
     public static Instant getInstantFromString(String dateTime) {
