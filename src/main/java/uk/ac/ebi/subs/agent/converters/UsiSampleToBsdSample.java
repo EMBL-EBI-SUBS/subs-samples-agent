@@ -62,16 +62,15 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
         }
 
         Long taxonId = usiSample.getTaxonId();
-        String taxon = usiSample.getTaxon() != null ? usiSample.getTaxon() : "";
-        if (taxonId != null || taxon != null) {
-            String uri = null;
-            if (taxonId != null) {
-                uri = ncbiBaseUrl + taxonId;
-            }
-
-            if (!(taxon.isEmpty() && taxonId == null && (uri == null || uri.isEmpty()))) {
-                attributeSet.add(Attribute.build("organism", taxon, uri, null));
-            }
+        String taxon = usiSample.getTaxon();
+        String uri = "";
+        if (taxonId != null) {
+            uri = ncbiBaseUrl + taxonId;
+        }
+        if (taxon != null) {
+            attributeSet.add(Attribute.build("organism", taxon, uri, null));
+        } else if (taxonId != null) {
+            attributeSet.add(Attribute.build("organism", "", uri, null));
         }
 
         if(usiSample.getDescription() != null) {
