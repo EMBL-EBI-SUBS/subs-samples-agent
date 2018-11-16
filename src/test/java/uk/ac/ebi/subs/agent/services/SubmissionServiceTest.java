@@ -22,9 +22,14 @@ import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.emptyString;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
@@ -57,14 +62,59 @@ public class SubmissionServiceTest {
     }
 
     @Test
-    public void submitTest() {
+    public void whenSubmittingASampleWithoutTaxonAndTaxonId_ThenSubmissionShouldBeSuccessful() {
         List<Sample> sampleList = null;
+        sample.setTaxonId(null);
+        sample.setTaxon(null);
         try {
-            sampleList = submissionService.submit(Arrays.asList(sample));
+            sampleList = submissionService.submit(Collections.singletonList(sample));
         } catch (HttpClientErrorException e) {
             System.out.println(e.getResponseBodyAsString());
         }
         assertNotNull(sampleList);
+        assertNull(sampleList.get(0).getTaxonId());
+        assertNull(sampleList.get(0).getTaxon());
     }
 
+
+    @Test
+    public void whenSubmittingASampleWithTaxonButWithoutTaxonId_ThenSubmissionShouldBeSuccessful() {
+        List<Sample> sampleList = null;
+        sample.setTaxonId(null);
+        try {
+            sampleList = submissionService.submit(Collections.singletonList(sample));
+        } catch (HttpClientErrorException e) {
+            System.out.println(e.getResponseBodyAsString());
+        }
+        assertNotNull(sampleList);
+        assertNull(sampleList.get(0).getTaxonId());
+        assertNotNull(sampleList.get(0).getTaxon());
+    }
+
+    @Test
+    public void whenSubmittingASampleWithoutTaxonButWithTaxonID_ThenSubmissionShouldBeSuccessful() {
+        List<Sample> sampleList = null;
+        sample.setTaxon(null);
+        try {
+            sampleList = submissionService.submit(Collections.singletonList(sample));
+        } catch (HttpClientErrorException e) {
+            System.out.println(e.getResponseBodyAsString());
+        }
+        assertNotNull(sampleList);
+        assertThat(sampleList.get(0).getTaxon(), is(emptyString()));
+        assertNotNull(sampleList.get(0).getTaxonId());
+    }
+
+    @Test
+    public void whenSubmittingASampleWithTaxonAndTaxonId_ThenSubmissionShouldBeSuccessful() {
+        List<Sample> sampleList = null;
+        try {
+            sampleList = submissionService.submit(Collections.singletonList(sample));
+        } catch (HttpClientErrorException e) {
+            System.out.println(e.getResponseBodyAsString());
+        }
+        assertNotNull(sampleList);
+        assertNotNull(sampleList.get(0).getTaxon());
+        assertNotNull(sampleList.get(0).getTaxonId());
+    }
 }
