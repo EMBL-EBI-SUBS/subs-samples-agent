@@ -18,6 +18,10 @@ import java.util.TreeSet;
 
 import static uk.ac.ebi.subs.agent.utils.ConverterHelper.getInstantFromString;
 
+/**
+ * This is a converter class to convert USI's {@link uk.ac.ebi.subs.data.submittable.Sample} model
+ * to BioSamples's {@link uk.ac.ebi.biosamples.model.Sample} model.
+ */
 @Service
 @ConfigurationProperties()
 public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submittable.Sample, Sample> {
@@ -56,11 +60,19 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
             Attribute att = Attribute.build("title", usiSample.getTitle());
             attributeSet.add(att);
         }
-        if(usiSample.getTaxon() != null) {
-            String uri = ncbiBaseUrl + usiSample.getTaxonId();
-            Attribute att = Attribute.build("organism", usiSample.getTaxon(), uri, null);
-            attributeSet.add(att);
+
+        Long taxonId = usiSample.getTaxonId();
+        String taxon = usiSample.getTaxon();
+        String uri = "";
+        if (taxonId != null) {
+            uri = ncbiBaseUrl + taxonId;
         }
+        if (taxon != null) {
+            attributeSet.add(Attribute.build("organism", taxon, uri, null));
+        } else if (taxonId != null) {
+            attributeSet.add(Attribute.build("organism", "", uri, null));
+        }
+
         if(usiSample.getDescription() != null) {
             Attribute att = Attribute.build("description", usiSample.getDescription());
             attributeSet.add(att);

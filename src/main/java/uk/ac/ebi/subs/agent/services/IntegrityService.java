@@ -21,6 +21,9 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+/**
+ * This service is responsible to fil in the sample's accession ID if the team and alias exists in the BioSamples archive.
+ */
 @Service
 public class IntegrityService {
     private static final Logger logger = LoggerFactory.getLogger(FetchService.class);
@@ -39,9 +42,7 @@ public class IntegrityService {
                 s.getAlias()
         );
 
-        if (optionalBioSampleEntry.isPresent()) {
-            s.setAccession(optionalBioSampleEntry.get().getAccession());
-        }
+        optionalBioSampleEntry.ifPresent(sample -> s.setAccession(sample.getAccession()));
     }
 
     private Optional<uk.ac.ebi.biosamples.model.Sample> searchByTeamNameAndAlias(String teamName, String alias) {
@@ -58,7 +59,6 @@ public class IntegrityService {
                     Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false
             );
 
-
             return sampleResourceStream
                     .map(Resource::getContent)
                     .filter(s -> s.getDomain().equals(teamName) && s.getName().equals(alias))
@@ -70,5 +70,4 @@ public class IntegrityService {
             throw new RuntimeException("Something went wrong", e);
         }
     }
-
 }

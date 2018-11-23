@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * This is a converter class to convert USI {@link SampleRelationship} model to BioSamples's {@link Relationship} model.
+ */
 @Service
 public class UsiRelationshipToBsdRelationship {
 
@@ -42,5 +45,4 @@ public class UsiRelationshipToBsdRelationship {
 
         return relationshipSet;
     }
-
 }

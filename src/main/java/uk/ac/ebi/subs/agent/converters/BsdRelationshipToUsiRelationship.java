@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 
+/**
+ * This is a converter class to convert BioSamples's {@link Relationship} model to USI {@link SampleRelationship} model.
+ */
 @Service
 public class BsdRelationshipToUsiRelationship implements Converter<Relationship, SampleRelationship> {
 

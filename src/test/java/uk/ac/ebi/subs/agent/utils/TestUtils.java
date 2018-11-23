@@ -136,7 +136,7 @@ public class TestUtils {
     public SampleRelationship generateUsiRelationship() {
         SampleRelationship usiRelationship = new SampleRelationship();
         usiRelationship.setRelationshipNature("Child of");
-        usiRelationship.setAccession("SAM990");
+        usiRelationship.setAccession("SAMEA104224787");
         return usiRelationship;
     }
 

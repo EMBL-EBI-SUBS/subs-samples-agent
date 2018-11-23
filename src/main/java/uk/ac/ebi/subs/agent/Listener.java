@@ -18,6 +18,11 @@ import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 
 import java.util.List;
 
+/**
+ * This class contains 2 listeners on different RabbitMQ queues.
+ * One is handling the submitted samples and sending the processing certificates after completion of the sample submission.
+ * The other is fetching sample information from the BioSamples database to support other sample's submission.
+ */
 @Service
 public class Listener {
     private static final Logger logger = LoggerFactory.getLogger(Listener.class);
@@ -68,5 +73,4 @@ public class Listener {
         rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);
         logger.debug("Supporting samples provided for submission {}", submission.getId());
     }
-
 }

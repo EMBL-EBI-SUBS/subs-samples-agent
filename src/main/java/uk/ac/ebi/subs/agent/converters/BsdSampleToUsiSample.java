@@ -17,6 +17,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This is a converter class to convert BioSamples's {@link uk.ac.ebi.biosamples.model.Sample} model
+ * to USI {@link Sample} model.
+ */
 @Service
 public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.model.Sample, Sample> {
 
@@ -49,8 +53,10 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
             } else if(TAXON.equals(attribute.getKey())) {
                 usiSample.setTaxon(attribute.getValue().iterator().next().getValue());
                 String url = attribute.getValue().iterator().next().getTerms().get(0).getUrl();
-                String taxon = url.substring(url.lastIndexOf("_") + 1).trim();
-                usiSample.setTaxonId(Long.parseLong(taxon));
+                if (!url.isEmpty()) {
+                    String taxon = url.substring(url.lastIndexOf("_") + 1).trim();
+                    usiSample.setTaxonId(Long.parseLong(taxon));
+                }
             }
         });
 
