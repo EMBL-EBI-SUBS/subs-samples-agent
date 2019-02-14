@@ -28,46 +28,18 @@ import java.util.stream.StreamSupport;
 public class IntegrityService {
     private static final Logger logger = LoggerFactory.getLogger(FetchService.class);
 
-    @Autowired
     private BioSamplesClient client;
 
-    public boolean doesSampleExistInBiosamples(Sample sample) {
-        logger.debug("Searching for sample by team and alias.");
-        return searchByTeamNameAndAlias(sample.getTeam().getName(), sample.getAlias()).isPresent();
+    public IntegrityService(BioSamplesClient client) {
+        this.client = client;
     }
 
-    public void fillInSampleAccessionIfTeamAndAliasExistInBioSamples(Sample s) {
-        Optional<uk.ac.ebi.biosamples.model.Sample> optionalBioSampleEntry = this.searchByTeamNameAndAlias(
-                s.getTeam().getName(),
-                s.getAlias()
-        );
-
-        optionalBioSampleEntry.ifPresent(sample -> s.setAccession(sample.getAccession()));
+    public boolean doesSampleExistInBioSamples(String accessionId) {
+        logger.debug("Searching for sample by accession id.");
+        return searchByAccessionId(accessionId).isPresent();
     }
 
-    private Optional<uk.ac.ebi.biosamples.model.Sample> searchByTeamNameAndAlias(String teamName, String alias) {
-        try {
-
-            List<Filter> filterList = new ArrayList<>(2);
-            filterList.add(FilterBuilder.create().onName(alias).build());
-            filterList.add(FilterBuilder.create().onDomain(teamName).build());
-            Iterator<Resource<uk.ac.ebi.biosamples.model.Sample>> iterator = client
-                    .fetchSampleResourceAll(null, filterList)
-                    .iterator();
-
-            Stream<Resource<uk.ac.ebi.biosamples.model.Sample>> sampleResourceStream = StreamSupport.stream(
-                    Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false
-            );
-
-            return sampleResourceStream
-                    .map(Resource::getContent)
-                    .filter(s -> s.getDomain().equals(teamName) && s.getName().equals(alias))
-                    .findFirst();
-
-        } catch (HttpClientErrorException e) {
-            throw new RuntimeException("Something went wrong", e);
-        } catch (ResourceAccessException e) {
-            throw new RuntimeException("Something went wrong", e);
-        }
+    private Optional<uk.ac.ebi.biosamples.model.Sample> searchByAccessionId(String accessionId) {
+        return client.fetchSampleResource(accessionId).map(Resource::getContent);
     }
 }
