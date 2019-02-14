@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.subs.agent.services.FetchService;
-import uk.ac.ebi.subs.agent.services.IntegrityService;
 import uk.ac.ebi.subs.agent.services.SubmissionService;
 import uk.ac.ebi.subs.agent.services.UpdateService;
 import uk.ac.ebi.subs.data.Submission;
@@ -37,21 +36,23 @@ public class SamplesProcessor {
 
     private RabbitMessagingTemplate rabbitMessagingTemplate;
 
-    @Autowired
     private SubmissionService submissionService;
-    @Autowired
-    private UpdateService updateService;
-    @Autowired
-    private FetchService fetchService;
-    @Autowired
-    private IntegrityService integrityService;
 
-    @Autowired
+    private UpdateService updateService;
+
+    private FetchService fetchService;
+
     private CertificatesGenerator certificatesGenerator;
 
-    @Autowired
-    public SamplesProcessor(RabbitMessagingTemplate rabbitMessagingTemplate, MessageConverter messageConverter) {
+    public SamplesProcessor(RabbitMessagingTemplate rabbitMessagingTemplate, SubmissionService submissionService,
+                            UpdateService updateService, FetchService fetchService,
+                            CertificatesGenerator certificatesGenerator, MessageConverter messageConverter) {
         this.rabbitMessagingTemplate = rabbitMessagingTemplate;
+        this.submissionService = submissionService;
+        this.updateService = updateService;
+        this.fetchService = fetchService;
+        this.certificatesGenerator = certificatesGenerator;
+
         this.rabbitMessagingTemplate.setMessageConverter(messageConverter);
     }
 
@@ -68,12 +69,6 @@ public class SamplesProcessor {
             attribute.setValue(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
             sample.getAttributes().put("update", Arrays.asList(attribute));
         }
-
-        envelope.getSamples().stream()
-                .filter(s -> !s.isAccessioned())
-                .forEach(
-                        s -> integrityService.fillInSampleAccessionIfTeamAndAliasExistInBioSamples(s)
-                );
 
         Map<Boolean, List<Sample>> samplesWithUpdateRequirement = envelope.getSamples().stream()
                 .collect(
