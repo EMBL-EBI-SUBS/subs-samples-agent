@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biosamples.model.Attribute;
 import uk.ac.ebi.biosamples.model.ExternalReference;
 import uk.ac.ebi.biosamples.model.Sample;
+import uk.ac.ebi.biosamples.model.SubmittedViaType;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -86,8 +87,9 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
                 updateDate,
                 attributeSet,
                 toBsdRelationship.convert(usiSample),
-                externalRefs
-        );
+                externalRefs,
+                SubmittedViaType.USI);
+
         return bioSample;
     }
 
