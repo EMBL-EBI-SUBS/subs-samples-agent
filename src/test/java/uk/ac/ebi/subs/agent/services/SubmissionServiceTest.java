@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
@@ -70,7 +71,7 @@ public class SubmissionServiceTest {
     }
 
     @Test
-    public void testJwtNotNull() {
+    public void jwtShouldNotBeNull() {
         assertFalse("JWT shouldn't be empty or null", jwt == null || jwt.equals(""));
     }
 
@@ -136,5 +137,19 @@ public class SubmissionServiceTest {
     public void update() {
         List<Sample> updated = submissionService.submit(Arrays.asList(sampleToUpdate), jwt);
         Assert.assertEquals(updated.get(0).getAccession(), sampleToUpdate.getAccession());
+    }
+
+    @Test
+    public void whenSubmittingASampleWithWrongJWT_ThenSubmissionShouldBeUnsuccessful() {
+        List<Sample> sampleList = null;
+        try {
+            sampleList = submissionService.submit(Collections.singletonList(sample), "wrongJWT");
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof HttpClientErrorException) {
+                Assert.assertEquals(HttpStatus.FORBIDDEN, ((HttpClientErrorException) e.getCause()).getStatusCode());
+            } else {
+                throw (e);
+            }
+        }
     }
 }
