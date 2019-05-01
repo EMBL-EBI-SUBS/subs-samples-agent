@@ -30,20 +30,20 @@ public class FetchService {
     @Autowired
     BsdSampleToUsiSample toUsiSample;
 
-    public List<Sample> findSamples(List<String> accessions) {
+    public List<Sample> findSamples(List<String> accessions, String jwt) {
         List<Sample> foundSamples = new ArrayList<>();
 
         accessions.forEach(accession -> {
-            Optional<Sample> sample = findSample(accession);
+            Optional<Sample> sample = findSample(accession, jwt);
             sample.ifPresent(foundSamples::add);
         });
         return foundSamples;
     }
 
-    private Optional<Sample> findSample(String accession) {
+    private Optional<Sample> findSample(String accession, String jwt) {
         logger.debug("Searching for sample {}", accession);
         try {
-            return Optional.of(toUsiSample.convert(client.fetchSample(accession).get()));
+            return Optional.of(toUsiSample.convert(client.fetchSampleResource(accession, jwt).get().getContent()));
         } catch (HttpClientErrorException e) {
             throw new RuntimeException("Could not find sample [" + accession + "]", e);
         } catch (ResourceAccessException e) {

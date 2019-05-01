@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.ac.ebi.biosamples.client.service.AapClientService;
 import uk.ac.ebi.subs.agent.utils.BioSamplesDependentTest;
 import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.submittable.Sample;
@@ -35,9 +36,12 @@ public class IntegrityServiceTest {
     @Autowired
     private TestUtils testUtils;
 
-    private Sample sample;
+    @Autowired
+    AapClientService aapClientService;
 
+    private Sample sample;
     private String accessionId;
+    private String jwt;
 
     @Before
     public void setUp() throws Exception {
@@ -45,7 +49,8 @@ public class IntegrityServiceTest {
         sample = testUtils.generateUsiSampleForSubmission();
 
         try {
-            sampleList = submissionService.submit(Collections.singletonList(sample));
+        jwt = aapClientService.getJwt();
+            sampleList = submissionService.submit(Collections.singletonList(sample), jwt);
         } catch (HttpClientErrorException e) {
             System.out.println(e.getResponseBodyAsString());
         }

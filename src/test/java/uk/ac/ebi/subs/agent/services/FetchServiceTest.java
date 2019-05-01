@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
+import uk.ac.ebi.biosamples.client.service.AapClientService;
 import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
 import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
@@ -52,20 +53,25 @@ public class FetchServiceTest {
     @Autowired
     TestUtils utils;
 
+    @Autowired
+    AapClientService aapClientService;
+
     Sample sample;
     List<Sample> submitted;
+    private String jwt;
 
     @Before
     public void setUp() {
         sample = utils.generateUsiSampleForSubmission();
-        submitted = submissionService.submit(Arrays.asList(sample));
+        jwt = aapClientService.getJwt();
+        submitted = submissionService.submit(Arrays.asList(sample), jwt);
     }
 
     @Test
     public void successfulSupportingSamplesServiceTest() {
         List<Sample> sampleList;
         try {
-            sampleList = service.findSamples(Arrays.asList(submitted.get(0).getAccession()));
+            sampleList = service.findSamples(Arrays.asList(submitted.get(0).getAccession()), jwt);
         } catch (HttpClientErrorException exception) {
             System.out.println(exception.getResponseBodyAsString());
             throw exception;
@@ -75,7 +81,7 @@ public class FetchServiceTest {
 
     @Test
     public void sampleNotFoundTest() {
-        List<Sample> sampleList = service.findSamples(Arrays.asList("SAM"));
+        List<Sample> sampleList = service.findSamples(Arrays.asList("SAM"), jwt);
         assertTrue(sampleList.isEmpty());
     }
 }

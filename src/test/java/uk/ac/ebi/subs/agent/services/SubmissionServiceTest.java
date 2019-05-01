@@ -1,5 +1,6 @@
 package uk.ac.ebi.subs.agent.services;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -8,9 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
+import uk.ac.ebi.biosamples.client.service.AapClientService;
 import uk.ac.ebi.subs.agent.converters.BsdAttributeToUsiAttribute;
 import uk.ac.ebi.subs.agent.converters.BsdRelationshipToUsiRelationship;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
@@ -27,9 +31,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.emptyString;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {
@@ -54,11 +56,23 @@ public class SubmissionServiceTest {
     @Autowired
     TestUtils utils;
 
+    @Autowired
+    AapClientService aapClientService;
+
     private Sample sample;
+    private Sample sampleToUpdate;
+    private String jwt;
 
     @Before
     public void setUp() {
         sample = utils.generateUsiSampleForSubmission();
+        sampleToUpdate = utils.generateUsiSampleForUpdate();
+        jwt = aapClientService.getJwt();
+    }
+
+    @Test
+    public void jwtShouldNotBeNull() {
+        assertFalse("JWT shouldn't be empty or null", jwt == null || jwt.equals(""));
     }
 
     @Test
@@ -67,7 +81,7 @@ public class SubmissionServiceTest {
         sample.setTaxonId(null);
         sample.setTaxon(null);
         try {
-            sampleList = submissionService.submit(Collections.singletonList(sample));
+            sampleList = submissionService.submit(Collections.singletonList(sample), jwt);
         } catch (HttpClientErrorException e) {
             System.out.println(e.getResponseBodyAsString());
         }
@@ -82,7 +96,7 @@ public class SubmissionServiceTest {
         List<Sample> sampleList = null;
         sample.setTaxonId(null);
         try {
-            sampleList = submissionService.submit(Collections.singletonList(sample));
+            sampleList = submissionService.submit(Collections.singletonList(sample), jwt);
         } catch (HttpClientErrorException e) {
             System.out.println(e.getResponseBodyAsString());
         }
@@ -96,7 +110,7 @@ public class SubmissionServiceTest {
         List<Sample> sampleList = null;
         sample.setTaxon(null);
         try {
-            sampleList = submissionService.submit(Collections.singletonList(sample));
+            sampleList = submissionService.submit(Collections.singletonList(sample), jwt);
         } catch (HttpClientErrorException e) {
             System.out.println(e.getResponseBodyAsString());
         }
@@ -109,12 +123,33 @@ public class SubmissionServiceTest {
     public void whenSubmittingASampleWithTaxonAndTaxonId_ThenSubmissionShouldBeSuccessful() {
         List<Sample> sampleList = null;
         try {
-            sampleList = submissionService.submit(Collections.singletonList(sample));
+            sampleList = submissionService.submit(Collections.singletonList(sample), jwt);
         } catch (HttpClientErrorException e) {
             System.out.println(e.getResponseBodyAsString());
         }
         assertNotNull(sampleList);
         assertNotNull(sampleList.get(0).getTaxon());
         assertNotNull(sampleList.get(0).getTaxonId());
+    }
+
+    @Test
+    @Category(BioSamplesDependentTest.class)
+    public void update() {
+        List<Sample> updated = submissionService.submit(Arrays.asList(sampleToUpdate), jwt);
+        Assert.assertEquals(updated.get(0).getAccession(), sampleToUpdate.getAccession());
+    }
+
+    @Test
+    public void whenSubmittingASampleWithWrongJWT_ThenSubmissionShouldBeUnsuccessful() {
+        List<Sample> sampleList = null;
+        try {
+            sampleList = submissionService.submit(Collections.singletonList(sample), "wrongJWT");
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof HttpClientErrorException) {
+                Assert.assertEquals(HttpStatus.FORBIDDEN, ((HttpClientErrorException) e.getCause()).getStatusCode());
+            } else {
+                throw (e);
+            }
+        }
     }
 }

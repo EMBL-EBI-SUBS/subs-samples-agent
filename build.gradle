@@ -39,12 +39,12 @@ repositories {
 }
 
 dependencies {
-    compile("uk.ac.ebi.subs:subs-processing-model:2.1.0-SNAPSHOT")
+    compile("uk.ac.ebi.subs:subs-processing-model:2.8.0-SNAPSHOT")
     compile("uk.ac.ebi.subs:subs-messaging:0.4.0-SNAPSHOT")
 
     optional("org.springframework.boot:spring-boot-configuration-processor")
 
-    compile ('uk.ac.ebi.biosamples:biosamples-spring-boot-starter:4.1.12-SNAPSHOT') {
+    compile ('uk.ac.ebi.biosamples:biosamples-spring-boot-starter:4.1.14') {
         changing = true
         exclude group: 'org.springframework.boot'
     }

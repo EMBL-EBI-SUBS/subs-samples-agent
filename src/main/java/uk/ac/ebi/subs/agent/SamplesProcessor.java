@@ -3,12 +3,10 @@ package uk.ac.ebi.subs.agent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.subs.agent.services.FetchService;
 import uk.ac.ebi.subs.agent.services.SubmissionService;
-import uk.ac.ebi.subs.agent.services.UpdateService;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.component.Attribute;
 import uk.ac.ebi.subs.data.submittable.Sample;
@@ -20,11 +18,7 @@ import uk.ac.ebi.subs.processing.UpdatedSamplesEnvelope;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,18 +32,15 @@ public class SamplesProcessor {
 
     private SubmissionService submissionService;
 
-    private UpdateService updateService;
-
     private FetchService fetchService;
 
     private CertificatesGenerator certificatesGenerator;
 
     public SamplesProcessor(RabbitMessagingTemplate rabbitMessagingTemplate, SubmissionService submissionService,
-                            UpdateService updateService, FetchService fetchService,
+                            FetchService fetchService,
                             CertificatesGenerator certificatesGenerator, MessageConverter messageConverter) {
         this.rabbitMessagingTemplate = rabbitMessagingTemplate;
         this.submissionService = submissionService;
-        this.updateService = updateService;
         this.fetchService = fetchService;
         this.certificatesGenerator = certificatesGenerator;
 
@@ -82,7 +73,7 @@ public class SamplesProcessor {
         if (samplesWithUpdateRequirement.containsKey(true)) {
             List<Sample> samplesToUpdate = samplesWithUpdateRequirement.get(true);
 
-            List<Sample> samplesUpdated = updateService.update(samplesToUpdate);
+            List<Sample> samplesUpdated = submissionService.submit(samplesToUpdate, envelope.getJWTToken());
             logger.info("Updated {} samples for submission {}", samplesUpdated.size(), envelope.getSubmission().getId());
             announceSampleUpdate(submission.getId(), samplesUpdated);
             certificates.addAll(certificatesGenerator.generateCertificates(samplesUpdated));
@@ -92,7 +83,7 @@ public class SamplesProcessor {
         if (samplesWithUpdateRequirement.containsKey(false)) {
             List<Sample> samplesToCreate = samplesWithUpdateRequirement.get(false);
 
-            List<Sample> samplesCreated = submissionService.submit(samplesToCreate);
+            List<Sample> samplesCreated = submissionService.submit(samplesToCreate, envelope.getJWTToken());
             logger.info("Created {} samples for submission {}", samplesCreated.size(), envelope.getSubmission().getId());
             certificates.addAll(certificatesGenerator.generateCertificates(samplesCreated));
         }
@@ -135,7 +126,7 @@ public class SamplesProcessor {
                 .forEach(sr -> sr.setAccession(aliasToAccession.get(sr.getAlias())));
 
         //update the samples with the accessions, don't worry about the certificates as we already have what we need
-        updateService.update(samplesInNeedOfSampleRelationshipAccessions);
+        submissionService.submit(samplesInNeedOfSampleRelationshipAccessions, envelope.getJWTToken());
     }
 
     private List<Sample> submittedSamplesInNeedOfSampleRelationshipAccessionUpdate(SubmissionEnvelope envelope) {
@@ -158,7 +149,7 @@ public class SamplesProcessor {
 
         envelope.getSupportingSamplesRequired().forEach(sampleRef -> accessions.add(sampleRef.getAccession()));
 
-        return fetchService.findSamples(accessions);
+        return fetchService.findSamples(accessions, envelope.getJWTToken());
     }
 
     private void announceSampleUpdate(String submissionId, List<Sample> updatedSamples) {
