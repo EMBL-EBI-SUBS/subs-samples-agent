@@ -33,25 +33,25 @@ public class SubmissionService {
     @Autowired
     BsdSampleToUsiSample toUsiSample;
 
-    public List<Sample> submit(List<Sample> sampleList) {
+    public List<Sample> submit(List<Sample> sampleList, String jwt) {
         Assert.notNull(sampleList);
         ArrayList<Sample> submittedSamples = new ArrayList<>();
 
         for (Sample usiSample : sampleList) {
             String usiId = usiSample.getId();
 
-            Sample submitted = submit(toBsdSample.convert(usiSample));
+            Sample submitted = submit(toBsdSample.convert(usiSample), jwt);
             submitted.setId(usiId);
             submittedSamples.add(submitted);
         }
         return submittedSamples;
     }
 
-    private Sample submit(uk.ac.ebi.biosamples.model.Sample bsdSample) {
+    private Sample submit(uk.ac.ebi.biosamples.model.Sample bsdSample, String jwt) {
         logger.debug("Submitting sample.");
 
         try {
-            return toUsiSample.convert(client.persistSample(bsdSample));
+            return toUsiSample.convert(client.persistSampleResource(bsdSample, jwt).getContent());
         } catch (HttpClientErrorException e) {
             logger.error(e.getResponseBodyAsString());
             throw e;
