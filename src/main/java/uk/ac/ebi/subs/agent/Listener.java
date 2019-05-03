@@ -52,7 +52,8 @@ public class Listener {
         if (!certificatesCompleted.isEmpty()) {
             ProcessingCertificateEnvelope certificateEnvelopeCompleted = new ProcessingCertificateEnvelope(
                     submission.getId(),
-                    certificatesCompleted
+                    certificatesCompleted,
+                    envelope.getJWTToken()
             );
             rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_AGENT_RESULTS, certificateEnvelopeCompleted);
         }
