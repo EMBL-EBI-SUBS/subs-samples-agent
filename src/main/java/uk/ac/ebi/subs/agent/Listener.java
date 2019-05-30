@@ -1,6 +1,5 @@
 package uk.ac.ebi.subs.agent;
 
-import lombok.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -18,7 +17,6 @@ import uk.ac.ebi.subs.processing.ProcessingCertificateEnvelope;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This class contains 2 listeners on different RabbitMQ queues.
@@ -30,8 +28,6 @@ public class Listener {
     private static final Logger logger = LoggerFactory.getLogger(Listener.class);
 
     private RabbitMessagingTemplate rabbitMessagingTemplate;
-
-    private static final String EVENT_SAMPLEACCESSIONIDS = "biosamples.sample.created";
 
     @Autowired
     SamplesProcessor samplesProcessor;
@@ -51,41 +47,18 @@ public class Listener {
 
         logger.info("Received submission {}", submission.getId());
 
-        List<ProcessingCertificate> certificatesCompleted = archiveSamples(envelope);
+        List<ProcessingCertificate> certificatesCompleted = samplesProcessor.processSamples(envelope);
 
         if (!certificatesCompleted.isEmpty()) {
-            sendAgentResultToBroker(envelope, submission, certificatesCompleted);
-            sendAccessionIDsAndSubmissionIDToBroker(certificatesCompleted, submission.getId());
+            ProcessingCertificateEnvelope certificateEnvelopeCompleted = new ProcessingCertificateEnvelope(
+                    submission.getId(),
+                    certificatesCompleted,
+                    envelope.getJWTToken()
+            );
+            rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_AGENT_RESULTS, certificateEnvelopeCompleted);
         }
 
         logger.info("Processed submission {}", submission.getId());
-    }
-
-    private List<ProcessingCertificate> archiveSamples(SubmissionEnvelope envelope) {
-        return samplesProcessor.processSamples(envelope);
-    }
-
-    private void sendAgentResultToBroker(SubmissionEnvelope envelope, Submission submission, List<ProcessingCertificate> certificatesCompleted) {
-        ProcessingCertificateEnvelope certificateEnvelopeCompleted = new ProcessingCertificateEnvelope(
-                submission.getId(),
-                certificatesCompleted,
-                envelope.getJWTToken()
-        );
-
-        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_AGENT_RESULTS, certificateEnvelopeCompleted);
-    }
-
-    private void sendAccessionIDsAndSubmissionIDToBroker(List<ProcessingCertificate> certificatesCompleted, String submissionID) {
-        List<String> sampleAccessionIDs = certificatesCompleted.stream()
-                .map(sample -> sample.getAccession())
-                .collect(Collectors.toList());
-
-        BioSampleAccessionEnvelope bioSampleAccessionEnvelope = BioSampleAccessionEnvelope.builder()
-                .sampleAccessionIDs(sampleAccessionIDs)
-                .submissionID(submissionID)
-                .build();
-
-        rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, EVENT_SAMPLEACCESSIONIDS, bioSampleAccessionEnvelope);
     }
 
     @RabbitListener(queues = Queues.SUBMISSION_NEEDS_SAMPLE_INFO)
@@ -101,10 +74,4 @@ public class Listener {
         rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);
         logger.debug("Supporting samples provided for submission {}", submission.getId());
     }
-}
-
-@Builder
-class BioSampleAccessionEnvelope {
-    String submissionID;
-    List<String> sampleAccessionIDs;
 }
