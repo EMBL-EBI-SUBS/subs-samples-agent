@@ -3,6 +3,7 @@ package uk.ac.ebi.subs.agent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.subs.agent.services.FetchService;
@@ -28,6 +29,9 @@ import java.util.stream.Collectors;
 @Component
 public class SamplesProcessor {
     private static final Logger logger = LoggerFactory.getLogger(SamplesProcessor.class);
+
+    @Value("${biosamples.biostudies.core.url}")
+    private String biostudiesCoreUrl;
 
     private RabbitMessagingTemplate rabbitMessagingTemplate;
 
@@ -167,7 +171,6 @@ public class SamplesProcessor {
 
     //update samples with BiostudiesId as an external reference, if JWT is not present we will use super user privileges
     protected List<Sample> updateAccessions(List<String> accessions, String biostudiesId, String jwt) {
-        String biostudiesCoreUrl = "https://www.ebi.ac.uk/biostudies/studies/";
         List<Sample> samples = fetchService.findSamples(accessions, jwt);
         logger.info("Update sample accessions: out of {} accessions, found {} samples", accessions.size(), samples.size());
 
