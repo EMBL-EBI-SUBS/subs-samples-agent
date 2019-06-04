@@ -9,6 +9,7 @@ import uk.ac.ebi.subs.agent.services.FetchService;
 import uk.ac.ebi.subs.agent.services.SubmissionService;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.component.Attribute;
+import uk.ac.ebi.subs.data.component.SampleExternalReference;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Topics;
@@ -162,5 +163,20 @@ public class SamplesProcessor {
 
             rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SAMPLES_UPDATED, updatedSamplesEnvelope);
         }
+    }
+
+    //update samples with BiostudiesId as an external reference, if JWT is not present we will use super user privileges
+    protected List<Sample> updateAccessions(List<String> accessions, String biostudiesId, String jwt) {
+        String biostudiesCoreUrl = "https://www.ebi.ac.uk/biostudies/studies/";
+        List<Sample> samples = fetchService.findSamples(accessions, jwt);
+        logger.info("Update sample accessions: out of {} accessions, found {} samples", accessions.size(), samples.size());
+
+        for (Sample sample : samples) {
+            SampleExternalReference externalReference = new SampleExternalReference();
+            externalReference.setUrl(biostudiesCoreUrl + biostudiesId);
+            sample.addSampleExternalReference(externalReference);
+        }
+
+        return submissionService.submit(samples, jwt);
     }
 }

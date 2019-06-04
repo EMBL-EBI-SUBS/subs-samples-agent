@@ -3,21 +3,13 @@ package uk.ac.ebi.subs.agent.utils;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biosamples.model.ExternalReference;
 import uk.ac.ebi.biosamples.model.Relationship;
-import uk.ac.ebi.subs.data.component.Attribute;
-import uk.ac.ebi.subs.data.component.SampleRelationship;
-import uk.ac.ebi.subs.data.component.Team;
-import uk.ac.ebi.subs.data.component.Term;
+import uk.ac.ebi.subs.data.component.*;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 @Component
 public class TestUtils {
@@ -42,6 +34,7 @@ public class TestUtils {
         usiSample.setReleaseDate(LocalDate.now());
         usiSample.setAttributes(generateUsiAttributes());
         usiSample.setSampleRelationships(Arrays.asList(generateUsiRelationship()));
+        usiSample.setSampleExternalReferences(generateSampleExternalReferences());
         return usiSample;
     }
 
@@ -77,6 +70,8 @@ public class TestUtils {
 
         usiSample.setAttributes(usiAttributes);
 
+        usiSample.setSampleExternalReferences(generateSampleExternalReferences());
+
         return usiSample;
     }
 
@@ -91,6 +86,7 @@ public class TestUtils {
         usiSample.setAlias("This is an USI alias");
         usiSample.setReleaseDate(LocalDate.now());
         usiSample.setAttributes(generateUsiAttributes());
+        usiSample.setSampleExternalReferences(generateSampleExternalReferences());
         return usiSample;
     }
 
@@ -182,5 +178,14 @@ public class TestUtils {
                 "SAM456"
         );
         return bsdRelationship;
+    }
+
+    public List<SampleExternalReference> generateSampleExternalReferences() {
+        List<SampleExternalReference> externalReferences = new ArrayList<>();
+        SampleExternalReference externalReference = new SampleExternalReference();
+        externalReference.setUrl("https://www.ebi.ac.uk/biostudies/studies/S-EPMC5687625");
+        externalReferences.add(externalReference);
+
+        return externalReferences;
     }
 }
