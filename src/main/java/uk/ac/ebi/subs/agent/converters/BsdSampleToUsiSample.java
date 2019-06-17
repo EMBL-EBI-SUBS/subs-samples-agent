@@ -3,7 +3,9 @@ package uk.ac.ebi.subs.agent.converters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biosamples.model.ExternalReference;
 import uk.ac.ebi.subs.data.component.Attribute;
+import uk.ac.ebi.subs.data.component.SampleExternalReference;
 import uk.ac.ebi.subs.data.component.SampleRelationship;
 import uk.ac.ebi.subs.data.component.Team;
 import uk.ac.ebi.subs.data.submittable.Sample;
@@ -73,6 +75,18 @@ public class BsdSampleToUsiSample implements Converter<uk.ac.ebi.biosamples.mode
             filteredAttributes.put("update", Arrays.asList(update));
         }
         usiSample.setAttributes(filteredAttributes);
+
+        List<SampleExternalReference> sampleExternalReferences = new ArrayList<>();
+        if(bioSample.getExternalReferences() != null && !bioSample.getExternalReferences().isEmpty()) {
+            for (ExternalReference ref : bioSample.getExternalReferences()) {
+                SampleExternalReference sampleExternalReference = new SampleExternalReference();
+                sampleExternalReference.setUrl(ref.getUrl());
+                //todo add DUO
+                sampleExternalReferences.add(sampleExternalReference);
+            }
+        }
+        usiSample.setSampleExternalReferences(sampleExternalReferences);
+
 
         List<SampleRelationship> sampleRelationships = toUsiRelationship.convert(bioSample.getRelationships());
         usiSample.setSampleRelationships(sampleRelationships);

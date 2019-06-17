@@ -3,3 +3,6 @@ out/
 build
 *.iml
 .gradle
+.attach*
+*.log
+*.log.*

@@ -3,12 +3,14 @@ package uk.ac.ebi.subs.agent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.subs.agent.services.FetchService;
 import uk.ac.ebi.subs.agent.services.SubmissionService;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.component.Attribute;
+import uk.ac.ebi.subs.data.component.SampleExternalReference;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Topics;
@@ -27,6 +29,9 @@ import java.util.stream.Collectors;
 @Component
 public class SamplesProcessor {
     private static final Logger logger = LoggerFactory.getLogger(SamplesProcessor.class);
+
+    @Value("${biosamples.biostudies.core.url}")
+    private String biostudiesCoreUrl;
 
     private RabbitMessagingTemplate rabbitMessagingTemplate;
 
@@ -162,5 +167,19 @@ public class SamplesProcessor {
 
             rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SAMPLES_UPDATED, updatedSamplesEnvelope);
         }
+    }
+
+    //update samples with BiostudiesId as an external reference, if JWT is not present we will use super user privileges
+    protected List<Sample> updateAccessions(List<String> accessions, String biostudiesId, String jwt) {
+        List<Sample> samples = fetchService.findSamples(accessions, jwt);
+        logger.info("Update sample accessions: out of {} accessions, found {} samples", accessions.size(), samples.size());
+
+        for (Sample sample : samples) {
+            SampleExternalReference externalReference = new SampleExternalReference();
+            externalReference.setUrl(biostudiesCoreUrl + biostudiesId);
+            sample.addSampleExternalReference(externalReference);
+        }
+
+        return submissionService.submit(samples, jwt);
     }
 }

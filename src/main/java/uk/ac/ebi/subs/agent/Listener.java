@@ -7,11 +7,13 @@ import org.springframework.amqp.rabbit.core.RabbitMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.subs.agent.utils.QueueConfig;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.messaging.Exchanges;
 import uk.ac.ebi.subs.messaging.Queues;
 import uk.ac.ebi.subs.messaging.Topics;
+import uk.ac.ebi.subs.processing.AccessionIdEnvelope;
 import uk.ac.ebi.subs.processing.ProcessingCertificate;
 import uk.ac.ebi.subs.processing.ProcessingCertificateEnvelope;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
@@ -73,5 +75,16 @@ public class Listener {
 
         rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBISSION_SUPPORTING_INFO_PROVIDED, envelope);
         logger.debug("Supporting samples provided for submission {}", submission.getId());
+    }
+
+    @RabbitListener(queues = QueueConfig.USI_ARCHIVE_ACCESSIONIDS_PUBLISHED__QUEUE)
+    public void fetchAccessionUpdateMessage(AccessionIdEnvelope envelope) {
+        logger.debug("Received accession update message {}, {}",
+                envelope.getBioStudiesAccessionId(), envelope.getBioSamplesAccessionIds());
+
+        List<Sample> submittedSamples = samplesProcessor.updateAccessions(
+                envelope.getBioSamplesAccessionIds(), envelope.getBioStudiesAccessionId(), null);
+
+        logger.debug("Number of updated samples {}", submittedSamples.size());
     }
 }

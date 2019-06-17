@@ -8,6 +8,7 @@ import uk.ac.ebi.biosamples.model.Attribute;
 import uk.ac.ebi.biosamples.model.ExternalReference;
 import uk.ac.ebi.biosamples.model.Sample;
 import uk.ac.ebi.biosamples.model.SubmittedViaType;
+import uk.ac.ebi.subs.data.component.SampleExternalReference;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -77,6 +78,12 @@ public class UsiSampleToBsdSample implements Converter<uk.ac.ebi.subs.data.submi
         if(usiSample.getDescription() != null) {
             Attribute att = Attribute.build("description", usiSample.getDescription());
             attributeSet.add(att);
+        }
+
+        if (usiSample.getSampleExternalReferences() != null && !usiSample.getSampleExternalReferences().isEmpty()) {
+            for (SampleExternalReference ref : usiSample.getSampleExternalReferences()) {
+                externalRefs.add(ExternalReference.build(ref.getUrl()));
+            }
         }
 
         Sample bioSample = Sample.build(
