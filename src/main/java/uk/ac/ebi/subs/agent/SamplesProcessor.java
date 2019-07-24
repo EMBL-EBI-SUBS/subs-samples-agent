@@ -80,9 +80,13 @@ public class SamplesProcessor {
             List<Sample> samplesToUpdate = samplesWithUpdateRequirement.get(true);
 
             List<SampleSubmissionResponse> sampleResponseList = submissionService.submit(samplesToUpdate, envelope.getJWTToken());
-            logger.info("Updated {} samples for submission {}", sampleResponseList.size(), envelope.getSubmission().getId());
-            announceSampleUpdate(submission.getId(),
-                    sampleResponseList.stream().map(SampleSubmissionResponse::getSample).collect(Collectors.toList()));
+            List<Sample> successfullyUpdatedSamples = sampleResponseList.stream()
+                    .filter(r -> r.getMessage() == null)
+                    .map(SampleSubmissionResponse::getSample)
+                    .collect(Collectors.toList());
+
+            logger.info("Updated {} samples for submission {}", successfullyUpdatedSamples.size(), envelope.getSubmission().getId());
+            announceSampleUpdate(submission.getId(), successfullyUpdatedSamples);
             certificates.addAll(certificatesGenerator.generateCertificates(sampleResponseList));
         }
 
@@ -91,7 +95,12 @@ public class SamplesProcessor {
             List<Sample> samplesToCreate = samplesWithUpdateRequirement.get(false);
 
             List<SampleSubmissionResponse> sampleResponseList = submissionService.submit(samplesToCreate, envelope.getJWTToken());
-            logger.info("Created {} samples for submission {}", sampleResponseList.size(), envelope.getSubmission().getId());
+            List<Sample> successfullyCreatedSamples = sampleResponseList.stream()
+                    .filter(r -> r.getMessage() == null)
+                    .map(SampleSubmissionResponse::getSample)
+                    .collect(Collectors.toList());
+
+            logger.info("Created {} samples for submission {}", successfullyCreatedSamples.size(), envelope.getSubmission().getId());
             certificates.addAll(certificatesGenerator.generateCertificates(sampleResponseList));
         }
 
