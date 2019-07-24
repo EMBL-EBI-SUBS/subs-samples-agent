@@ -44,7 +44,7 @@ dependencies {
 
     optional("org.springframework.boot:spring-boot-configuration-processor")
 
-    compile ('uk.ac.ebi.biosamples:biosamples-spring-boot-starter:4.1.14') {
+    compile ('uk.ac.ebi.biosamples:biosamples-spring-boot-starter:4.1.16-SNAPSHOT') {
         changing = true
         exclude group: 'org.springframework.boot'
     }

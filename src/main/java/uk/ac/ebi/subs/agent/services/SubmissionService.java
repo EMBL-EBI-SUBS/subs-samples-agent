@@ -5,16 +5,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import uk.ac.ebi.biosamples.client.BioSamplesClient;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
 import uk.ac.ebi.subs.agent.converters.UsiSampleToBsdSample;
+import uk.ac.ebi.subs.agent.utils.SampleSubmissionResponse;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This service is responsible to submit a list of {@link Sample} to the BioSamples archive.
@@ -33,32 +34,37 @@ public class SubmissionService {
     @Autowired
     BsdSampleToUsiSample toUsiSample;
 
-    public List<Sample> submit(List<Sample> sampleList, String jwt) {
-        Assert.notNull(sampleList);
-        ArrayList<Sample> submittedSamples = new ArrayList<>();
+    public List<SampleSubmissionResponse> submit(List<Sample> sampleList, String jwt) {
+        Objects.requireNonNull(sampleList);
+        ArrayList<SampleSubmissionResponse> responseList = new ArrayList<>();
 
         for (Sample usiSample : sampleList) {
-            String usiId = usiSample.getId();
-
-            Sample submitted = submit(toBsdSample.convert(usiSample), jwt);
-            submitted.setId(usiId);
-            submittedSamples.add(submitted);
+            SampleSubmissionResponse response = submit(usiSample, jwt);
+            response.getSample().setId(usiSample.getId());
+            responseList.add(response);
         }
-        return submittedSamples;
+        return responseList;
     }
 
-    private Sample submit(uk.ac.ebi.biosamples.model.Sample bsdSample, String jwt) {
+    private SampleSubmissionResponse submit(Sample usiSample, String jwt) {
         logger.debug("Submitting sample.");
+        SampleSubmissionResponse response;
+        uk.ac.ebi.biosamples.model.Sample bsdSample = toBsdSample.convert(usiSample);
 
         try {
-            return toUsiSample.convert(client.persistSampleResource(bsdSample, jwt).getContent());
+            Sample sample = toUsiSample.convert(client.persistSampleResource(bsdSample, jwt).getContent());
+            response = new SampleSubmissionResponse(sample, null);
         } catch (HttpClientErrorException e) {
-            logger.error(e.getResponseBodyAsString());
-            throw e;
+            logger.error("http client error " + e.getResponseBodyAsString(), e);
+            response = new SampleSubmissionResponse(usiSample, e.getMessage());
         } catch (ResourceAccessException e) {
-            logger.error(e.getMessage());
-            throw e;
+            logger.error("Failed to access resource", e);
+            response = new SampleSubmissionResponse(usiSample, e.getMessage());
+        } catch (Exception e) {
+            logger.error("Failed to submit sample", e);
+            response = new SampleSubmissionResponse(usiSample, e.getMessage());
         }
 
+        return response;
     }
 }
