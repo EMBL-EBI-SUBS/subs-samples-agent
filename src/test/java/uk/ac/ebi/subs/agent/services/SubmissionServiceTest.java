@@ -22,12 +22,14 @@ import uk.ac.ebi.subs.agent.converters.UsiAttributeToBsdAttribute;
 import uk.ac.ebi.subs.agent.converters.UsiRelationshipToBsdRelationship;
 import uk.ac.ebi.subs.agent.converters.UsiSampleToBsdSample;
 import uk.ac.ebi.subs.agent.utils.BioSamplesDependentTest;
+import uk.ac.ebi.subs.agent.utils.SampleSubmissionResponse;
 import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.emptyString;
@@ -81,7 +83,9 @@ public class SubmissionServiceTest {
         sample.setTaxonId(null);
         sample.setTaxon(null);
         try {
-            sampleList = submissionService.submit(Collections.singletonList(sample), jwt);
+            sampleList = submissionService.submit(
+                    Collections.singletonList(sample), jwt).stream()
+                    .map(SampleSubmissionResponse::getSample).collect(Collectors.toList());
         } catch (HttpClientErrorException e) {
             System.out.println(e.getResponseBodyAsString());
         }
@@ -96,7 +100,9 @@ public class SubmissionServiceTest {
         List<Sample> sampleList = null;
         sample.setTaxonId(null);
         try {
-            sampleList = submissionService.submit(Collections.singletonList(sample), jwt);
+            sampleList = submissionService.submit(
+                    Collections.singletonList(sample), jwt).stream()
+                    .map(SampleSubmissionResponse::getSample).collect(Collectors.toList());
         } catch (HttpClientErrorException e) {
             System.out.println(e.getResponseBodyAsString());
         }
@@ -110,7 +116,9 @@ public class SubmissionServiceTest {
         List<Sample> sampleList = null;
         sample.setTaxon(null);
         try {
-            sampleList = submissionService.submit(Collections.singletonList(sample), jwt);
+            sampleList = submissionService.submit(
+                    Collections.singletonList(sample), jwt).stream()
+                    .map(SampleSubmissionResponse::getSample).collect(Collectors.toList());
         } catch (HttpClientErrorException e) {
             System.out.println(e.getResponseBodyAsString());
         }
@@ -123,7 +131,9 @@ public class SubmissionServiceTest {
     public void whenSubmittingASampleWithTaxonAndTaxonId_ThenSubmissionShouldBeSuccessful() {
         List<Sample> sampleList = null;
         try {
-            sampleList = submissionService.submit(Collections.singletonList(sample), jwt);
+            sampleList = submissionService.submit(
+                    Collections.singletonList(sample), jwt).stream()
+                    .map(SampleSubmissionResponse::getSample).collect(Collectors.toList());
         } catch (HttpClientErrorException e) {
             System.out.println(e.getResponseBodyAsString());
         }
@@ -135,7 +145,9 @@ public class SubmissionServiceTest {
     @Test
     @Category(BioSamplesDependentTest.class)
     public void update() {
-        List<Sample> updated = submissionService.submit(Arrays.asList(sampleToUpdate), jwt);
+        List<Sample> updated = submissionService.submit(
+                Collections.singletonList(sampleToUpdate), jwt).stream()
+                .map(SampleSubmissionResponse::getSample).collect(Collectors.toList());
         Assert.assertEquals(updated.get(0).getAccession(), sampleToUpdate.getAccession());
     }
 
@@ -143,7 +155,9 @@ public class SubmissionServiceTest {
     public void whenSubmittingASampleWithWrongJWT_ThenSubmissionShouldBeUnsuccessful() {
         List<Sample> sampleList = null;
         try {
-            sampleList = submissionService.submit(Collections.singletonList(sample), "wrongJWT");
+            sampleList = submissionService.submit(
+                    Collections.singletonList(sample), "wrongJWT").stream()
+                    .map(SampleSubmissionResponse::getSample).collect(Collectors.toList());
         } catch (RuntimeException e) {
             if (e.getCause() instanceof HttpClientErrorException) {
                 Assert.assertEquals(HttpStatus.FORBIDDEN, ((HttpClientErrorException) e.getCause()).getStatusCode());

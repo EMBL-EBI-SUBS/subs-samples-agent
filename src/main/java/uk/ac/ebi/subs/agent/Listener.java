@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.subs.agent.utils.QueueConfig;
+import uk.ac.ebi.subs.agent.utils.SampleSubmissionResponse;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.submittable.Sample;
 import uk.ac.ebi.subs.messaging.Exchanges;
@@ -19,6 +20,7 @@ import uk.ac.ebi.subs.processing.ProcessingCertificateEnvelope;
 import uk.ac.ebi.subs.processing.SubmissionEnvelope;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class contains 2 listeners on different RabbitMQ queues.
@@ -82,9 +84,11 @@ public class Listener {
         logger.debug("Received accession update message {}, {}",
                 envelope.getBioStudiesAccessionId(), envelope.getBioSamplesAccessionIds());
 
-        List<Sample> submittedSamples = samplesProcessor.updateAccessions(
+        List<SampleSubmissionResponse> sampleResponseList = samplesProcessor.updateAccessions(
                 envelope.getBioSamplesAccessionIds(), envelope.getBioStudiesAccessionId(), null);
 
-        logger.debug("Number of updated samples {}", submittedSamples.size());
+        logger.debug("updated samples/total samples {}/{}",
+                sampleResponseList.stream().filter(s -> s.getMessage() == null).count(),
+                envelope.getBioSamplesAccessionIds().size());
     }
 }

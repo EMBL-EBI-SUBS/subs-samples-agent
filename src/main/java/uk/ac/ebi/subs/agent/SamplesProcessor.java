@@ -8,6 +8,7 @@ import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.subs.agent.services.FetchService;
 import uk.ac.ebi.subs.agent.services.SubmissionService;
+import uk.ac.ebi.subs.agent.utils.SampleSubmissionResponse;
 import uk.ac.ebi.subs.data.Submission;
 import uk.ac.ebi.subs.data.component.Attribute;
 import uk.ac.ebi.subs.data.component.SampleExternalReference;
@@ -78,19 +79,29 @@ public class SamplesProcessor {
         if (samplesWithUpdateRequirement.containsKey(true)) {
             List<Sample> samplesToUpdate = samplesWithUpdateRequirement.get(true);
 
-            List<Sample> samplesUpdated = submissionService.submit(samplesToUpdate, envelope.getJWTToken());
-            logger.info("Updated {} samples for submission {}", samplesUpdated.size(), envelope.getSubmission().getId());
-            announceSampleUpdate(submission.getId(), samplesUpdated);
-            certificates.addAll(certificatesGenerator.generateCertificates(samplesUpdated));
+            List<SampleSubmissionResponse> sampleResponseList = submissionService.submit(samplesToUpdate, envelope.getJWTToken());
+            List<Sample> successfullyUpdatedSamples = sampleResponseList.stream()
+                    .filter(r -> r.getMessage() == null)
+                    .map(SampleSubmissionResponse::getSample)
+                    .collect(Collectors.toList());
+
+            logger.info("Updated {} samples for submission {}", successfullyUpdatedSamples.size(), envelope.getSubmission().getId());
+            announceSampleUpdate(submission.getId(), successfullyUpdatedSamples);
+            certificates.addAll(certificatesGenerator.generateCertificates(sampleResponseList));
         }
 
         // Create
         if (samplesWithUpdateRequirement.containsKey(false)) {
             List<Sample> samplesToCreate = samplesWithUpdateRequirement.get(false);
 
-            List<Sample> samplesCreated = submissionService.submit(samplesToCreate, envelope.getJWTToken());
-            logger.info("Created {} samples for submission {}", samplesCreated.size(), envelope.getSubmission().getId());
-            certificates.addAll(certificatesGenerator.generateCertificates(samplesCreated));
+            List<SampleSubmissionResponse> sampleResponseList = submissionService.submit(samplesToCreate, envelope.getJWTToken());
+            List<Sample> successfullyCreatedSamples = sampleResponseList.stream()
+                    .filter(r -> r.getMessage() == null)
+                    .map(SampleSubmissionResponse::getSample)
+                    .collect(Collectors.toList());
+
+            logger.info("Created {} samples for submission {}", successfullyCreatedSamples.size(), envelope.getSubmission().getId());
+            certificates.addAll(certificatesGenerator.generateCertificates(sampleResponseList));
         }
 
         // samples that need secondary update - you can't always know the accession of the referenced sample in the first round
@@ -170,7 +181,7 @@ public class SamplesProcessor {
     }
 
     //update samples with BiostudiesId as an external reference, if JWT is not present we will use super user privileges
-    protected List<Sample> updateAccessions(List<String> accessions, String biostudiesId, String jwt) {
+    protected List<SampleSubmissionResponse> updateAccessions(List<String> accessions, String biostudiesId, String jwt) {
         List<Sample> samples = fetchService.findSamples(accessions, jwt);
         logger.info("Update sample accessions: out of {} accessions, found {} samples", accessions.size(), samples.size());
 

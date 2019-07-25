@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.ac.ebi.biosamples.client.service.AapClientService;
 import uk.ac.ebi.subs.agent.utils.BioSamplesDependentTest;
+import uk.ac.ebi.subs.agent.utils.SampleSubmissionResponse;
 import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertTrue;
 
@@ -49,8 +51,10 @@ public class IntegrityServiceTest {
         sample = testUtils.generateUsiSampleForSubmission();
 
         try {
-        jwt = aapClientService.getJwt();
-            sampleList = submissionService.submit(Collections.singletonList(sample), jwt);
+            jwt = aapClientService.getJwt();
+            sampleList = submissionService.submit(
+                    Collections.singletonList(sample), jwt).stream()
+                    .map(SampleSubmissionResponse::getSample).collect(Collectors.toList());
         } catch (HttpClientErrorException e) {
             System.out.println(e.getResponseBodyAsString());
         }
@@ -60,7 +64,7 @@ public class IntegrityServiceTest {
 
     @Test
     public void sampleDoesExistTest() {
-       assertTrue(integrityService.doesSampleExistInBioSamples(accessionId));
+        assertTrue(integrityService.doesSampleExistInBioSamples(accessionId));
     }
 
     @Test
