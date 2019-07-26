@@ -1,5 +1,7 @@
 package uk.ac.ebi.subs.agent;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -60,6 +62,14 @@ public class Listener {
                     envelope.getJWTToken()
             );
             rabbitMessagingTemplate.convertAndSend(Exchanges.SUBMISSIONS, Topics.EVENT_SUBMISSION_AGENT_RESULTS, certificateEnvelopeCompleted);
+
+
+            ObjectMapper jsonMapper = new ObjectMapper();
+            try {
+                logger.info(jsonMapper.writeValueAsString(certificateEnvelopeCompleted));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
         }
 
         logger.info("Processed submission {}", submission.getId());
