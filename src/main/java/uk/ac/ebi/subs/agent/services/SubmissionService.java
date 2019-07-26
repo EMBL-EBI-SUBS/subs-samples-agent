@@ -11,6 +11,7 @@ import uk.ac.ebi.biosamples.client.BioSamplesClient;
 import uk.ac.ebi.subs.agent.converters.BsdSampleToUsiSample;
 import uk.ac.ebi.subs.agent.converters.UsiSampleToBsdSample;
 import uk.ac.ebi.subs.agent.utils.SampleSubmissionResponse;
+import uk.ac.ebi.subs.data.status.ProcessingStatusEnum;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.ArrayList;
@@ -53,16 +54,16 @@ public class SubmissionService {
 
         try {
             Sample sample = toUsiSample.convert(client.persistSampleResource(bsdSample, jwt).getContent());
-            response = new SampleSubmissionResponse(sample, null);
+            response = new SampleSubmissionResponse(sample, null, ProcessingStatusEnum.Completed);
         } catch (HttpClientErrorException e) {
             logger.error("http client error " + e.getResponseBodyAsString(), e);
-            response = new SampleSubmissionResponse(usiSample, e.getMessage());
+            response = new SampleSubmissionResponse(usiSample, "HTTP client error: " + e.getMessage(), ProcessingStatusEnum.Error);
         } catch (ResourceAccessException e) {
             logger.error("Failed to access resource", e);
-            response = new SampleSubmissionResponse(usiSample, e.getMessage());
+            response = new SampleSubmissionResponse(usiSample, "Failed to access the resource: " + e.getMessage(), ProcessingStatusEnum.Error);
         } catch (Exception e) {
             logger.error("Failed to submit sample", e);
-            response = new SampleSubmissionResponse(usiSample, e.getMessage());
+            response = new SampleSubmissionResponse(usiSample, "Failed to submit sample: " + e.getMessage(), ProcessingStatusEnum.Error);
         }
 
         return response;

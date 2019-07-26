@@ -28,7 +28,7 @@ public class CertificatesGenerator {
             ProcessingCertificate pc = new ProcessingCertificate(
                     sampleResponse.getSample(),
                     Archive.BioSamples,
-                    ProcessingStatusEnum.Completed,
+                    sampleResponse.getStatus(),
                     sampleResponse.getSample().getAccession()
             );
             pc.setMessage(sampleResponse.getMessage());
