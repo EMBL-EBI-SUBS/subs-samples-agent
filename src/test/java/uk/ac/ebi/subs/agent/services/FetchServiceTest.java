@@ -18,11 +18,14 @@ import uk.ac.ebi.subs.agent.converters.UsiAttributeToBsdAttribute;
 import uk.ac.ebi.subs.agent.converters.UsiRelationshipToBsdRelationship;
 import uk.ac.ebi.subs.agent.converters.UsiSampleToBsdSample;
 import uk.ac.ebi.subs.agent.utils.BioSamplesDependentTest;
+import uk.ac.ebi.subs.agent.utils.SampleSubmissionResponse;
 import uk.ac.ebi.subs.agent.utils.TestUtils;
 import uk.ac.ebi.subs.data.submittable.Sample;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -56,15 +59,17 @@ public class FetchServiceTest {
     @Autowired
     AapClientService aapClientService;
 
-    Sample sample;
-    List<Sample> submitted;
+    private Sample sample;
+    private List<Sample> submitted;
     private String jwt;
 
     @Before
     public void setUp() {
         sample = utils.generateUsiSampleForSubmission();
         jwt = aapClientService.getJwt();
-        submitted = submissionService.submit(Arrays.asList(sample), jwt);
+        submitted = submissionService.submit(
+                Collections.singletonList(sample), jwt).stream()
+                .map(SampleSubmissionResponse::getSample).collect(Collectors.toList());
     }
 
     @Test

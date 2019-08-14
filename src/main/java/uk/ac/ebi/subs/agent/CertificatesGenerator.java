@@ -3,6 +3,7 @@ package uk.ac.ebi.subs.agent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.subs.agent.utils.SampleSubmissionResponse;
 import uk.ac.ebi.subs.data.component.Archive;
 import uk.ac.ebi.subs.data.status.ProcessingStatusEnum;
 import uk.ac.ebi.subs.data.submittable.Sample;
@@ -18,18 +19,19 @@ import java.util.List;
 public class CertificatesGenerator {
     private static final Logger logger = LoggerFactory.getLogger(CertificatesGenerator.class);
 
-    public List<ProcessingCertificate> generateCertificates(List<Sample> sampleList) {
+    public List<ProcessingCertificate> generateCertificates(List<SampleSubmissionResponse> sampleResponseList) {
         logger.debug("Generating certificates...");
 
         List<ProcessingCertificate> processingCertificateList = new ArrayList<>();
 
-        sampleList.forEach(sample -> {
+        sampleResponseList.forEach(sampleResponse -> {
             ProcessingCertificate pc = new ProcessingCertificate(
-                    sample,
+                    sampleResponse.getSample(),
                     Archive.BioSamples,
-                    ProcessingStatusEnum.Completed,
-                    sample.getAccession()
+                    sampleResponse.getStatus(),
+                    sampleResponse.getSample().getAccession()
             );
+            pc.setMessage(sampleResponse.getMessage());
             processingCertificateList.add(pc);
         });
 
