@@ -30,11 +30,11 @@ java {
 }
 
 repositories {
-        mavenLocal()
-        maven { url 'https://www.ebi.ac.uk/spot/nexus/repository/maven-releases'}
-        maven { url 'https://www.ebi.ac.uk/spot/nexus/repository/maven-snapshots'}
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-        mavenCentral()
+    mavenCentral()
+    mavenLocal()
+    maven { url 'https://www.ebi.ac.uk/spot/nexus/repository/maven-releases'}
+    maven { url 'https://www.ebi.ac.uk/spot/nexus/repository/maven-snapshots'}
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 dependencies {
