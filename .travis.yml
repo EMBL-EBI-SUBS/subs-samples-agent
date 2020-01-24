@@ -1,8 +1,11 @@
+sudo: false
 language: java
 jdk:
 - openjdk11
 install: "./gradlew assemble"
+
 script: gradle externalCiTest
+
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -14,3 +17,5 @@ cache:
 before_install:
 - openssl aes-256-cbc -K $encrypted_4f1b6fd74eac_key -iv $encrypted_4f1b6fd74eac_iv
   -in gradle.properties.enc -out gradle.properties -d
+group: "stable"
+os: "linux"
