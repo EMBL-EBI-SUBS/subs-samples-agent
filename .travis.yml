@@ -4,10 +4,7 @@ jdk:
 - openjdk11
 install: "./gradlew assemble"
 
-script:
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/run_on_pull_requests; fi'
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/run_on_non_pull_requests; fi'
-  - gradle externalCiTest
+script: gradle externalCiTest
 
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
