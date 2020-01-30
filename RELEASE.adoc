@@ -1,0 +1,12 @@
+= [.ebi-color]#Release notes#
+:toc: auto
+
+This pages contains links to release notes for DSP's BioSamples Agent.
+
+[[section]]
+== v1.7.0 Release notes
+
+Platform upgrades:
+--------------
+1. DSP's BioSamples Agent now runs on Java 11 (Open JDK 11).
+--------------
